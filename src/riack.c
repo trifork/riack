@@ -1,5 +1,6 @@
 /*
-   Copyright 2012 Kaspar Pedersen
+   Copyright 2012 Trifork A/S
+   Author: Kaspar Pedersen
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -171,11 +172,6 @@ int riack_put_simple(struct RIACK_CLIENT *client, char* bucket, char* key, uint8
 	return result;
 }
 
-
-/**
- * Set properties from RIAK_PUT_PROPERTIES to a RpbPutReq.
- * if pprops is NULL defaults properties is used.
- */
 void riack_set_object_properties(struct RIACK_PUT_PROPERTIES* pprops, RpbPutReq* pput_req)
 {
 	if (pprops) {

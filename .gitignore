@@ -1,8 +1,4 @@
-syntax: regexp
-^tests$
-
-# use glob syntax
-syntax: glob
+tests
 .settings/
 .cproject
 .project

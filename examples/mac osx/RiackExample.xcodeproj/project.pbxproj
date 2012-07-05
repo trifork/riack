@@ -1,0 +1,491 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		E76D87CD15A6C442005176E6 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E76D87CC15A6C442005176E6 /* Cocoa.framework */; };
+		E76D87D715A6C442005176E6 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = E76D87D515A6C442005176E6 /* InfoPlist.strings */; };
+		E76D87D915A6C442005176E6 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = E76D87D815A6C442005176E6 /* main.m */; };
+		E76D87DD15A6C442005176E6 /* Credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = E76D87DB15A6C442005176E6 /* Credits.rtf */; };
+		E76D87E015A6C443005176E6 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = E76D87DF15A6C443005176E6 /* AppDelegate.m */; };
+		E76D87E315A6C443005176E6 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = E76D87E115A6C443005176E6 /* MainMenu.xib */; };
+		E76D87E615A6C443005176E6 /* RiackExample.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = E76D87E415A6C443005176E6 /* RiackExample.xcdatamodeld */; };
+		E76D87EE15A6C443005176E6 /* SenTestingKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E76D87ED15A6C443005176E6 /* SenTestingKit.framework */; };
+		E76D87EF15A6C443005176E6 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E76D87CC15A6C442005176E6 /* Cocoa.framework */; };
+		E76D87F715A6C443005176E6 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = E76D87F515A6C443005176E6 /* InfoPlist.strings */; };
+		E76D87FA15A6C443005176E6 /* RiackExampleTests.m in Sources */ = {isa = PBXBuildFile; fileRef = E76D87F915A6C443005176E6 /* RiackExampleTests.m */; };
+		E7D428E215A6C53F000AE0D6 /* libriack.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = E7D428DF15A6C53F000AE0D6 /* libriack.dylib */; };
+		E7D428E315A6C53F000AE0D6 /* libriack.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = E7D428DF15A6C53F000AE0D6 /* libriack.dylib */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		E76D87F015A6C443005176E6 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = E76D87BF15A6C442005176E6 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = E76D87C715A6C442005176E6;
+			remoteInfo = RiackExample;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		E76D87C815A6C442005176E6 /* RiackExample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RiackExample.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		E76D87CC15A6C442005176E6 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
+		E76D87CF15A6C442005176E6 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
+		E76D87D015A6C442005176E6 /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
+		E76D87D115A6C442005176E6 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		E76D87D415A6C442005176E6 /* RiackExample-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "RiackExample-Info.plist"; sourceTree = "<group>"; };
+		E76D87D615A6C442005176E6 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		E76D87D815A6C442005176E6 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		E76D87DA15A6C442005176E6 /* RiackExample-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "RiackExample-Prefix.pch"; sourceTree = "<group>"; };
+		E76D87DC15A6C442005176E6 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; name = en; path = en.lproj/Credits.rtf; sourceTree = "<group>"; };
+		E76D87DE15A6C442005176E6 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
+		E76D87DF15A6C443005176E6 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
+		E76D87E215A6C443005176E6 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/MainMenu.xib; sourceTree = "<group>"; };
+		E76D87E515A6C443005176E6 /* RiackExample.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = RiackExample.xcdatamodel; sourceTree = "<group>"; };
+		E76D87EC15A6C443005176E6 /* RiackExampleTests.octest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = RiackExampleTests.octest; sourceTree = BUILT_PRODUCTS_DIR; };
+		E76D87ED15A6C443005176E6 /* SenTestingKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SenTestingKit.framework; path = Library/Frameworks/SenTestingKit.framework; sourceTree = DEVELOPER_DIR; };
+		E76D87F415A6C443005176E6 /* RiackExampleTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "RiackExampleTests-Info.plist"; sourceTree = "<group>"; };
+		E76D87F615A6C443005176E6 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		E76D87F815A6C443005176E6 /* RiackExampleTests.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RiackExampleTests.h; sourceTree = "<group>"; };
+		E76D87F915A6C443005176E6 /* RiackExampleTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RiackExampleTests.m; sourceTree = "<group>"; };
+		E7D428DF15A6C53F000AE0D6 /* libriack.dylib */ = {isa = PBXFileReference; name = libriack.dylib; path = "../../precompiled/mac osx/intel 64bit/libriack.dylib"; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		E76D87C515A6C442005176E6 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E76D87CD15A6C442005176E6 /* Cocoa.framework in Frameworks */,
+				E7D428E215A6C53F000AE0D6 /* libriack.dylib in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		E76D87E815A6C443005176E6 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E76D87EE15A6C443005176E6 /* SenTestingKit.framework in Frameworks */,
+				E76D87EF15A6C443005176E6 /* Cocoa.framework in Frameworks */,
+				E7D428E315A6C53F000AE0D6 /* libriack.dylib in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		E76D87BD15A6C442005176E6 = {
+			isa = PBXGroup;
+			children = (
+				E76D87D215A6C442005176E6 /* RiackExample */,
+				E76D87F215A6C443005176E6 /* RiackExampleTests */,
+				E76D87CB15A6C442005176E6 /* Frameworks */,
+				E76D87C915A6C442005176E6 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		E76D87C915A6C442005176E6 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				E76D87C815A6C442005176E6 /* RiackExample.app */,
+				E76D87EC15A6C443005176E6 /* RiackExampleTests.octest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		E76D87CB15A6C442005176E6 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				E7D428DF15A6C53F000AE0D6 /* libriack.dylib */,
+				E76D87CC15A6C442005176E6 /* Cocoa.framework */,
+				E76D87ED15A6C443005176E6 /* SenTestingKit.framework */,
+				E76D87CE15A6C442005176E6 /* Other Frameworks */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		E76D87CE15A6C442005176E6 /* Other Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				E76D87CF15A6C442005176E6 /* AppKit.framework */,
+				E76D87D015A6C442005176E6 /* CoreData.framework */,
+				E76D87D115A6C442005176E6 /* Foundation.framework */,
+			);
+			name = "Other Frameworks";
+			sourceTree = "<group>";
+		};
+		E76D87D215A6C442005176E6 /* RiackExample */ = {
+			isa = PBXGroup;
+			children = (
+				E76D87DE15A6C442005176E6 /* AppDelegate.h */,
+				E76D87DF15A6C443005176E6 /* AppDelegate.m */,
+				E76D87E115A6C443005176E6 /* MainMenu.xib */,
+				E76D87E415A6C443005176E6 /* RiackExample.xcdatamodeld */,
+				E76D87D315A6C442005176E6 /* Supporting Files */,
+			);
+			path = RiackExample;
+			sourceTree = "<group>";
+		};
+		E76D87D315A6C442005176E6 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				E76D87D415A6C442005176E6 /* RiackExample-Info.plist */,
+				E76D87D515A6C442005176E6 /* InfoPlist.strings */,
+				E76D87D815A6C442005176E6 /* main.m */,
+				E76D87DA15A6C442005176E6 /* RiackExample-Prefix.pch */,
+				E76D87DB15A6C442005176E6 /* Credits.rtf */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		E76D87F215A6C443005176E6 /* RiackExampleTests */ = {
+			isa = PBXGroup;
+			children = (
+				E76D87F815A6C443005176E6 /* RiackExampleTests.h */,
+				E76D87F915A6C443005176E6 /* RiackExampleTests.m */,
+				E76D87F315A6C443005176E6 /* Supporting Files */,
+			);
+			path = RiackExampleTests;
+			sourceTree = "<group>";
+		};
+		E76D87F315A6C443005176E6 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				E76D87F415A6C443005176E6 /* RiackExampleTests-Info.plist */,
+				E76D87F515A6C443005176E6 /* InfoPlist.strings */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		E76D87C715A6C442005176E6 /* RiackExample */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = E76D87FD15A6C443005176E6 /* Build configuration list for PBXNativeTarget "RiackExample" */;
+			buildPhases = (
+				E76D87C415A6C442005176E6 /* Sources */,
+				E76D87C515A6C442005176E6 /* Frameworks */,
+				E76D87C615A6C442005176E6 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = RiackExample;
+			productName = RiackExample;
+			productReference = E76D87C815A6C442005176E6 /* RiackExample.app */;
+			productType = "com.apple.product-type.application";
+		};
+		E76D87EB15A6C443005176E6 /* RiackExampleTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = E76D880015A6C443005176E6 /* Build configuration list for PBXNativeTarget "RiackExampleTests" */;
+			buildPhases = (
+				E76D87E715A6C443005176E6 /* Sources */,
+				E76D87E815A6C443005176E6 /* Frameworks */,
+				E76D87E915A6C443005176E6 /* Resources */,
+				E76D87EA15A6C443005176E6 /* ShellScript */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				E76D87F115A6C443005176E6 /* PBXTargetDependency */,
+			);
+			name = RiackExampleTests;
+			productName = RiackExampleTests;
+			productReference = E76D87EC15A6C443005176E6 /* RiackExampleTests.octest */;
+			productType = "com.apple.product-type.bundle";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		E76D87BF15A6C442005176E6 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0430;
+			};
+			buildConfigurationList = E76D87C215A6C442005176E6 /* Build configuration list for PBXProject "RiackExample" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = E76D87BD15A6C442005176E6;
+			productRefGroup = E76D87C915A6C442005176E6 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				E76D87C715A6C442005176E6 /* RiackExample */,
+				E76D87EB15A6C443005176E6 /* RiackExampleTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		E76D87C615A6C442005176E6 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E76D87D715A6C442005176E6 /* InfoPlist.strings in Resources */,
+				E76D87DD15A6C442005176E6 /* Credits.rtf in Resources */,
+				E76D87E315A6C443005176E6 /* MainMenu.xib in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		E76D87E915A6C443005176E6 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E76D87F715A6C443005176E6 /* InfoPlist.strings in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		E76D87EA15A6C443005176E6 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# Run the unit tests in this test bundle.\n\"${SYSTEM_DEVELOPER_DIR}/Tools/RunUnitTests\"\n";
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		E76D87C415A6C442005176E6 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E76D87D915A6C442005176E6 /* main.m in Sources */,
+				E76D87E015A6C443005176E6 /* AppDelegate.m in Sources */,
+				E76D87E615A6C443005176E6 /* RiackExample.xcdatamodeld in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		E76D87E715A6C443005176E6 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E76D87FA15A6C443005176E6 /* RiackExampleTests.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		E76D87F115A6C443005176E6 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = E76D87C715A6C442005176E6 /* RiackExample */;
+			targetProxy = E76D87F015A6C443005176E6 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin PBXVariantGroup section */
+		E76D87D515A6C442005176E6 /* InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				E76D87D615A6C442005176E6 /* en */,
+			);
+			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
+		E76D87DB15A6C442005176E6 /* Credits.rtf */ = {
+			isa = PBXVariantGroup;
+			children = (
+				E76D87DC15A6C442005176E6 /* en */,
+			);
+			name = Credits.rtf;
+			sourceTree = "<group>";
+		};
+		E76D87E115A6C443005176E6 /* MainMenu.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				E76D87E215A6C443005176E6 /* en */,
+			);
+			name = MainMenu.xib;
+			sourceTree = "<group>";
+		};
+		E76D87F515A6C443005176E6 /* InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				E76D87F615A6C443005176E6 /* en */,
+			);
+			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		E76D87FB15A6C443005176E6 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
+				CLANG_ENABLE_OBJC_ARC = YES;
+				COPY_PHASE_STRIP = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.7;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		E76D87FC15A6C443005176E6 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
+				CLANG_ENABLE_OBJC_ARC = YES;
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.7;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		E76D87FE15A6C443005176E6 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "RiackExample/RiackExample-Prefix.pch";
+				INFOPLIST_FILE = "RiackExample/RiackExample-Info.plist";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)/../../precompiled/mac osx/intel 64bit\"",
+				);
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				WRAPPER_EXTENSION = app;
+			};
+			name = Debug;
+		};
+		E76D87FF15A6C443005176E6 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "RiackExample/RiackExample-Prefix.pch";
+				INFOPLIST_FILE = "RiackExample/RiackExample-Info.plist";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)/../../precompiled/mac osx/intel 64bit\"",
+				);
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				WRAPPER_EXTENSION = app;
+			};
+			name = Release;
+		};
+		E76D880115A6C443005176E6 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/RiackExample.app/Contents/MacOS/RiackExample";
+				FRAMEWORK_SEARCH_PATHS = "$(DEVELOPER_LIBRARY_DIR)/Frameworks";
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "RiackExample/RiackExample-Prefix.pch";
+				INFOPLIST_FILE = "RiackExampleTests/RiackExampleTests-Info.plist";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)/../../precompiled/mac osx/intel 64bit\"",
+				);
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_HOST = "$(BUNDLE_LOADER)";
+				WRAPPER_EXTENSION = octest;
+			};
+			name = Debug;
+		};
+		E76D880215A6C443005176E6 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/RiackExample.app/Contents/MacOS/RiackExample";
+				FRAMEWORK_SEARCH_PATHS = "$(DEVELOPER_LIBRARY_DIR)/Frameworks";
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "RiackExample/RiackExample-Prefix.pch";
+				INFOPLIST_FILE = "RiackExampleTests/RiackExampleTests-Info.plist";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)/../../precompiled/mac osx/intel 64bit\"",
+				);
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_HOST = "$(BUNDLE_LOADER)";
+				WRAPPER_EXTENSION = octest;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		E76D87C215A6C442005176E6 /* Build configuration list for PBXProject "RiackExample" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E76D87FB15A6C443005176E6 /* Debug */,
+				E76D87FC15A6C443005176E6 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		E76D87FD15A6C443005176E6 /* Build configuration list for PBXNativeTarget "RiackExample" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E76D87FE15A6C443005176E6 /* Debug */,
+				E76D87FF15A6C443005176E6 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		E76D880015A6C443005176E6 /* Build configuration list for PBXNativeTarget "RiackExampleTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E76D880115A6C443005176E6 /* Debug */,
+				E76D880215A6C443005176E6 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCVersionGroup section */
+		E76D87E415A6C443005176E6 /* RiackExample.xcdatamodeld */ = {
+			isa = XCVersionGroup;
+			children = (
+				E76D87E515A6C443005176E6 /* RiackExample.xcdatamodel */,
+			);
+			currentVersion = E76D87E515A6C443005176E6 /* RiackExample.xcdatamodel */;
+			path = RiackExample.xcdatamodeld;
+			sourceTree = "<group>";
+			versionGroupType = wrapper.xcdatamodel;
+		};
+/* End XCVersionGroup section */
+	};
+	rootObject = E76D87BF15A6C442005176E6 /* Project object */;
+}
