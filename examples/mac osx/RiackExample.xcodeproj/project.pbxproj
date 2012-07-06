@@ -53,7 +53,9 @@
 		E76D87F615A6C443005176E6 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		E76D87F815A6C443005176E6 /* RiackExampleTests.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RiackExampleTests.h; sourceTree = "<group>"; };
 		E76D87F915A6C443005176E6 /* RiackExampleTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RiackExampleTests.m; sourceTree = "<group>"; };
-		E7D428DF15A6C53F000AE0D6 /* libriack.dylib */ = {isa = PBXFileReference; name = libriack.dylib; path = "../../precompiled/mac osx/intel 64bit/libriack.dylib"; sourceTree = "<group>"; };
+		E7D428DF15A6C53F000AE0D6 /* libriack.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libriack.dylib; path = "../../precompiled/mac osx/intel 64bit/libriack.dylib"; sourceTree = "<group>"; };
+		E7D428E515A6C6CD000AE0D6 /* riack_defines.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = riack_defines.h; path = "../../../precompiled/mac osx/intel 64bit/riack_defines.h"; sourceTree = "<group>"; };
+		E7D428E615A6C6CD000AE0D6 /* riack.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = riack.h; path = "../../../precompiled/mac osx/intel 64bit/riack.h"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -122,6 +124,8 @@
 		E76D87D215A6C442005176E6 /* RiackExample */ = {
 			isa = PBXGroup;
 			children = (
+				E7D428E515A6C6CD000AE0D6 /* riack_defines.h */,
+				E7D428E615A6C6CD000AE0D6 /* riack.h */,
 				E76D87DE15A6C442005176E6 /* AppDelegate.h */,
 				E76D87DF15A6C443005176E6 /* AppDelegate.m */,
 				E76D87E115A6C443005176E6 /* MainMenu.xib */,
