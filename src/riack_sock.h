@@ -22,7 +22,7 @@
 int sock_init(void);
 void sock_cleanup(void);
 
-int sock_open(char* host, int port);
+int sock_open(const char* host, int port);
 void sock_close(int sockfd);
 
 int sock_send(int sockfd, uint8_t* data, int len);

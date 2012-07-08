@@ -63,7 +63,7 @@ void riack_cleanup()
 	sock_cleanup();
 }
 
-int riack_connect(struct RIACK_CLIENT *client, char* host, int port)
+int riack_connect(struct RIACK_CLIENT *client, const char* host, int port)
 {
 	client->sockfd = sock_open(host, port);
 	if (client->sockfd > 0)

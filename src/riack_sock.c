@@ -66,7 +66,7 @@ void sock_close(int sockfd)
 	}
 }
 
-int sock_open(char* host, int port)
+int sock_open(const char* host, int port)
 {
 	char szPort[10];
 	struct addrinfo hints;

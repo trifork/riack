@@ -7,6 +7,7 @@
 //
 
 #import "AppDelegate.h"
+#include "riack.h"
 
 @implementation AppDelegate
 
@@ -14,10 +15,18 @@
 @synthesize persistentStoreCoordinator = __persistentStoreCoordinator;
 @synthesize managedObjectModel = __managedObjectModel;
 @synthesize managedObjectContext = __managedObjectContext;
+@synthesize host = _host;
+@synthesize port = _port;
+@synthesize mainTabView = _mainTabView;
+@synthesize labelConnectionState = _labelConnectionState;
+@synthesize labelServerName = _labelServerName;
+@synthesize labelServerVersion = _labelServerVersion;
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification
 {
     // Insert code here to initialize your application
+    riack_init();
+    client = riack_new_client(0);
 }
 
 // Returns the directory the application uses to store the Core Data store file. This code uses a directory named "com.inka-apps.RiackExample" in the user's Application Support directory.
@@ -177,8 +186,22 @@
             return NSTerminateCancel;
         }
     }
-
+    if (client) {
+        riack_free(client);
+    }
+    riack_cleanup();
     return NSTerminateNow;
 }
+
+- (IBAction)connectClicked:(id)sender {
+    NSString *host = [self.host stringValue];
+    const char* szHost = [host cStringUsingEncoding:NSASCIIStringEncoding];
+    if (riack_connect(client, szHost, [self.port intValue]) == RIACK_SUCCESS) {
+        self.labelConnectionState.stringValue = @"Connected";
+    } else {
+        self.labelConnectionState.stringValue = @"Disconnected";
+    }
+}
+
 
 @end
