@@ -12,6 +12,7 @@ riak-c
 Makefile
 .DS_Store
 /*.dylib
+/*.sln
 *.so
 *.a
 *.obj
@@ -31,11 +32,13 @@ Makefile
 *.cache
 *.ilk
 *.log
-*.lib
+/*.lib
 *.sbr
 *.scc
 *.sdf
 *.opensdf
+*.vcxproj
+*.filters
 [Bb]in
 [Dd]ebug*/
 obj/
