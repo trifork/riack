@@ -13,7 +13,7 @@ for examples of how to use it.
 Pure C bindings for google protocol buffers.
 Download at http://code.google.com/p/protobuf-c/
 
-to compile protobuf-c you first need to install Protocol Buffers it here
+to compile protobuf-c you first need to install Protocol Buffers find it here
 http://code.google.com/p/protobuf/
 
 On linux and Mac just do a 
@@ -28,7 +28,7 @@ On Windows
 Protocol Buffers follow the vsprojects/readme.txt in the downloaded the package.
 protobuf-c I recommend using cmake however at the time of writing this there is a bug
 which will give you a compile error if this is still the case visit 
-http://code.google.com/p/protobuf-c/issues/list to get the solution.
+http://code.google.com/p/protobuf-c/issues/list to find a solution.
 
 ####cmake
 Riack uses cmake build system which means it can be compiled on most systems.
@@ -46,6 +46,9 @@ in which case I recommend generating a visual studio project this is done like t
 ```
 cmake src/ -G "Visual Studio 10"
 ```
+Note on windows you might need to tell cmake where to find the Protobuf-C files
+You can do this by passing some options to cmake which is hard to remember ;) I recommend 
+to just edit src\cmake\Modules\FindProtoBufC.cmake lines 19 & 20.
 
 ##Tests
 To run the test first input an ip/port in src/CMakeLists.txt line 4 & 5 and rerun cmake
