@@ -13,7 +13,7 @@ Makefile
 .DS_Store
 /*.dylib
 /*.sln
-*.so
+/*.so
 *.a
 *.obj
 *.pdb
