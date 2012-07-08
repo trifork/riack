@@ -11,7 +11,7 @@ CTestTestfile.cmake
 riak-c
 Makefile
 .DS_Store
-*.dylib
+/*.dylib
 *.so
 *.a
 *.obj

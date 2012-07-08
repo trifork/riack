@@ -41,7 +41,6 @@
 		E76D87D415A6C442005176E6 /* RiackExample-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "RiackExample-Info.plist"; sourceTree = "<group>"; };
 		E76D87D615A6C442005176E6 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		E76D87D815A6C442005176E6 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
-		E76D87DA15A6C442005176E6 /* RiackExample-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "RiackExample-Prefix.pch"; sourceTree = "<group>"; };
 		E76D87DC15A6C442005176E6 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; name = en; path = en.lproj/Credits.rtf; sourceTree = "<group>"; };
 		E76D87DE15A6C442005176E6 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		E76D87DF15A6C443005176E6 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
@@ -141,7 +140,6 @@
 				E76D87D415A6C442005176E6 /* RiackExample-Info.plist */,
 				E76D87D515A6C442005176E6 /* InfoPlist.strings */,
 				E76D87D815A6C442005176E6 /* main.m */,
-				E76D87DA15A6C442005176E6 /* RiackExample-Prefix.pch */,
 				E76D87DB15A6C442005176E6 /* Credits.rtf */,
 			);
 			name = "Supporting Files";
@@ -384,7 +382,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "RiackExample/RiackExample-Prefix.pch";
 				INFOPLIST_FILE = "RiackExample/RiackExample-Info.plist";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
@@ -399,7 +396,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "RiackExample/RiackExample-Prefix.pch";
 				INFOPLIST_FILE = "RiackExample/RiackExample-Info.plist";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
