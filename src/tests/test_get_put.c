@@ -64,13 +64,16 @@ int test_put_return_header()
 	if (riack_put(test_client, obj, &put_result, &put_props) == RIACK_SUCCESS) {
 		cnt = put_result.content_count;
 		if (cnt == 1) {
-			// Make sure content type is the same
-			if (strcmp(put_result.content[0].content_type.value,
-					   obj.content[0].content_type.value) == 0) {
-				// Make sure the actual content is the same
-				i = put_result.content[0].data_len;
-				if (memcmp(data, put_result.content[0].data, i) == 0) {
-					result = 0;
+			if (put_result.content[0].content_type.len == obj.content[0].content_type.len) {
+				// Make sure content type is the same
+				if (memcmp( put_result.content[0].content_type.value,
+							obj.content[0].content_type.value,
+							obj.content[0].content_type.len) == 0) {
+					// Make sure the actual content is the same
+					i = put_result.content[0].data_len;
+					if (memcmp(data, put_result.content[0].data, i) == 0) {
+						result = 0;
+					}
 				}
 			}
 		}
