@@ -194,10 +194,25 @@
 }
 
 - (IBAction)connectClicked:(id)sender {
+    char *node, *version;
     NSString *host = [self.host stringValue];
     const char* szHost = [host cStringUsingEncoding:NSASCIIStringEncoding];
     if (riack_connect(client, szHost, [self.port intValue]) == RIACK_SUCCESS) {
         self.labelConnectionState.stringValue = @"Connected";
+        if (riack_server_info(client, &node, &version) == RIACK_SUCCESS) {
+            if (node != NULL) {
+                [self.labelServerName setStringValue:[NSString stringWithCString:node encoding:NSASCIIStringEncoding]];
+                free(node);
+            } else {
+                [self.labelServerName setStringValue:@"Unknown"];
+            }
+            if (version != NULL) {
+                [self.labelServerVersion setStringValue:[NSString stringWithCString:version encoding:NSASCIIStringEncoding]];
+                free(version);
+            } else {
+                [self.labelServerVersion setStringValue:@"Unknown"];
+            }
+        }
     } else {
         self.labelConnectionState.stringValue = @"Disconnected";
     }

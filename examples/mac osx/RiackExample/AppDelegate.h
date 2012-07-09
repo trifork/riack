@@ -22,7 +22,7 @@
 @property (weak) IBOutlet NSTabView *mainTabView;
 @property (weak) IBOutlet NSTextField *labelConnectionState;
 @property (weak) IBOutlet NSTextField *labelServerName;
-@property (weak) IBOutlet NSLayoutConstraint *labelServerVersion;
+@property (weak) IBOutlet NSTextField *labelServerVersion;
 
 - (IBAction)saveAction:(id)sender;
 
