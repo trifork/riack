@@ -53,6 +53,11 @@ typedef struct {
 	size_t len;
 } RIACK_STRING;
 
+typedef struct {
+	RIACK_STRING* strings;
+	size_t string_count;
+} RIACK_STRING_LIST;
+
 struct RIACK_CLIENT {
 	int sockfd;
 	char* last_error;
