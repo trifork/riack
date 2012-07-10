@@ -550,7 +550,7 @@ int riack_set_bucket_props(struct RIACK_CLIENT *client, RIACK_STRING bucket, uin
 	return result;
 }
 
-int riack_list_buckets(struct RIACK_CLIENT *client, size_t* num_buckets, char*** pppbucketlist)
+int riack_list_buckets(struct RIACK_CLIENT *client, RIACK_STRING_LIST* bucket_list)
 {
 	int result;
 	struct RIACK_PB_MSG msg_req;
@@ -559,7 +559,7 @@ int riack_list_buckets(struct RIACK_CLIENT *client, size_t* num_buckets, char***
 	ProtobufCAllocator pb_allocator;
 	size_t i, buck_len;
 
-	if (!client || !num_buckets) {
+	if (!client || !bucket_list) {
 		return RIACK_ERROR_INVALID_INPUT;
 	}
 
@@ -568,21 +568,20 @@ int riack_list_buckets(struct RIACK_CLIENT *client, size_t* num_buckets, char***
 
 	msg_req.msg_code = mc_RpbListBucketsReq;
 	msg_req.msg_len = 0;
-	*num_buckets = 0;
+	bucket_list->string_count = 0;
 	if ((riack_send_message(client, &msg_req) > 0)&&
 		(riack_receive_message(client, &msg_resp) > 0)) {
 		if (msg_resp->msg_code == mc_RpbListBucketsResp) {
 			list_resp = rpb_list_buckets_resp__unpack(&pb_allocator, msg_resp->msg_len, msg_resp->msg);
 			if (list_resp) {
-				*num_buckets = list_resp->n_buckets;
-				*pppbucketlist = (char**)RMALLOC(client, sizeof(char*) * list_resp->n_buckets);
-				for (i=0; i<*num_buckets; ++i) {
-					buck_len = list_resp->buckets[i].len;
-					(*pppbucketlist)[i] = (char*)RMALLOC(client, (buck_len + 1) * sizeof(char));
-					if (buck_len > 0) {
-						memcpy((*pppbucketlist)[i], list_resp->buckets[i].data, buck_len);
-					}
-					(*pppbucketlist)[i][buck_len] = 0;
+				bucket_list->string_count = list_resp->n_buckets;
+				bucket_list->strings = (RIACK_STRING*)RMALLOC(client, sizeof(RIACK_STRING) * list_resp->n_buckets);
+				for (i=0; i<list_resp->n_buckets; ++i) {
+					RMALLOCCOPY(client,
+								bucket_list->strings[i].value,
+								bucket_list->strings[i].len,
+								list_resp->buckets[i].data,
+								list_resp->buckets[i].len);
 				}
 				rpb_list_buckets_resp__free_unpacked(list_resp, &pb_allocator);
 				result = RIACK_SUCCESS;
@@ -595,7 +594,7 @@ int riack_list_buckets(struct RIACK_CLIENT *client, size_t* num_buckets, char***
 	return result;
 }
 
-int riack_server_info(struct RIACK_CLIENT *client, char** ppnode, char** ppversion)
+int riack_server_info(struct RIACK_CLIENT *client, RIACK_STRING *node, RIACK_STRING* version)
 {
 	int result;
 	struct RIACK_PB_MSG msg_req, *msg_resp;
@@ -611,18 +610,17 @@ int riack_server_info(struct RIACK_CLIENT *client, char** ppnode, char** ppversi
 		if (msg_resp->msg_code == mc_RpbGetServerInfoResp) {
 			response = rpb_get_server_info_resp__unpack(&pb_allocator, msg_req.msg_len, msg_req.msg);
 			if (response->has_node) {
-				*ppnode = (char*)RMALLOC(client, response->node.len+1);
-				memcpy(*ppnode, response->node.data, response->node.len);
-				(*ppnode)[response->node.len] = 0;
+				RMALLOCCOPY(client, node->value, node->len, response->node.data, response->node.len);
 			} else {
-				*ppnode = 0;
+				node->len = 0;
+				node->value = 0;
 			}
 			if (response->has_server_version) {
-				*ppversion = (char*)RMALLOC(client, response->server_version.len+1);
-				memcpy(*ppversion, response->server_version.data, response->server_version.len);
-				(*ppversion)[response->server_version.len] = 0;
+				RMALLOCCOPY(client, version->value, version->len,
+						response->server_version.data, response->server_version.len);
 			} else {
-				*ppversion = 0;
+				version->len = 0;
+				version->value = 0;
 			}
 			// Copy responses
 			rpb_get_server_info_resp__free_unpacked(response, &pb_allocator);

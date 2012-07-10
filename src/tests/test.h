@@ -22,6 +22,7 @@ int test_bucket(char* testcase);
 int test_delete(char* testcase);
 int test_mapred(char* testcase);
 int test_clientid(char* testcase);
+int test_misc(char* testcase);
 
 // Specific tests
 int test_bucket_list();
@@ -34,6 +35,7 @@ int test_bucket_list();
 int test_delete_basic();
 int test_mapred_basic();
 int test_clientid_basic();
+int test_server_info();
 
 // Helpers
 int put(char* key, char* data);

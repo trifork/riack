@@ -2,7 +2,7 @@ cmake_minimum_required (VERSION 2.6)
 project (Riack)
 
 SET(RIAK_TEST_SERVER_IP 127.0.0.1)
-SET(RIAK_TEST_SERVER_PB_PORT 8087)
+SET(RIAK_TEST_SERVER_PB_PORT 8081)
 OPTION (BUILD_SHARED_LIBS "Build Shared Libraries" ON)
 
 ENABLE_TESTING()
@@ -41,6 +41,7 @@ SET(TESTS_MAIN_SRC	tests/test.h
 					tests/test_bucket.c
 					tests/test_mapred.c
 					tests/test_delete.c
+					tests/test_misc.c
 					tests/test_clientid.c)
 
 SET (LIB_TYPE STATIC)
@@ -69,6 +70,7 @@ ENDIF (WIN32)
 
 
 ADD_TEST(test-ping        ${CMAKE_CURRENT_BINARY_DIR}/tests ping basic ${RIAK_TEST_SERVER_IP} ${RIAK_TEST_SERVER_PB_PORT})
+ADD_TEST(test-serverinfo  ${CMAKE_CURRENT_BINARY_DIR}/tests misc serverinfo ${RIAK_TEST_SERVER_IP} ${RIAK_TEST_SERVER_PB_PORT})
 ADD_TEST(test-clientid 	  ${CMAKE_CURRENT_BINARY_DIR}/tests clientid basic ${RIAK_TEST_SERVER_IP} ${RIAK_TEST_SERVER_PB_PORT})
 ADD_TEST(test-bucket-list ${CMAKE_CURRENT_BINARY_DIR}/tests bucket list ${RIAK_TEST_SERVER_IP} ${RIAK_TEST_SERVER_PB_PORT})
 ADD_TEST(test-delete      ${CMAKE_CURRENT_BINARY_DIR}/tests delete basic ${RIAK_TEST_SERVER_IP} ${RIAK_TEST_SERVER_PB_PORT})

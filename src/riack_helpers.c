@@ -198,6 +198,15 @@ void riack_free_string(struct RIACK_CLIENT* client, RIACK_STRING* string)
 	string->len = 0;
 }
 
+void riack_free_string_list(struct RIACK_CLIENT* client, RIACK_STRING_LIST* strings)
+{
+	size_t i;
+	for (i=0; i<strings->string_count; ++i) {
+		riack_free_string(client, &(strings->strings[i]));
+	}
+	free(strings->strings);
+}
+
 void riack_copy_buffer_to_string(struct RIACK_CLIENT* client, ProtobufCBinaryData* src, char** str)
 {
 	*str = RMALLOC(client, src->len + 1);
