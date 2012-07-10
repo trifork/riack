@@ -37,7 +37,7 @@ Makefile
 *.scc
 *.sdf
 *.opensdf
-*.vcxproj
+/*.vcxproj
 *.filters
 [Bb]in
 [Dd]ebug*/
