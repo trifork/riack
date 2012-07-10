@@ -41,13 +41,13 @@ RIACK_EXPORT int riack_connect(struct RIACK_CLIENT *client, const char* host, in
 RIACK_EXPORT int riack_ping(struct RIACK_CLIENT *client);
 
 /// List all buckets on the server (should not be used in production)
-RIACK_EXPORT int riack_list_buckets(struct RIACK_CLIENT *client, size_t* num_buckets, char*** pppbucketlist);
+RIACK_EXPORT int riack_list_buckets(struct RIACK_CLIENT *client, RIACK_STRING_LIST* bucket_list);
 
 /// Set bucket properties
 RIACK_EXPORT int riack_set_bucket_props(struct RIACK_CLIENT *client, RIACK_STRING bucket, uint32_t n_val, uint8_t allow_mult);
 
 /// Retrive server info
-RIACK_EXPORT int riack_server_info(struct RIACK_CLIENT *client, char** ppnode, char** ppversion);
+RIACK_EXPORT int riack_server_info(struct RIACK_CLIENT *client, RIACK_STRING *node, RIACK_STRING* version);
 
 /// Set the client id
 RIACK_EXPORT int riack_set_clientid(struct RIACK_CLIENT *client, RIACK_STRING clientid);
@@ -100,5 +100,8 @@ RIACK_EXPORT void riack_free_get_object(struct RIACK_CLIENT* client, struct RIAC
 RIACK_EXPORT void riack_free_mapred_result(struct RIACK_CLIENT* client, struct RIACK_MAPRED_RESULT *result);
 
 RIACK_EXPORT void riack_free_string(struct RIACK_CLIENT* client, RIACK_STRING* string);
+
+RIACK_EXPORT void riack_free_string_list(struct RIACK_CLIENT* client, RIACK_STRING_LIST* strings);
+
 
 #endif /* __RIACK_RIAK_C_H_ */
