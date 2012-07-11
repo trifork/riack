@@ -11,6 +11,8 @@
 
 @implementation AppDelegate
 
+@synthesize bucketListView = _bucketListView;
+@synthesize bucketsArrayController = _bucketsArrayController;
 @synthesize window = _window;
 @synthesize host = _host;
 @synthesize port = _port;
@@ -58,9 +60,16 @@
 
 -(void) updateBucketList {
     RIACK_STRING_LIST bucketList;
+    [[self.bucketsArrayController content] removeAllObjects];
     if (riack_list_buckets(client, &bucketList) == RIACK_SUCCESS) {
-        // TODO add to list
+        for (size_t i=0; i<bucketList.string_count; ++i) {
+            NSString *currentBucket = [[NSString alloc] initWithBytes:bucketList.strings[i].value 
+                                                               length:bucketList.strings[i].len 
+                                                             encoding:NSASCIIStringEncoding];
+            [self.bucketsArrayController addObject:currentBucket];
+        }
         riack_free_string_list(client, &bucketList);
+        [self.bucketListView reloadData];
     }
 }
 
@@ -76,6 +85,7 @@
 }
 
 /// NSTabViewDelegate
+
 - (void)tabView:(NSTabView *)tabView didSelectTabViewItem:(NSTabViewItem *)tabViewItem {
     if ([tabViewItem.label compare:@"Buckets"] == NSOrderedSame) {
         [self updateBucketList];
