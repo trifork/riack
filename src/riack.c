@@ -550,6 +550,50 @@ int riack_set_bucket_props(struct RIACK_CLIENT *client, RIACK_STRING bucket, uin
 	return result;
 }
 
+int riack_list_keys(struct RIACK_CLIENT *client, RIACK_STRING bucket, RIACK_STRING_LIST* keys)
+{
+	int result;
+	struct RIACK_PB_MSG msg_req;
+	struct RIACK_PB_MSG *msg_resp;
+	RpbListKeysReq list_req;
+	RpbListKeysResp *list_resp;
+	ProtobufCAllocator pb_allocator;
+	size_t packed_size;
+	uint8_t *request_buffer, recvdone;
+
+	if (!client || !keys || bucket.len == 0) {
+		return RIACK_ERROR_INVALID_INPUT;
+	}
+	result = RIACK_ERROR_COMMUNICATION;
+	rpb_list_keys_req__init(&list_req);
+	list_req.bucket.len = bucket.len;
+	list_req.bucket.data = bucket.value;
+	packed_size = rpb_list_keys_req__get_packed_size(&list_req);
+	request_buffer = RMALLOC(client, packed_size);
+	if (request_buffer) {
+		rpb_list_keys_req__pack(&list_req, request_buffer);
+		msg_req.msg_code = mc_RpbListKeysReq;
+		msg_req.msg_len = packed_size;
+		msg_req.msg = request_buffer;
+		if (riack_send_message(client, &msg_req))
+		{
+			recvdone = 0;
+			while (!recvdone) {
+				if (riack_receive_message(client, &msg_resp)) {
+					if (msg_resp->msg_code == mc_RpbListKeysResp) {
+
+					} else {
+						recvdone = 1;
+					}
+					riack_message_free(client, &msg_resp);
+				}
+			}
+		}
+		RFREE(client, request_buffer);
+	}
+	return result;
+}
+
 int riack_list_buckets(struct RIACK_CLIENT *client, RIACK_STRING_LIST* bucket_list)
 {
 	int result;
