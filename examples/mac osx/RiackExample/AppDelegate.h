@@ -10,8 +10,8 @@
 
 @interface AppDelegate : NSObject <NSApplicationDelegate, NSTabViewDelegate> {
     struct RIACK_CLIENT *client;
+    
 }
-
 
 @property (assign) IBOutlet NSWindow *window;
 
@@ -21,6 +21,7 @@
 @property (weak) IBOutlet NSTextField *labelConnectionState;
 @property (weak) IBOutlet NSTextField *labelServerName;
 @property (weak) IBOutlet NSTextField *labelServerVersion;
-
+@property (weak) IBOutlet NSTableView *bucketListView;
+@property (weak) IBOutlet NSArrayController *bucketsArrayController;
 
 @end

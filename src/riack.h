@@ -43,6 +43,8 @@ RIACK_EXPORT int riack_ping(struct RIACK_CLIENT *client);
 /// List all buckets on the server (should not be used in production)
 RIACK_EXPORT int riack_list_buckets(struct RIACK_CLIENT *client, RIACK_STRING_LIST* bucket_list);
 
+RIACK_EXPORT int riack_list_keys(struct RIACK_CLIENT *client, RIACK_STRING bucket, RIACK_STRING_LIST* keys);
+
 /// Set bucket properties
 RIACK_EXPORT int riack_set_bucket_props(struct RIACK_CLIENT *client, RIACK_STRING bucket, uint32_t n_val, uint8_t allow_mult);
 
