@@ -333,7 +333,7 @@ int riack_put(struct RIACK_CLIENT *client,
 	int result;
 	size_t packed_size;
 	struct RIACK_PB_MSG msg_req, *msg_resp;
-	ProtobufCAllocator pbAllocator;
+	ProtobufCAllocator pb_allocator;
 	RpbPutReq put_req;
 	RpbPutResp *put_resp;
 	uint8_t *request_buffer;
@@ -342,7 +342,7 @@ int riack_put(struct RIACK_CLIENT *client,
 		return RIACK_ERROR_INVALID_INPUT;
 	}
 
-	pbAllocator = riack_pb_allocator(&client->allocator);
+	pb_allocator = riack_pb_allocator(&client->allocator);
 	result = RIACK_ERROR_COMMUNICATION;
 	rpb_put_req__init(&put_req);
 	riack_copy_object_to_rpbputreq(client, &object, &put_req);
@@ -360,9 +360,9 @@ int riack_put(struct RIACK_CLIENT *client,
 		{
 			if (msg_resp->msg_code == mc_RpbPutResp) {
 				if (preturned_object) {
-					put_resp = rpb_put_resp__unpack(&pbAllocator, msg_resp->msg_len, msg_resp->msg);
+					put_resp = rpb_put_resp__unpack(&pb_allocator, msg_resp->msg_len, msg_resp->msg);
 					riak_set_object_response_values(client, preturned_object, put_resp);
-					rpb_put_resp__free_unpacked(put_resp, &pbAllocator);
+					rpb_put_resp__free_unpacked(put_resp, &pb_allocator);
 				}
 				result = RIACK_SUCCESS;
 			} else {
@@ -419,22 +419,6 @@ int riack_delete(struct RIACK_CLIENT *client, RIACK_STRING bucket, RIACK_STRING 
 
 	RFREE(client, del_req.vclock.data);
 	return result;
-}
-
-void riack_mapred_add_to_chain(struct RIACK_CLIENT *client,
-		struct RIACK_MAPRED_RESULT** base,
-		struct RIACK_MAPRED_RESULT* mapred_new)
-{
-	struct RIACK_MAPRED_RESULT* current;
-	if (*base == 0) {
-		*base = mapred_new;
-	} else {
-		current = *base;
-		while (current->next_result != 0) {
-			current = current->next_result;
-		}
-		current->next_result = mapred_new;
-	}
 }
 
 int riack_map_redue(struct RIACK_CLIENT *client, size_t data_len, uint8_t* data,
@@ -550,15 +534,16 @@ int riack_set_bucket_props(struct RIACK_CLIENT *client, RIACK_STRING bucket, uin
 	return result;
 }
 
-int riack_list_keys(struct RIACK_CLIENT *client, RIACK_STRING bucket, RIACK_STRING_LIST* keys)
+int riack_list_keys(struct RIACK_CLIENT *client, RIACK_STRING bucket, struct RIACK_STRING_LINKED_LIST** keys)
 {
 	int result;
 	struct RIACK_PB_MSG msg_req;
 	struct RIACK_PB_MSG *msg_resp;
 	RpbListKeysReq list_req;
 	RpbListKeysResp *list_resp;
+	RIACK_STRING current_string;
 	ProtobufCAllocator pb_allocator;
-	size_t packed_size;
+	size_t packed_size, num_keys, i;
 	uint8_t *request_buffer, recvdone;
 
 	if (!client || !keys || bucket.len == 0) {
@@ -578,10 +563,23 @@ int riack_list_keys(struct RIACK_CLIENT *client, RIACK_STRING bucket, RIACK_STRI
 		if (riack_send_message(client, &msg_req))
 		{
 			recvdone = 0;
+			*keys = 0;
 			while (!recvdone) {
 				if (riack_receive_message(client, &msg_resp)) {
 					if (msg_resp->msg_code == mc_RpbListKeysResp) {
-
+						list_resp = rpb_list_keys_resp__unpack(&pb_allocator, msg_resp->msg_len, msg_resp->msg);
+						if (list_resp->has_done && list_resp->done) {
+							recvdone = 1;
+						}
+						num_keys = list_resp->n_keys;
+						for (i=0; i<num_keys; ++i) {
+							RMALLOCCOPY(client, current_string.value,
+												current_string.len,
+												list_resp->keys[i].data,
+												list_resp->keys[i].len);
+							riack_string_linked_list_add(client, keys, current_string);
+						}
+						rpb_list_keys_resp__free_unpacked(list_resp, &pb_allocator);
 					} else {
 						recvdone = 1;
 					}

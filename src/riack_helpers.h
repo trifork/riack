@@ -33,4 +33,12 @@ void riack_copy_object_to_rpbputreq(struct RIACK_CLIENT* client, struct RIACK_OB
 
 void riack_copy_rpbmapred_to_mapred(struct RIACK_CLIENT* client, RpbMapRedResp* source, struct RIACK_MAPRED_RESULT* target);
 
+void riack_string_linked_list_add(struct RIACK_CLIENT *client,
+		struct RIACK_STRING_LINKED_LIST** base,
+		RIACK_STRING string_new);
+
+void riack_mapred_add_to_chain(struct RIACK_CLIENT *client,
+		struct RIACK_MAPRED_RESULT** base,
+		struct RIACK_MAPRED_RESULT* mapred_new);
+
 #endif // __RIACK__HELPERS__H__

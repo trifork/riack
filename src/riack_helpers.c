@@ -207,6 +207,47 @@ void riack_free_string_list(struct RIACK_CLIENT* client, RIACK_STRING_LIST* stri
 	free(strings->strings);
 }
 
+void riack_string_linked_list_set_entry(struct RIACK_CLIENT *client,
+										struct RIACK_STRING_LINKED_LIST** entry,
+										RIACK_STRING string_new)
+{
+	*entry = RMALLOC(client, sizeof(struct RIACK_STRING_LINKED_LIST));
+	(*entry)->next = 0;
+	(*entry)->string = string_new;
+}
+
+void riack_string_linked_list_add(struct RIACK_CLIENT *client,
+		struct RIACK_STRING_LINKED_LIST** base,
+		RIACK_STRING string_new)
+{
+	struct RIACK_STRING_LINKED_LIST *current;
+	if (*base == 0) {
+		riack_string_linked_list_set_entry(client, base, string_new);
+	} else {
+		current = *base;
+		while (current->next != 0) {
+			current = current->next;
+		}
+		riack_string_linked_list_set_entry(client, &current->next, string_new);
+	}
+}
+
+void riack_mapred_add_to_chain(struct RIACK_CLIENT *client,
+		struct RIACK_MAPRED_RESULT** base,
+		struct RIACK_MAPRED_RESULT* mapred_new)
+{
+	struct RIACK_MAPRED_RESULT* current;
+	if (*base == 0) {
+		*base = mapred_new;
+	} else {
+		current = *base;
+		while (current->next_result != 0) {
+			current = current->next_result;
+		}
+		current->next_result = mapred_new;
+	}
+}
+
 void riack_copy_buffer_to_string(struct RIACK_CLIENT* client, ProtobufCBinaryData* src, char** str)
 {
 	*str = RMALLOC(client, src->len + 1);

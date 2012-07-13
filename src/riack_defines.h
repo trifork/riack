@@ -58,6 +58,11 @@ typedef struct {
 	size_t string_count;
 } RIACK_STRING_LIST;
 
+struct RIACK_STRING_LINKED_LIST {
+	RIACK_STRING string;
+	struct RIACK_STRING_LINKED_LIST* next;
+};
+
 struct RIACK_CLIENT {
 	int sockfd;
 	char* last_error;
