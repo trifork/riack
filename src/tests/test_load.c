@@ -91,8 +91,9 @@ int test_load_init()
 	// Assumes we are in riack root folder
 	if (process_file("testdata/c_friendly/answers.json.out", RIAK_TEST_BUCKET_ANSWERS) &&
 		process_file("testdata/c_friendly/comments.json.out", RIAK_TEST_BUCKET_COMMENTS) &&
-		process_file("testdata/c_friendly/posts.json.out", RIAK_TEST_BUCKET_POSTS) &&
-		process_file("testdata/c_friendly/users.json.out", RIAK_TEST_BUCKET_USERS)) {
+		process_file("testdata/c_friendly/posts.json.out", RIAK_TEST_BUCKET_POSTS) /*&&
+		process_file("testdata/c_friendly/users.json.out", RIAK_TEST_BUCKET_USERS)*/) {
+		// Don't include users as that is a giant file, and it is not getting used in the tests yet
 		// Now list all id's and delete
 		return 0;
 	}
