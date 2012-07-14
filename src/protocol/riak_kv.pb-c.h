@@ -311,10 +311,12 @@ struct  _RpbContent
   RpbPair **usermeta;
   size_t n_indexes;
   RpbPair **indexes;
+  protobuf_c_boolean has_deleted;
+  protobuf_c_boolean deleted;
 };
 #define RPB_CONTENT__INIT \
  { PROTOBUF_C_MESSAGE_INIT (&rpb_content__descriptor) \
-    , {0,NULL}, 0,{0,NULL}, 0,{0,NULL}, 0,{0,NULL}, 0,{0,NULL}, 0,NULL, 0,0, 0,0, 0,NULL, 0,NULL }
+    , {0,NULL}, 0,{0,NULL}, 0,{0,NULL}, 0,{0,NULL}, 0,{0,NULL}, 0,NULL, 0,0, 0,0, 0,NULL, 0,NULL, 0,0 }
 
 
 struct  _RpbLink

@@ -2060,7 +2060,7 @@ const ProtobufCMessageDescriptor rpb_index_resp__descriptor =
   (ProtobufCMessageInit) rpb_index_resp__init,
   NULL,NULL,NULL    /* reserved[123] */
 };
-static const ProtobufCFieldDescriptor rpb_content__field_descriptors[10] =
+static const ProtobufCFieldDescriptor rpb_content__field_descriptors[11] =
 {
   {
     "value",
@@ -2182,11 +2182,24 @@ static const ProtobufCFieldDescriptor rpb_content__field_descriptors[10] =
     0,            /* packed */
     0,NULL,NULL    /* reserved1,reserved2, etc */
   },
+  {
+    "deleted",
+    11,
+    PROTOBUF_C_LABEL_OPTIONAL,
+    PROTOBUF_C_TYPE_BOOL,
+    PROTOBUF_C_OFFSETOF(RpbContent, has_deleted),
+    PROTOBUF_C_OFFSETOF(RpbContent, deleted),
+    NULL,
+    NULL,
+    0,            /* packed */
+    0,NULL,NULL    /* reserved1,reserved2, etc */
+  },
 };
 static const unsigned rpb_content__field_indices_by_name[] = {
   2,   /* field[2] = charset */
   3,   /* field[3] = content_encoding */
   1,   /* field[1] = content_type */
+  10,   /* field[10] = deleted */
   9,   /* field[9] = indexes */
   6,   /* field[6] = last_mod */
   7,   /* field[7] = last_mod_usecs */
@@ -2198,7 +2211,7 @@ static const unsigned rpb_content__field_indices_by_name[] = {
 static const ProtobufCIntRange rpb_content__number_ranges[1 + 1] =
 {
   { 1, 0 },
-  { 0, 10 }
+  { 0, 11 }
 };
 const ProtobufCMessageDescriptor rpb_content__descriptor =
 {
@@ -2208,7 +2221,7 @@ const ProtobufCMessageDescriptor rpb_content__descriptor =
   "RpbContent",
   "",
   sizeof(RpbContent),
-  10,
+  11,
   rpb_content__field_descriptors,
   rpb_content__field_indices_by_name,
   1,  rpb_content__number_ranges,
