@@ -8,6 +8,10 @@
 #include "../riack.h"
 
 #define RIAK_TEST_BUCKET "riack_test_bucket"
+#define RIAK_TEST_BUCKET_COMMENTS "riack_test_comments"
+#define RIAK_TEST_BUCKET_POSTS    "riack_test_posts"
+#define RIAK_TEST_BUCKET_USERS    "riack_test_users"
+#define RIAK_TEST_BUCKET_ANSWERS  "riack_test_answers"
 
 extern struct RIACK_CLIENT *test_client;
 extern struct RIACK_ALLOCATOR test_allocator;
@@ -22,6 +26,7 @@ int test_bucket(char* testcase);
 int test_delete(char* testcase);
 int test_mapred(char* testcase);
 int test_clientid(char* testcase);
+int test_load(char* testcase);
 int test_misc(char* testcase);
 
 // Specific tests
@@ -36,6 +41,8 @@ int test_delete_basic();
 int test_mapred_basic();
 int test_clientid_basic();
 int test_server_info();
+int test_load_init();
+int test_load_cleanup();
 
 // Helpers
 int put(char* key, char* data);

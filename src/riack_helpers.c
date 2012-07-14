@@ -207,6 +207,19 @@ void riack_free_string_list(struct RIACK_CLIENT* client, RIACK_STRING_LIST* stri
 	free(strings->strings);
 }
 
+void riack_free_string_linked_list(struct RIACK_CLIENT* client, struct RIACK_STRING_LINKED_LIST** strings)
+{
+	 struct RIACK_STRING_LINKED_LIST *current, *next;
+	 current = *strings;
+	 while (current != 0) {
+		 next = current->next;
+		 riack_free_string(client, &current->string);
+		 RFREE(client, current);
+		 current = next;
+	 }
+	 *strings = 0;
+}
+
 void riack_string_linked_list_set_entry(struct RIACK_CLIENT *client,
 										struct RIACK_STRING_LINKED_LIST** entry,
 										RIACK_STRING string_new)
@@ -216,20 +229,22 @@ void riack_string_linked_list_set_entry(struct RIACK_CLIENT *client,
 	(*entry)->string = string_new;
 }
 
-void riack_string_linked_list_add(struct RIACK_CLIENT *client,
+struct RIACK_STRING_LINKED_LIST* riack_string_linked_list_add(struct RIACK_CLIENT *client,
 		struct RIACK_STRING_LINKED_LIST** base,
 		RIACK_STRING string_new)
 {
 	struct RIACK_STRING_LINKED_LIST *current;
-	if (*base == 0) {
+	current = *base;
+	if (current == 0) {
 		riack_string_linked_list_set_entry(client, base, string_new);
-	} else {
 		current = *base;
+	} else {
 		while (current->next != 0) {
 			current = current->next;
 		}
 		riack_string_linked_list_set_entry(client, &current->next, string_new);
 	}
+	return current;
 }
 
 void riack_mapred_add_to_chain(struct RIACK_CLIENT *client,

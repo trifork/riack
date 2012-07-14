@@ -31,6 +31,8 @@ int main(int argc, char *argv[])
 			result = test_mapred(test);
 		} else if (strcmp(module, "clientid") == 0) {
 			result = test_clientid(test);
+		} else if (strcmp(module, "load") == 0) {
+			result = test_load(test);
 		} else if (strcmp(module, "misc") == 0) {
 			result = test_misc(test);
 		}

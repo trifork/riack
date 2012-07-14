@@ -42,6 +42,7 @@ SET(TESTS_MAIN_SRC	tests/test.h
 					tests/test_mapred.c
 					tests/test_delete.c
 					tests/test_misc.c
+					tests/test_load.c
 					tests/test_clientid.c)
 
 SET (LIB_TYPE STATIC)
@@ -69,6 +70,7 @@ ELSE()
 ENDIF (WIN32)
 
 
+ADD_TEST(test-load        ${CMAKE_CURRENT_BINARY_DIR}/tests load init ${RIAK_TEST_SERVER_IP} ${RIAK_TEST_SERVER_PB_PORT})
 ADD_TEST(test-ping        ${CMAKE_CURRENT_BINARY_DIR}/tests ping basic ${RIAK_TEST_SERVER_IP} ${RIAK_TEST_SERVER_PB_PORT})
 ADD_TEST(test-serverinfo  ${CMAKE_CURRENT_BINARY_DIR}/tests misc serverinfo ${RIAK_TEST_SERVER_IP} ${RIAK_TEST_SERVER_PB_PORT})
 ADD_TEST(test-clientid 	  ${CMAKE_CURRENT_BINARY_DIR}/tests clientid basic ${RIAK_TEST_SERVER_IP} ${RIAK_TEST_SERVER_PB_PORT})
@@ -78,4 +80,4 @@ ADD_TEST(test-put1		  ${CMAKE_CURRENT_BINARY_DIR}/tests get_put put1 ${RIAK_TEST
 ADD_TEST(test-put2 		  ${CMAKE_CURRENT_BINARY_DIR}/tests get_put put2 ${RIAK_TEST_SERVER_IP} ${RIAK_TEST_SERVER_PB_PORT})
 ADD_TEST(test-get1 		  ${CMAKE_CURRENT_BINARY_DIR}/tests get_put get1 ${RIAK_TEST_SERVER_IP} ${RIAK_TEST_SERVER_PB_PORT})
 ADD_TEST(test-mapred1 	  ${CMAKE_CURRENT_BINARY_DIR}/tests mapred basic ${RIAK_TEST_SERVER_IP} ${RIAK_TEST_SERVER_PB_PORT})
-
+ADD_TEST(test-cleanup     ${CMAKE_CURRENT_BINARY_DIR}/tests load cleanup ${RIAK_TEST_SERVER_IP} ${RIAK_TEST_SERVER_PB_PORT})

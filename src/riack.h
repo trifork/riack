@@ -105,5 +105,7 @@ RIACK_EXPORT void riack_free_string(struct RIACK_CLIENT* client, RIACK_STRING* s
 
 RIACK_EXPORT void riack_free_string_list(struct RIACK_CLIENT* client, RIACK_STRING_LIST* strings);
 
+RIACK_EXPORT void riack_free_string_linked_list(struct RIACK_CLIENT* client, struct RIACK_STRING_LINKED_LIST** strings);
+
 
 #endif /* __RIACK_RIAK_C_H_ */

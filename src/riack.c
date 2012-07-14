@@ -545,10 +545,12 @@ int riack_list_keys(struct RIACK_CLIENT *client, RIACK_STRING bucket, struct RIA
 	ProtobufCAllocator pb_allocator;
 	size_t packed_size, num_keys, i;
 	uint8_t *request_buffer, recvdone;
+	struct RIACK_STRING_LINKED_LIST* current;
 
 	if (!client || !keys || bucket.len == 0) {
 		return RIACK_ERROR_INVALID_INPUT;
 	}
+	pb_allocator = riack_pb_allocator(&client->allocator);
 	result = RIACK_ERROR_COMMUNICATION;
 	rpb_list_keys_req__init(&list_req);
 	list_req.bucket.len = bucket.len;
@@ -564,12 +566,14 @@ int riack_list_keys(struct RIACK_CLIENT *client, RIACK_STRING bucket, struct RIA
 		{
 			recvdone = 0;
 			*keys = 0;
+			current = *keys;
 			while (!recvdone) {
 				if (riack_receive_message(client, &msg_resp)) {
 					if (msg_resp->msg_code == mc_RpbListKeysResp) {
 						list_resp = rpb_list_keys_resp__unpack(&pb_allocator, msg_resp->msg_len, msg_resp->msg);
 						if (list_resp->has_done && list_resp->done) {
 							recvdone = 1;
+							result = RIACK_SUCCESS;
 						}
 						num_keys = list_resp->n_keys;
 						for (i=0; i<num_keys; ++i) {
@@ -577,7 +581,10 @@ int riack_list_keys(struct RIACK_CLIENT *client, RIACK_STRING bucket, struct RIA
 												current_string.len,
 												list_resp->keys[i].data,
 												list_resp->keys[i].len);
-							riack_string_linked_list_add(client, keys, current_string);
+							current = riack_string_linked_list_add(client, &current, current_string);
+							if (*keys == 0) {
+								*keys = current;
+							}
 						}
 						rpb_list_keys_resp__free_unpacked(list_resp, &pb_allocator);
 					} else {
