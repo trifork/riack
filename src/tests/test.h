@@ -43,6 +43,7 @@ int test_clientid_basic();
 int test_server_info();
 int test_load_init();
 int test_load_cleanup();
+int test_last_error();
 
 // Helpers
 int put(char* key, char* data);

@@ -66,6 +66,7 @@ struct RIACK_STRING_LINKED_LIST {
 struct RIACK_CLIENT {
 	int sockfd;
 	char* last_error;
+	uint32_t last_error_code;
 
 	struct RIACK_ALLOCATOR allocator;
 };
