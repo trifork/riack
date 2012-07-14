@@ -58,9 +58,15 @@ typedef struct {
 	size_t string_count;
 } RIACK_STRING_LIST;
 
+struct RIACK_STRING_LINKED_LIST {
+	RIACK_STRING string;
+	struct RIACK_STRING_LINKED_LIST* next;
+};
+
 struct RIACK_CLIENT {
 	int sockfd;
 	char* last_error;
+	uint32_t last_error_code;
 
 	struct RIACK_ALLOCATOR allocator;
 };
@@ -95,6 +101,8 @@ struct RIACK_CONTENT
 	uint32_t last_modified;
 	uint8_t last_modified_usecs_present;
 	uint32_t last_modified_usecs;
+	uint8_t deleted_present;
+	uint8_t deleted;
 	//
 	size_t usermeta_count;
 	struct RIACK_PAIR **usermetas;
