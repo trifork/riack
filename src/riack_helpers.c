@@ -382,6 +382,8 @@ void riack_copy_content_to_rpbcontent(struct RIACK_CLIENT* client, struct RIACK_
 	ppbc_content->last_mod = pcontent->last_modified;
 	ppbc_content->has_last_mod_usecs = pcontent->last_modified_usecs_present;
 	ppbc_content->last_mod_usecs = pcontent->last_modified_usecs;
+	ppbc_content->has_deleted = pcontent->deleted_present;
+	ppbc_content->deleted = pcontent->deleted;
 
 	ppbc_content->n_usermeta = pcontent->usermeta_count;
 	if (pcontent->usermeta_count > 0) {
@@ -471,6 +473,8 @@ void riack_copy_rpbcontent_to_content(struct RIACK_CLIENT* client, RpbContent *s
 	target->last_modified = src->last_mod;
 	target->last_modified_usecs_present = src->has_last_mod_usecs;
 	target->last_modified_usecs = src->last_mod_usecs;
+	target->deleted_present = src->has_deleted;
+	target->deleted = src->deleted;
 }
 
 void riack_copy_object_to_rpbputreq(struct RIACK_CLIENT* client, struct RIACK_OBJECT *pobject, RpbPutReq* pput_req)

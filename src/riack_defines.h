@@ -100,6 +100,8 @@ struct RIACK_CONTENT
 	uint32_t last_modified;
 	uint8_t last_modified_usecs_present;
 	uint32_t last_modified_usecs;
+	uint8_t deleted_present;
+	uint8_t deleted;
 	//
 	size_t usermeta_count;
 	struct RIACK_PAIR **usermetas;
