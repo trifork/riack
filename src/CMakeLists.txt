@@ -1,8 +1,8 @@
 cmake_minimum_required (VERSION 2.6)
 project (Riack)
 
-SET(RIAK_TEST_SERVER_IP fmk-riak02.trifork.com)
-SET(RIAK_TEST_SERVER_PB_PORT 8087)
+SET(RIAK_TEST_SERVER_IP 127.0.0.1)
+SET(RIAK_TEST_SERVER_PB_PORT 8081)
 OPTION (BUILD_SHARED_LIBS "Build Shared Libraries" ON)
 
 ENABLE_TESTING()
