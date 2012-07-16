@@ -2,6 +2,7 @@
 .settings/
 .cproject
 .project
+precompiled/*.h
 install_manifest.txt
 CMakeCache.txt
 CMakeFiles/
@@ -11,14 +12,15 @@ CTestTestfile.cmake
 riak-c
 Makefile
 .DS_Store
-/*.dylib
+*.dylib
 /*.sln
-/*.so
+*.so
 *.a
 *.obj
 *.pdb
 *.user
 *.aps
+*.dll
 *.pch
 *.vspscc
 *.vssscc
@@ -32,7 +34,7 @@ Makefile
 *.cache
 *.ilk
 *.log
-/*.lib
+*.lib
 *.sbr
 *.scc
 *.sdf
