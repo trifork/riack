@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		E713E70615B473A300704C70 /* libriack.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = E713E70515B473A300704C70 /* libriack.dylib */; };
+		E713E70715B473A300704C70 /* libriack.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = E713E70515B473A300704C70 /* libriack.dylib */; };
 		E76D87CD15A6C442005176E6 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E76D87CC15A6C442005176E6 /* Cocoa.framework */; };
 		E76D87D715A6C442005176E6 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = E76D87D515A6C442005176E6 /* InfoPlist.strings */; };
 		E76D87D915A6C442005176E6 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = E76D87D815A6C442005176E6 /* main.m */; };
@@ -17,8 +19,6 @@
 		E76D87EF15A6C443005176E6 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E76D87CC15A6C442005176E6 /* Cocoa.framework */; };
 		E76D87F715A6C443005176E6 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = E76D87F515A6C443005176E6 /* InfoPlist.strings */; };
 		E76D87FA15A6C443005176E6 /* RiackExampleTests.m in Sources */ = {isa = PBXBuildFile; fileRef = E76D87F915A6C443005176E6 /* RiackExampleTests.m */; };
-		E7D428E215A6C53F000AE0D6 /* libriack.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = E7D428DF15A6C53F000AE0D6 /* libriack.dylib */; };
-		E7D428E315A6C53F000AE0D6 /* libriack.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = E7D428DF15A6C53F000AE0D6 /* libriack.dylib */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -32,6 +32,9 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		E713E70515B473A300704C70 /* libriack.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libriack.dylib; path = ../../precompiled/libriack.dylib; sourceTree = "<group>"; };
+		E713E70815B473AC00704C70 /* riack_defines.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = riack_defines.h; path = ../../../precompiled/riack_defines.h; sourceTree = "<group>"; };
+		E713E70915B473AC00704C70 /* riack.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = riack.h; path = ../../../precompiled/riack.h; sourceTree = "<group>"; };
 		E76D87C815A6C442005176E6 /* RiackExample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RiackExample.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		E76D87CC15A6C442005176E6 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		E76D87CF15A6C442005176E6 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
@@ -49,9 +52,6 @@
 		E76D87F615A6C443005176E6 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		E76D87F815A6C443005176E6 /* RiackExampleTests.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RiackExampleTests.h; sourceTree = "<group>"; };
 		E76D87F915A6C443005176E6 /* RiackExampleTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RiackExampleTests.m; sourceTree = "<group>"; };
-		E7D428DF15A6C53F000AE0D6 /* libriack.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libriack.dylib; path = "../../precompiled/mac osx/intel 64bit/libriack.dylib"; sourceTree = "<group>"; };
-		E7D428E515A6C6CD000AE0D6 /* riack_defines.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = riack_defines.h; path = "../../../precompiled/mac osx/intel 64bit/riack_defines.h"; sourceTree = "<group>"; };
-		E7D428E615A6C6CD000AE0D6 /* riack.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = riack.h; path = "../../../precompiled/mac osx/intel 64bit/riack.h"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -60,7 +60,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				E76D87CD15A6C442005176E6 /* Cocoa.framework in Frameworks */,
-				E7D428E215A6C53F000AE0D6 /* libriack.dylib in Frameworks */,
+				E713E70615B473A300704C70 /* libriack.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -70,7 +70,7 @@
 			files = (
 				E76D87EE15A6C443005176E6 /* SenTestingKit.framework in Frameworks */,
 				E76D87EF15A6C443005176E6 /* Cocoa.framework in Frameworks */,
-				E7D428E315A6C53F000AE0D6 /* libriack.dylib in Frameworks */,
+				E713E70715B473A300704C70 /* libriack.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -99,7 +99,7 @@
 		E76D87CB15A6C442005176E6 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				E7D428DF15A6C53F000AE0D6 /* libriack.dylib */,
+				E713E70515B473A300704C70 /* libriack.dylib */,
 				E76D87CC15A6C442005176E6 /* Cocoa.framework */,
 				E76D87ED15A6C443005176E6 /* SenTestingKit.framework */,
 				E76D87CE15A6C442005176E6 /* Other Frameworks */,
@@ -119,8 +119,8 @@
 		E76D87D215A6C442005176E6 /* RiackExample */ = {
 			isa = PBXGroup;
 			children = (
-				E7D428E515A6C6CD000AE0D6 /* riack_defines.h */,
-				E7D428E615A6C6CD000AE0D6 /* riack.h */,
+				E713E70815B473AC00704C70 /* riack_defines.h */,
+				E713E70915B473AC00704C70 /* riack.h */,
 				E76D87DE15A6C442005176E6 /* AppDelegate.h */,
 				E76D87DF15A6C443005176E6 /* AppDelegate.m */,
 				E76D87E115A6C443005176E6 /* MainMenu.xib */,
@@ -379,7 +379,7 @@
 				INFOPLIST_FILE = "RiackExample/RiackExample-Info.plist";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"\"$(SRCROOT)/../../precompiled/mac osx/intel 64bit\"",
+					"\"$(SRCROOT)/../../precompiled\"",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = app;
@@ -393,7 +393,7 @@
 				INFOPLIST_FILE = "RiackExample/RiackExample-Info.plist";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"\"$(SRCROOT)/../../precompiled/mac osx/intel 64bit\"",
+					"\"$(SRCROOT)/../../precompiled\"",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = app;
@@ -410,7 +410,7 @@
 				INFOPLIST_FILE = "RiackExampleTests/RiackExampleTests-Info.plist";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"\"$(SRCROOT)/../../precompiled/mac osx/intel 64bit\"",
+					"\"$(SRCROOT)/../../precompiled\"",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TEST_HOST = "$(BUNDLE_LOADER)";
@@ -428,7 +428,7 @@
 				INFOPLIST_FILE = "RiackExampleTests/RiackExampleTests-Info.plist";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"\"$(SRCROOT)/../../precompiled/mac osx/intel 64bit\"",
+					"\"$(SRCROOT)/../../precompiled\"",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TEST_HOST = "$(BUNDLE_LOADER)";
