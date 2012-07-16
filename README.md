@@ -2,9 +2,13 @@
 Is a C client library for Riak.
 
 ##Precompiled
-The easiest thing to do is just use the precompiled libraries, from the precompiled folder.
-All you need is the shared library and 2 headers and you are good to go, se examples folder
-for examples of how to use it.
+The easiest thing to do is just use the precompiled libraries you can download them from here http://kaspar.mobi/files/riack-binaries/
+They where placed in git before but it turns out git is not the best for binaries that get updated often.
+
+##Examples
+I wan't this library to be as easy as possible to use, so all you need to get started is the shared library file and 2 headers!
+To se examples of this look in the examples directory.
+Remember you need to compile the library or download the precompiled files before the examples will run.
 
 ##Compilation
 ###Dependencies
