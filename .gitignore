@@ -39,6 +39,7 @@ Makefile
 *.scc
 *.sdf
 *.opensdf
+*.xcuserstate
 /*.vcxproj
 *.filters
 [Bb]in
