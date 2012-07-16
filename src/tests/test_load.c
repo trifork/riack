@@ -59,9 +59,10 @@ int test_load_cleanup_bucket(char* szbucket)
 {
 	struct RIACK_STRING_LINKED_LIST *list;
 	RIACK_STRING bucket;
+	int result;
 	bucket.value = szbucket;
 	bucket.len = strlen(szbucket);
-	int result;
+	
 	result = 1;
 	if (riack_list_keys(test_client, bucket, &list) == RIACK_SUCCESS) {
 		if (test_delete_all_keys(bucket, list) == 0) {
