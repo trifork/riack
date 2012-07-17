@@ -24,4 +24,18 @@
 @property (weak) IBOutlet NSTableView *bucketListView;
 @property (weak) IBOutlet NSArrayController *bucketsArrayController;
 
+@property (weak) IBOutlet NSTextField *bucketSet;
+@property (weak) IBOutlet NSTextField *keySet;
+@property (weak) IBOutlet NSComboBox *contentTypeSet;
+@property (unsafe_unretained) IBOutlet NSTextView *valueSet;
+- (IBAction)setTouched:(id)sender;
+@property (weak) IBOutlet NSLevelIndicatorCell *progressSet;
+
+@property (weak) IBOutlet NSTextField *bucketGet;
+@property (weak) IBOutlet NSTextField *keyGet;
+- (IBAction)getTouched:(id)sender;
+@property (weak) IBOutlet NSTextField *vtagGet;
+@property (weak) IBOutlet NSTextField *contentTypeGet;
+@property (unsafe_unretained) IBOutlet NSTextView *valueGet;
+
 @end
