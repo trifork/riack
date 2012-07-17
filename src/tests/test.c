@@ -3,22 +3,24 @@
 
 struct RIACK_CLIENT *test_client;
 
+int test_port;
+char* test_host;
+
 int main(int argc, char *argv[])
 {
 	int result;
 	char buff[50];
-	char *module,*test,*host;
-	int port;
+	char *module,*test;
 	if (argc < 5) {
 		fprintf(stderr, "Missing arguments");
 		return -1;
 	}
 	module = argv[1];
 	test = argv[2];
-	host = argv[3];
-	port = atoi(argv[4]);
+	test_host = argv[3];
+	test_port = atoi(argv[4]);
 	result = -1;
-	if (test_setup(host, port) == 0) {
+	if (test_setup(test_host, test_port) == 0) {
 		if (strcmp(module, "ping") == 0) {
 			result = test_ping(test);
 		} else if (strcmp(module, "get_put") == 0) {
@@ -46,11 +48,12 @@ int test_setup(char* host, int port)
 	riack_init();
 	test_client = riack_new_client(0);
 	if (test_client) {
-		if (!riack_connect(test_client, host, port)) {
+		if (riack_connect(test_client, host, port, 0) != RIACK_SUCCESS) {
 			fprintf(stderr, "Failed to connect to RIAK server, make sure the tests is configured corretly in tests/CMakeLists.txt");
 			riack_free(test_client);
 			return 1;
 		}
+
 	}
 	return 0;
 }

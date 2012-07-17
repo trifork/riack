@@ -48,6 +48,11 @@ struct RIACK_ALLOCATOR
 	void *allocator_optional_data;
 };
 
+struct RIACK_CONNECTION_OPTIONS {
+	uint32_t recv_timeout_ms;
+	uint32_t send_timeout_ms;
+};
+
 typedef struct {
 	char* value;
 	size_t len;

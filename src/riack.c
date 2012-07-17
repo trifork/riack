@@ -66,12 +66,21 @@ void riack_cleanup()
 	sock_cleanup();
 }
 
-int riack_connect(struct RIACK_CLIENT *client, const char* host, int port)
+int riack_connect(struct RIACK_CLIENT *client, const char* host, int port,
+		struct RIACK_CONNECTION_OPTIONS* options)
 {
 	client->sockfd = sock_open(host, port);
-	if (client->sockfd > 0)
-		return 1;
-	return 0;
+	if (client->sockfd > 0) {
+		if (options) {
+			if (!sock_set_timeouts(client->sockfd, options->recv_timeout_ms, options->send_timeout_ms)) {
+				sock_close(client->sockfd);
+				client->sockfd = -1;
+				// TODO set last error
+			}
+		}
+		return RIACK_SUCCESS;
+	}
+	return RIACK_ERROR_COMMUNICATION;
 }
 
 int riack_ping(struct RIACK_CLIENT *client)

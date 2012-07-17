@@ -35,7 +35,8 @@ RIACK_EXPORT struct RIACK_CLIENT* riack_new_client(struct RIACK_ALLOCATOR *alloc
 RIACK_EXPORT void riack_free(struct RIACK_CLIENT *client);
 
 /// Connect to a Riak server
-RIACK_EXPORT int riack_connect(struct RIACK_CLIENT *client, const char* host, int port);
+RIACK_EXPORT int riack_connect(struct RIACK_CLIENT *client, const char* host, int port,
+		struct RIACK_CONNECTION_OPTIONS* options);
 
 /// Check if the Riak server is responding
 RIACK_EXPORT int riack_ping(struct RIACK_CLIENT *client);

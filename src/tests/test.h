@@ -16,6 +16,9 @@
 extern struct RIACK_CLIENT *test_client;
 extern struct RIACK_ALLOCATOR test_allocator;
 
+extern int test_port;
+extern char* test_host;
+
 int test_setup(char* host, int port);
 void test_teardown();
 
@@ -44,6 +47,7 @@ int test_server_info();
 int test_load_init();
 int test_load_cleanup();
 int test_last_error();
+int test_connect_with_options();
 
 // Helpers
 int put(char* key, char* data);

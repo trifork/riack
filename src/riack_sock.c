@@ -27,6 +27,7 @@
 #define __USE_POSIX
 #include <sys/types.h>
 #include <sys/socket.h>
+#include <sys/time.h>
 #include <unistd.h>
 #include <netdb.h>
 #endif
@@ -38,8 +39,7 @@ int sock_init(void)
 	int iResult;
 
 	iResult = WSAStartup(MAKEWORD(2,2), &wsaData);
-	if (iResult != 0)
-	{
+	if (iResult != 0) {
 		printf("WSAStartup failed: %d\n", iResult);
 		return -1;
 	}
@@ -56,8 +56,7 @@ void sock_cleanup()
 
 void sock_close(int sockfd)
 {
-	if (sockfd > 0)
-	{
+	if (sockfd > 0) {
 	    #ifdef WIN32
 		closesocket(sockfd);
 		#else
@@ -80,22 +79,16 @@ int sock_open(const char* host, int port)
 	hints.ai_protocol = IPPROTO_TCP;
 
 	rv = getaddrinfo(host, szPort, &hints, &servinfo);
-	if (rv != 0)
-	{
+	if (rv != 0) {
 		printf("getaddrinfo failed: %d\n", rv);
 		return -1;
 	}
 
-	for (p = servinfo; p !=NULL; p = p->ai_next)
-	{
-		if ((sockfd = socket(p->ai_family, p->ai_socktype, p->ai_protocol)) > 0)
-		{
-			if (connect(sockfd, p->ai_addr, p->ai_addrlen) == 0)
-			{
+	for (p = servinfo; p !=NULL; p = p->ai_next) {
+		if ((sockfd = socket(p->ai_family, p->ai_socktype, p->ai_protocol)) > 0) {
+			if (connect(sockfd, p->ai_addr, p->ai_addrlen) == 0) {
 				break;
-			}
-			else
-			{
+			} else {
 				sock_close(sockfd);
 				sockfd = -1;
 			}
@@ -106,6 +99,38 @@ int sock_open(const char* host, int port)
 	return sockfd;
 }
 
+#ifndef WIN32
+struct timeval timeval_from_ms(uint32_t ms)
+{
+	uint32_t timeout_secs, timeout_usecs;
+	struct timeval timeout;
+	timeout_secs = ms / 1000;
+	timeout_usecs = (ms - (timeout_secs * 1000)) * 1000;
+	timeout.tv_sec =  timeout_secs;
+	timeout.tv_usec = timeout_usecs;
+	return timeout;
+}
+#endif
+
+int sock_set_timeouts(int sockfd, uint32_t recv_timeout, uint32_t send_timeout)
+{
+#ifdef WIN32
+	uint32_t recv_timeout_rdy, send_timeout_rdy;
+	recv_timeout_rdy = recv_timeout;
+	send_timeout_rdy = send_timeout;
+#else
+	struct timeval recv_timeout_rdy, send_timeout_rdy;
+	recv_timeout_rdy = timeval_from_ms(recv_timeout);
+	send_timeout_rdy = timeval_from_ms(send_timeout);
+#endif
+	if (setsockopt(sockfd, SOL_SOCKET, SO_RCVTIMEO, (void*)&recv_timeout_rdy, sizeof(recv_timeout_rdy)) < 0) {
+		return 0;
+	}
+	if (setsockopt(sockfd, SOL_SOCKET, SO_SNDTIMEO, (void*)&send_timeout_rdy, sizeof(send_timeout_rdy)) < 0) {
+		return 0;
+	}
+	return 1;
+}
 int sock_recv(int sockfd, uint8_t* buff, int len)
 {
 	return recv(sockfd, (char*)buff, len, 0);
