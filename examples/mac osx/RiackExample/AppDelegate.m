@@ -86,7 +86,7 @@
 - (IBAction)connectClicked:(id)sender {
     NSString *host = [self.host stringValue];
     const char* szHost = [host cStringUsingEncoding:NSASCIIStringEncoding];
-    if (riack_connect(client, szHost, [self.port intValue]) == RIACK_SUCCESS) {
+    if (riack_connect(client, szHost, [self.port intValue], 0) == RIACK_SUCCESS) {
         self.labelConnectionState.stringValue = @"Connected";
         [self updateServerInfo];
     } else {

@@ -12,6 +12,8 @@ CTestTestfile.cmake
 riak-c
 Makefile
 .DS_Store
+*.zip
+*.tar.gz
 *.dylib
 /*.sln
 *.so
