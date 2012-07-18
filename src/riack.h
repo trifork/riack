@@ -38,6 +38,13 @@ RIACK_EXPORT void riack_free(struct RIACK_CLIENT *client);
 RIACK_EXPORT int riack_connect(struct RIACK_CLIENT *client, const char* host, int port,
 		struct RIACK_CONNECTION_OPTIONS* options);
 
+/// Disconnect from Riak server
+RIACK_EXPORT int riack_disconnect(struct RIACK_CLIENT *client);
+
+/// Reconnect to Riak server,
+/// I recommended doing this when receiving an error response or timeout
+RIACK_EXPORT int riack_reconnect(struct RIACK_CLIENT *client);
+
 /// Check if the Riak server is responding
 RIACK_EXPORT int riack_ping(struct RIACK_CLIENT *client);
 
@@ -108,5 +115,7 @@ RIACK_EXPORT void riack_free_string_list(struct RIACK_CLIENT* client, RIACK_STRI
 
 RIACK_EXPORT void riack_free_string_linked_list(struct RIACK_CLIENT* client, struct RIACK_STRING_LINKED_LIST** strings);
 
+/// For testing purpose make a recv without sending anything
+RIACK_EXPORT void riack_timeout_test(struct RIACK_CLIENT* client);
 
 #endif /* __RIACK_RIAK_C_H_ */

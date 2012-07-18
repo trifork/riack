@@ -40,6 +40,10 @@ struct RIACK_CLIENT* riack_new_client(struct RIACK_ALLOCATOR *allocator)
 	result->sockfd = -1;
 	result->last_error = 0;
 	result->last_error_code = 0;
+	result->host = 0;
+	result->port = 0;
+	result->options.recv_timeout_ms = 0;
+	result->options.send_timeout_ms = 0;
 	return result;
 }
 
@@ -49,9 +53,10 @@ void riack_free(struct RIACK_CLIENT *client)
 		if (client->last_error) {
 			RFREE(client, client->last_error);
 		}
-		if (client->sockfd > 0) {
-			sock_close(client->sockfd);
+		if (client->host) {
+			RFREE(client, client->host);
 		}
+		riack_disconnect(client);
 		client->allocator.free(0, client);
 	}
 }
@@ -71,7 +76,16 @@ int riack_connect(struct RIACK_CLIENT *client, const char* host, int port,
 {
 	client->sockfd = sock_open(host, port);
 	if (client->sockfd > 0) {
+		if (client->host && host != client->host) {
+			RFREE(client, client->host);
+		}
+		if (host != client->host) {
+			client->host = (char*)RMALLOC(client, strlen(host));
+			strcpy(client->host, host);
+		}
+		client->port = port;
 		if (options) {
+			client->options = *options;
 			if (!sock_set_timeouts(client->sockfd, options->recv_timeout_ms, options->send_timeout_ms)) {
 				sock_close(client->sockfd);
 				client->sockfd = -1;
@@ -81,6 +95,21 @@ int riack_connect(struct RIACK_CLIENT *client, const char* host, int port,
 		return RIACK_SUCCESS;
 	}
 	return RIACK_ERROR_COMMUNICATION;
+}
+
+int riack_disconnect(struct RIACK_CLIENT *client)
+{
+	if (client->sockfd > 0) {
+		sock_close(client->sockfd);
+		client->sockfd = -1;
+	}
+	return RIACK_SUCCESS;
+}
+
+int riack_reconnect(struct RIACK_CLIENT *client)
+{
+	riack_disconnect(client);
+	return riack_connect(client, client->host, client->port, &client->options);
 }
 
 int riack_ping(struct RIACK_CLIENT *client)
@@ -779,5 +808,11 @@ int riack_get_clientid(struct RIACK_CLIENT *client, RIACK_STRING *clientid)
 		riack_message_free(client, &msg_resp);
 	}
 	return result;
+}
+
+void riack_timeout_test(struct RIACK_CLIENT* client)
+{
+	struct RIACK_PB_MSG *msg_resp;
+	riack_receive_message(client, &msg_resp);
 }
 

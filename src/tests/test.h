@@ -48,6 +48,7 @@ int test_load_init();
 int test_load_cleanup();
 int test_last_error();
 int test_connect_with_options();
+int test_reconnect();
 
 // Helpers
 int put(char* key, char* data);

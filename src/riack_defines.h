@@ -72,6 +72,9 @@ struct RIACK_CLIENT {
 	int sockfd;
 	char* last_error;
 	uint32_t last_error_code;
+	char* host;
+	int port;
+	struct RIACK_CONNECTION_OPTIONS options;
 
 	struct RIACK_ALLOCATOR allocator;
 };
