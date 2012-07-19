@@ -17,6 +17,7 @@ set(LIBS ${LIBS} ${PROTOBUFC_LIBRARIES})
 SET(RIACK_SRC	riack_sock.c
 				riack_sock.h
 				riack.c
+				riack_kv.c
 				riack.h
 				riack_defines.h
 				riack_msg.c
