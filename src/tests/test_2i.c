@@ -109,6 +109,7 @@ int test_2i_range()
 			result = 2;
 			break;
 		}
+		riack_free_string_list(test_client, &keys);
 	}
 
 	return result;

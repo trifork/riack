@@ -139,7 +139,7 @@ void riak_free_copied_content(struct RIACK_CLIENT* client, struct RIACK_CONTENT 
 	cnt = pcontent->usermeta_count;
 	if (cnt > 0) {
 		for (i=0; i<cnt; ++i) {
-			riak_free_copied_pair(client, pcontent->usermetas[i]);
+			riak_free_copied_pair(client, &pcontent->usermetas[i]);
 		}
 		RFREE(client,pcontent->usermetas);
 	}
@@ -147,7 +147,7 @@ void riak_free_copied_content(struct RIACK_CLIENT* client, struct RIACK_CONTENT 
 	cnt = pcontent->link_count;
 	if (cnt > 0) {
 		for (i=0; i<cnt; ++i) {
-			riak_free_copied_link(client, pcontent->links[i]);
+			riak_free_copied_link(client, &pcontent->links[i]);
 		}
 		RFREE(client,pcontent->links);
 	}
@@ -389,7 +389,7 @@ void riack_copy_content_to_rpbcontent(struct RIACK_CLIENT* client, struct RIACK_
 		ppbc_content->links = (RpbLink**)RMALLOC(client, sizeof(RpbLink**) * pcontent->link_count);
 		for (i=0; i<pcontent->link_count; ++i) {
 			ppbc_content->links[i] = (RpbLink*)RMALLOC(client, sizeof(RpbLink));
-			riak_copy_link_to_rpblink(client, pcontent->links[i], ppbc_content->links[i]);
+			riak_copy_link_to_rpblink(client, &pcontent->links[i], ppbc_content->links[i]);
 		}
 	}
 
@@ -405,7 +405,7 @@ void riack_copy_content_to_rpbcontent(struct RIACK_CLIENT* client, struct RIACK_
 		ppbc_content->usermeta = (RpbPair**)RMALLOC(client, sizeof(RpbPair**) * pcontent->usermeta_count);
 		for (i=0; i<pcontent->usermeta_count; ++i) {
 			ppbc_content->usermeta[i] = (RpbPair*)RMALLOC(client, sizeof(RpbPair));
-			riak_copy_pair_to_rpbpair(client, pcontent->usermetas[i], ppbc_content->usermeta[i]);
+			riak_copy_pair_to_rpbpair(client, &pcontent->usermetas[i], ppbc_content->usermeta[i]);
 		}
 	}
 
@@ -469,18 +469,18 @@ void riack_copy_rpbcontent_to_content(struct RIACK_CLIENT* client, RpbContent *s
 	cnt = src->n_usermeta;
 	target->usermeta_count = cnt;
 	if (cnt > 0) {
-		*target->usermetas = (struct RIACK_PAIR*)RMALLOC(client, sizeof(struct RIACK_PAIR*) * cnt);
+		target->usermetas = (struct RIACK_PAIR*)RMALLOC(client, sizeof(struct RIACK_PAIR) * cnt);
 		for (i=0; i<cnt; ++i) {
-			riak_copy_rpbpair_to_pair(client, src->usermeta[i], target->usermetas[i]);
+			riak_copy_rpbpair_to_pair(client, src->usermeta[i], &target->usermetas[i]);
 		}
 	}
 
 	cnt = src->n_links;
 	target->link_count = cnt;
 	if (cnt > 0) {
-		*target->links = (struct RIACK_LINK*)RMALLOC(client, sizeof(struct RIACK_LINK*) * cnt);
+		target->links = (struct RIACK_LINK*)RMALLOC(client, sizeof(struct RIACK_LINK) * cnt);
 		for (i=0; i<cnt; ++i) {
-			riak_copy_rpblink_to_link(client, src->links[i], target->links[i]);
+			riak_copy_rpblink_to_link(client, src->links[i], &target->links[i]);
 		}
 	}
 

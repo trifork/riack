@@ -103,7 +103,7 @@ struct RIACK_CONTENT
 	RIACK_STRING content_encoding;
 	RIACK_STRING vtag;
 	size_t link_count;
-	struct RIACK_LINK** links;
+	struct RIACK_LINK* links;
 	//
 	uint8_t last_modified_present;
 	uint32_t last_modified;
@@ -113,7 +113,7 @@ struct RIACK_CONTENT
 	uint8_t deleted;
 	//
 	size_t usermeta_count;
-	struct RIACK_PAIR **usermetas;
+	struct RIACK_PAIR *usermetas;
 	size_t index_count;
 	struct RIACK_PAIR *indexes;
 };

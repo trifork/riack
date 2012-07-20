@@ -1,14 +1,6 @@
 #Riack
 Is a C client library for Riak.
 
-##Precompiled
-The easiest thing to do is just use the precompiled libraries you can download them from the files section: https://github.com/trifork/riack/downloads  
-
-##Examples
-I wan't this library to be as easy as possible to use, so all you need to get started is the shared library file and 2 headers!  
-To se examples of this look in the examples directory.  
-Remember you need to compile the library or download the precompiled files before the examples will run.
-
 ##Compilation
 ###Dependencies
 
@@ -53,11 +45,18 @@ Note on windows you might need to tell cmake where to find the Protobuf-C files
 You can do this by passing some options to cmake which is hard to remember ;) I recommend 
 to just edit src\cmake\Modules\FindProtoBufC.cmake lines 19 & 20.
 
+##Examples
+To se examples of this look in the examples directory.  
+Before the examples can run you must place the compiled library files in the precompiled folder (see the precompiled/README.md file for details).  
+
+
 ##Tests
-To run the test first input an ip/port in src/CMakeLists.txt line 4 & 5 and rerun cmake
+To make all tests succeed you need a running riak server with eleveldb backend.
+If your server is running on localhost with port 8081 set as protocol buffer port, you can run it right away, if not you need to input the ip and port in src/CMakeLists.txt line 4 & 5 and rerun cmake  
 When ready you can simply do a make test.
 (on windows just choose the correct build target in Visual Studio)
 
 ##Disclamer
 This is a sparetime project, so if you so a silly bug don't blame my employer, instead 
-make a pull request ;)
+make a pull request ;)  
+
