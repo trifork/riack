@@ -115,7 +115,7 @@ struct RIACK_CONTENT
 	size_t usermeta_count;
 	struct RIACK_PAIR **usermetas;
 	size_t index_count;
-	struct RIACK_PAIR **indexes;
+	struct RIACK_PAIR *indexes;
 };
 
 enum RIACK_MAPRED_CONTENT_TYPE {

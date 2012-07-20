@@ -131,7 +131,7 @@ void riak_free_copied_content(struct RIACK_CLIENT* client, struct RIACK_CONTENT 
 	cnt = pcontent->index_count;
 	if (cnt > 0) {
 		for (i=0; i<cnt; ++i) {
-			riak_free_copied_pair(client, pcontent->indexes[i]);
+			riak_free_copied_pair(client, &pcontent->indexes[i]);
 		}
 		RFREE(client,pcontent->indexes);
 	}
@@ -414,7 +414,7 @@ void riack_copy_content_to_rpbcontent(struct RIACK_CLIENT* client, struct RIACK_
 		ppbc_content->indexes = (RpbPair**)RMALLOC(client, sizeof(RpbPair**) * pcontent->index_count);
 		for (i=0; i<pcontent->index_count; ++i) {
 			ppbc_content->indexes[i] = (RpbPair*)RMALLOC(client, sizeof(RpbPair));
-			riak_copy_pair_to_rpbpair(client, pcontent->indexes[i], ppbc_content->indexes[i]);
+			riak_copy_pair_to_rpbpair(client, &pcontent->indexes[i], ppbc_content->indexes[i]);
 		}
 	}
 }
@@ -460,9 +460,9 @@ void riack_copy_rpbcontent_to_content(struct RIACK_CLIENT* client, RpbContent *s
 	cnt = src->n_indexes;
 	target->index_count = cnt;
 	if (cnt > 0) {
-		*target->indexes = (struct RIACK_PAIR*)RMALLOC(client, sizeof(struct RIACK_PAIR*) * cnt);
+		target->indexes = (struct RIACK_PAIR*)RMALLOC(client, sizeof(struct RIACK_PAIR) * cnt);
 		for (i=0; i<cnt; ++i) {
-			riak_copy_rpbpair_to_pair(client, src->indexes[i], target->indexes[i]);
+			riak_copy_rpbpair_to_pair(client, src->indexes[i], &target->indexes[i]);
 		}
 	}
 

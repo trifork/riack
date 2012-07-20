@@ -674,12 +674,13 @@ int riack_2i_query(struct RIACK_CLIENT *client, RpbIndexReq* request, RIACK_STRI
 				index_resp = rpb_index_resp__unpack(&pb_allocator, msg_resp->msg_len, msg_resp->msg);
 				keys = index_resp->n_keys;
 				result_keys->string_count = keys;
-				result_keys->strings = RMALLOC(client, sizeof(RIACK_STRING)*keys);
+				result_keys->strings = RMALLOC(client, sizeof(RIACK_STRING) * keys);
 				for (i=0; i<keys; ++i) {
 					RMALLOCCOPY(client, result_keys->strings[i].value, result_keys->strings[i].len,
 							index_resp->keys[i].data, index_resp->keys[i].len);
 				}
 				rpb_index_resp__free_unpacked(index_resp, &pb_allocator);
+				result = RIACK_SUCCESS;
 			} else {
 				riack_got_error_response(client, msg_resp);
 				result = RIACK_ERROR_RESPONSE;
@@ -721,8 +722,9 @@ int riack_2i_query_range(struct RIACK_CLIENT *client, RIACK_STRING bucket,
 	req.has_range_min = 1;
 	req.range_min.len = search_key_min.len;
 	req.range_min.data = (uint8_t*)search_key_min.value;
+	req.has_range_max = 1;
 	req.range_max.len = search_key_max.len;
-	req.range_max.data = (uint8_t*)search_key_min.value;
+	req.range_max.data = (uint8_t*)search_key_max.value;
 	req.index.len = index.len;
 	req.index.data = (uint8_t*)index.value;
 	req.qtype = RPB_INDEX_REQ__INDEX_QUERY_TYPE__range;

@@ -36,6 +36,7 @@ SET(RIACK_SRC	riack_sock.c
 
 SET(TESTS_MAIN_SRC	tests/test.h
 				 	tests/test.c 
+				 	tests/test_2i.c 
 					tests/test_mem.c 
 					tests/test_get_put.c
 					tests/test_ping.c
@@ -84,4 +85,8 @@ ADD_TEST(test-put1		  ${CMAKE_CURRENT_BINARY_DIR}/tests get_put put1 ${RIAK_TEST
 ADD_TEST(test-put2 		  ${CMAKE_CURRENT_BINARY_DIR}/tests get_put put2 ${RIAK_TEST_SERVER_IP} ${RIAK_TEST_SERVER_PB_PORT})
 ADD_TEST(test-get1 		  ${CMAKE_CURRENT_BINARY_DIR}/tests get_put get1 ${RIAK_TEST_SERVER_IP} ${RIAK_TEST_SERVER_PB_PORT})
 ADD_TEST(test-mapred1 	  ${CMAKE_CURRENT_BINARY_DIR}/tests mapred basic ${RIAK_TEST_SERVER_IP} ${RIAK_TEST_SERVER_PB_PORT})
+ADD_TEST(test-2i-load	  ${CMAKE_CURRENT_BINARY_DIR}/tests 2i load ${RIAK_TEST_SERVER_IP} ${RIAK_TEST_SERVER_PB_PORT})
+ADD_TEST(test-2i-exact    ${CMAKE_CURRENT_BINARY_DIR}/tests 2i exact ${RIAK_TEST_SERVER_IP} ${RIAK_TEST_SERVER_PB_PORT})
+ADD_TEST(test-2i-range    ${CMAKE_CURRENT_BINARY_DIR}/tests 2i range ${RIAK_TEST_SERVER_IP} ${RIAK_TEST_SERVER_PB_PORT})
+ADD_TEST(test-2i-cleanup  ${CMAKE_CURRENT_BINARY_DIR}/tests 2i cleanup ${RIAK_TEST_SERVER_IP} ${RIAK_TEST_SERVER_PB_PORT})
 ADD_TEST(test-cleanup     ${CMAKE_CURRENT_BINARY_DIR}/tests load cleanup ${RIAK_TEST_SERVER_IP} ${RIAK_TEST_SERVER_PB_PORT})

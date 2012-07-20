@@ -31,6 +31,7 @@ int test_mapred(char* testcase);
 int test_clientid(char* testcase);
 int test_load(char* testcase);
 int test_misc(char* testcase);
+int test_2i(char* testcase);
 
 // Specific tests
 int test_bucket_list();
@@ -49,8 +50,13 @@ int test_load_cleanup();
 int test_last_error();
 int test_connect_with_options();
 int test_reconnect();
+int test_2i_load();
+int test_2i_cleanup();
+int test_2i_range();
+int test_2i_exact();
 
 // Helpers
+int test_load_cleanup_bucket(char* szbucket);
 int put(char* key, char* data);
 int delete(char* key);
 
