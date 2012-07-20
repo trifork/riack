@@ -650,3 +650,82 @@ int riack_map_redue(struct RIACK_CLIENT *client, size_t data_len, uint8_t* data,
 
 	return result;
 }
+
+int riack_2i_query(struct RIACK_CLIENT *client, RpbIndexReq* request, RIACK_STRING_LIST* result_keys)
+{
+	struct RIACK_PB_MSG msg_req, *msg_resp;
+	ProtobufCAllocator pb_allocator;
+	RpbIndexResp *index_resp;
+	int result;
+	size_t packed_size, keys, i;
+	uint8_t *request_buffer;
+	result = RIACK_ERROR_COMMUNICATION;
+	pb_allocator = riack_pb_allocator(&client->allocator);
+	packed_size = rpb_index_req__get_packed_size(request);
+	request_buffer = (uint8_t*)RMALLOC(client, packed_size);
+	if (request_buffer) {
+		rpb_index_req__pack(request, request_buffer);
+		msg_req.msg = request_buffer;
+		msg_req.msg_code = mc_RpbIndexReq;
+		msg_req.msg_len = packed_size;
+		if ((riack_send_message(client, &msg_req) > 0) &&
+			(riack_receive_message(client, &msg_resp) > 0)) {
+			if (msg_resp->msg_code == mc_RpbIndexResp) {
+				index_resp = rpb_index_resp__unpack(&pb_allocator, msg_resp->msg_len, msg_resp->msg);
+				keys = index_resp->n_keys;
+				result_keys->string_count = keys;
+				result_keys->strings = RMALLOC(client, sizeof(RIACK_STRING)*keys);
+				for (i=0; i<keys; ++i) {
+					RMALLOCCOPY(client, result_keys->strings[i].value, result_keys->strings[i].len,
+							index_resp->keys[i].data, index_resp->keys[i].len);
+				}
+				rpb_index_resp__free_unpacked(index_resp, &pb_allocator);
+			} else {
+				riack_got_error_response(client, msg_resp);
+				result = RIACK_ERROR_RESPONSE;
+			}
+			riack_message_free(client, &msg_resp);
+		}
+		RFREE(client, request_buffer);
+	}
+	return result;
+}
+
+int riack_2i_query_exact(struct RIACK_CLIENT *client, RIACK_STRING bucket,
+		RIACK_STRING index, RIACK_STRING search_key, RIACK_STRING_LIST* result_keys)
+{
+	int result;
+	RpbIndexReq req;
+	rpb_index_req__init(&req);
+	req.bucket.len = bucket.len;
+	req.bucket.data = (uint8_t*)bucket.value;
+	req.has_key = 1;
+	req.key.len = search_key.len;
+	req.key.data = (uint8_t*)search_key.value;
+	req.index.len = index.len;
+	req.index.data = (uint8_t*)index.value;
+	req.qtype = RPB_INDEX_REQ__INDEX_QUERY_TYPE__eq;
+	result = riack_2i_query(client, &req, result_keys);
+	return result;
+}
+
+int riack_2i_query_range(struct RIACK_CLIENT *client, RIACK_STRING bucket,
+		RIACK_STRING index, RIACK_STRING search_key_min,
+		RIACK_STRING search_key_max, RIACK_STRING_LIST* result_keys)
+{
+	int result;
+	RpbIndexReq req;
+	rpb_index_req__init(&req);
+	req.bucket.len = bucket.len;
+	req.bucket.data = (uint8_t*)bucket.value;
+	req.has_range_min = 1;
+	req.range_min.len = search_key_min.len;
+	req.range_min.data = (uint8_t*)search_key_min.value;
+	req.range_max.len = search_key_max.len;
+	req.range_max.data = (uint8_t*)search_key_min.value;
+	req.index.len = index.len;
+	req.index.data = (uint8_t*)index.value;
+	req.qtype = RPB_INDEX_REQ__INDEX_QUERY_TYPE__range;
+	result = riack_2i_query(client, &req, result_keys);
+	return result;
+}

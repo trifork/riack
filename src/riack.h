@@ -103,6 +103,19 @@ RIACK_EXPORT int riack_put_simple(struct RIACK_CLIENT *client,
 								   size_t datalen,
 								   char* content_type);
 
+RIACK_EXPORT int riack_2i_query_exact(struct RIACK_CLIENT *client,
+								   	  RIACK_STRING bucket,
+								   	  RIACK_STRING index,
+								   	  RIACK_STRING search_key,
+								   	  RIACK_STRING_LIST *result_keys);
+
+RIACK_EXPORT int riack_2i_query_range(struct RIACK_CLIENT *client,
+								   	  RIACK_STRING bucket,
+								   	  RIACK_STRING index,
+								   	  RIACK_STRING search_key_min,
+								   	  RIACK_STRING search_key_max,
+								   	  RIACK_STRING_LIST *result_keys);
+
 RIACK_EXPORT void riack_free_object(struct RIACK_CLIENT* client, struct RIACK_OBJECT *pobject);
 
 RIACK_EXPORT void riack_free_get_object(struct RIACK_CLIENT* client, struct RIACK_GET_OBJECT *pobject);
