@@ -438,7 +438,7 @@ int riack_list_keys(struct RIACK_CLIENT *client, RIACK_STRING bucket, struct RIA
 			*keys = 0;
 			current = *keys;
 			while (!recvdone) {
-				if (riack_receive_message(client, &msg_resp)) {
+				if (riack_receive_message(client, &msg_resp) > 0) {
 					if (msg_resp->msg_code == mc_RpbListKeysResp) {
 						list_resp = rpb_list_keys_resp__unpack(&pb_allocator, msg_resp->msg_len, msg_resp->msg);
 						if (list_resp->has_done && list_resp->done) {

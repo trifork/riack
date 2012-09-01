@@ -80,7 +80,7 @@ int riack_connect(struct RIACK_CLIENT *client, const char* host, int port,
 			RFREE(client, client->host);
 		}
 		if (host != client->host) {
-			client->host = (char*)RMALLOC(client, strlen(host));
+			client->host = (char*)RMALLOC(client, strlen(host)+1);
 			strcpy(client->host, host);
 		}
 		client->port = port;

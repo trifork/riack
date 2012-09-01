@@ -28,9 +28,10 @@ int put_object_with_index(char* bucket, char* key, char*value, struct RIACK_PAIR
 {
 	struct RIACK_CONTENT content;
 	struct RIACK_OBJECT object;
+	size_t i;
 	memset(&content, 0, sizeof(content));
 	memset(&object, 0, sizeof(object));
-	size_t i;
+	
 	object.bucket.value = bucket;
 	object.bucket.len = strlen(bucket);
 	object.key.value = key;
@@ -53,6 +54,7 @@ int test_2i_load()
 {
 	char buffer1[10], buffer2[10], keybuffer[16];
 	struct RIACK_PAIR *indexes;
+	int i;
 	indexes = malloc(sizeof(struct RIACK_PAIR)*2);
 	indexes[0].key.value = TETS_2i_INDEX1;
 	indexes[0].key.len = strlen(indexes[0].key.value);
@@ -60,7 +62,7 @@ int test_2i_load()
 	indexes[1].key.value = TETS_2i_INDEX2;
 	indexes[1].key.len = strlen(indexes[1].key.value);
 	indexes[1].value_present = 1;
-	int i;
+	
 	for (i=0; i<TEST_2i_ENTRIES_X10*10; ++i) {
 		sprintf(buffer1, "%d", i);
 		sprintf(buffer2, "%d", i % 10);
