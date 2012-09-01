@@ -14,6 +14,10 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
+
+#pragma warning( disable:4005 )
+#define _CRT_SECURE_NO_WARNINGS
+
 #include "riack_helpers.h"
 #include "riack.h"
 #include <string.h>

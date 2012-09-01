@@ -35,7 +35,7 @@ int test_put1()
 
 int test_put_return_header()
 {
-	char* data, vclock[256];
+	char* data;
 	size_t cnt, i;
 	int result;
 	struct RIACK_OBJECT obj, put_result;

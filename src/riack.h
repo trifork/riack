@@ -56,6 +56,9 @@ RIACK_EXPORT int riack_list_keys(struct RIACK_CLIENT *client, RIACK_STRING bucke
 /// Set bucket properties
 RIACK_EXPORT int riack_set_bucket_props(struct RIACK_CLIENT *client, RIACK_STRING bucket, uint32_t n_val, uint8_t allow_mult);
 
+/// Get bucket properties
+RIACK_EXPORT int riack_get_bucket_props(struct RIACK_CLIENT *client, RIACK_STRING bucket, uint32_t *n_val, uint8_t *allow_mult);
+
 /// Retrive server info
 RIACK_EXPORT int riack_server_info(struct RIACK_CLIENT *client, RIACK_STRING *node, RIACK_STRING* version);
 

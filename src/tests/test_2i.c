@@ -28,7 +28,7 @@ int put_object_with_index(char* bucket, char* key, char*value, struct RIACK_PAIR
 {
 	struct RIACK_CONTENT content;
 	struct RIACK_OBJECT object;
-	size_t i;
+	
 	memset(&content, 0, sizeof(content));
 	memset(&object, 0, sizeof(object));
 	
@@ -122,7 +122,7 @@ int test_2i_exact()
 	char buffer[10], expected_key[100];
 	RIACK_STRING index1, index2, search_key, bucket;
 	RIACK_STRING_LIST keys;
-	int i, result, expected_i;
+	int i, result;
 	index1.len = strlen(TETS_2i_INDEX1);
 	index1.value = TETS_2i_INDEX1;
 	index2.len = strlen(TETS_2i_INDEX2);

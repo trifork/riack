@@ -9,7 +9,6 @@ char* test_host;
 int main(int argc, char *argv[])
 {
 	int result;
-	char buff[50];
 	char *module,*test;
 	if (argc < 5) {
 		fprintf(stderr, "Missing arguments");

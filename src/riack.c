@@ -15,15 +15,19 @@
    limitations under the License.
 */
 
+#pragma warning( disable:4005 )
+#define _CRT_SECURE_NO_WARNINGS
+
 #include "riack.h"
 #include "riack_msg.h"
 #include "riack_helpers.h"
 #include "riack_sock.h"
-#include "protocol/riak_msg_codes.h"
-#include "protocol/riak_kv.pb-c.h"
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+
+#include "protocol/riak_msg_codes.h"
+#include "protocol/riak_kv.pb-c.h"
 
 ProtobufCAllocator riack_pb_allocator(struct RIACK_ALLOCATOR *allocator);
 

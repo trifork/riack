@@ -15,6 +15,9 @@
    limitations under the License.
 */
 
+#pragma warning( disable:4005 )
+#define _CRT_SECURE_NO_WARNINGS
+
 #include "riack.h"
 #include "riack_msg.h"
 #include "riack_helpers.h"
@@ -359,6 +362,22 @@ int riack_delete(struct RIACK_CLIENT *client, RIACK_STRING bucket, RIACK_STRING 
 	return result;
 }
 
+int riack_get_bucket_props(struct RIACK_CLIENT *client, RIACK_STRING bucket, uint32_t *n_val, uint8_t *allow_mult)
+{
+	int result;
+	struct RIACK_PB_MSG msg_req, *msg_resp;
+	size_t packed_size;
+	uint8_t *request_buffer;
+	RpbGetBucketResp *response;
+	RpbGetBucketReq get_request = RPB_GET_BUCKET_REQ__INIT;
+
+	if (!client || !bucket.value || bucket.len == 0) {
+		return RIACK_ERROR_INVALID_INPUT;
+	}
+	result = RIACK_ERROR_COMMUNICATION;
+	get_request.bucket.len = bucket.len;
+	get_request.bucket.data = (uint8_t*)bucket.value;
+}
 
 int riack_set_bucket_props(struct RIACK_CLIENT *client, RIACK_STRING bucket, uint32_t n_val, uint8_t allow_mult)
 {
@@ -380,7 +399,7 @@ int riack_set_bucket_props(struct RIACK_CLIENT *client, RIACK_STRING bucket, uin
 	bck_props.n_val = n_val;
 	set_request.props = &bck_props;
 	set_request.bucket.len = bucket.len;
-	set_request.bucket.data = bucket.value;
+	set_request.bucket.data = (uint8_t*)bucket.value;
 	packed_size = rpb_set_bucket_req__get_packed_size(&set_request);
 	request_buffer = (uint8_t*)RMALLOC(client, packed_size);
 	if (request_buffer) {

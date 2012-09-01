@@ -39,7 +39,7 @@
 #define RMALLOC(client, size) client->allocator.alloc(0, size)
 #define RFREE(client, pointer) client->allocator.free(0, pointer)
 
-#define RMALLOCCOPY(client, target, target_len, source, len) target = RMALLOC(client, len); memcpy(target, source, len); target_len=len
+#define RMALLOCCOPY(client, target, target_len, source, len) (void*)target = RMALLOC(client, len); memcpy(target, source, len); target_len=len
 
 struct RIACK_ALLOCATOR
 {

@@ -14,6 +14,8 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
+#pragma warning( disable:4005 )
+
 #include "riack.h"
 #include <stdio.h>
 #include "protocol/riak.pb-c.h"
