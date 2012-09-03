@@ -57,6 +57,7 @@ RIACK_EXPORT int riack_list_keys(struct RIACK_CLIENT *client, RIACK_STRING bucke
 RIACK_EXPORT int riack_set_bucket_props(struct RIACK_CLIENT *client, RIACK_STRING bucket, uint32_t n_val, uint8_t allow_mult);
 
 /// Get bucket properties
+/// Note if the server chooses not to respond with n_val or allow_mult it will not be set
 RIACK_EXPORT int riack_get_bucket_props(struct RIACK_CLIENT *client, RIACK_STRING bucket, uint32_t *n_val, uint8_t *allow_mult);
 
 /// Retrive server info

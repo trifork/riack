@@ -366,6 +366,7 @@ int riack_get_bucket_props(struct RIACK_CLIENT *client, RIACK_STRING bucket, uin
 {
 	int result;
 	struct RIACK_PB_MSG msg_req, *msg_resp;
+	ProtobufCAllocator pb_allocator;
 	size_t packed_size;
 	uint8_t *request_buffer;
 	RpbGetBucketResp *response;
@@ -374,9 +375,39 @@ int riack_get_bucket_props(struct RIACK_CLIENT *client, RIACK_STRING bucket, uin
 	if (!client || !bucket.value || bucket.len == 0) {
 		return RIACK_ERROR_INVALID_INPUT;
 	}
+	pb_allocator = riack_pb_allocator(&client->allocator);
 	result = RIACK_ERROR_COMMUNICATION;
 	get_request.bucket.len = bucket.len;
 	get_request.bucket.data = (uint8_t*)bucket.value;
+	packed_size = rpb_get_bucket_req__get_packed_size(&get_request);
+	request_buffer = (uint8_t*)RMALLOC(client, packed_size);
+	if (request_buffer) {
+		rpb_get_bucket_req__pack(&get_request, request_buffer);
+		msg_req.msg_code = mc_RpbGetBucketReq;
+		msg_req.msg_len = packed_size;
+		msg_req.msg = request_buffer;
+		if ((riack_send_message(client, &msg_req))&&
+			(riack_receive_message(client, &msg_resp) > 0))
+		{
+			if (msg_resp->msg_code == mc_RpbIndexResp) {
+				response = rpb_get_bucket_resp__unpack(&pb_allocator, msg_resp->msg_len, msg_resp->msg);
+				if (response->props->has_allow_mult) {
+					*allow_mult = response->props->allow_mult;
+				}
+				if (response->props->has_n_val) {
+					*n_val = response->props->n_val;
+				}
+				rpb_get_bucket_resp__free_unpacked(response, &pb_allocator);
+				result = RIACK_SUCCESS;
+			} else {
+				riack_got_error_response(client, msg_resp);
+				result = RIACK_ERROR_RESPONSE;
+			}
+		}
+
+		RFREE(client, request_buffer);
+	}
+	return result;
 }
 
 int riack_set_bucket_props(struct RIACK_CLIENT *client, RIACK_STRING bucket, uint32_t n_val, uint8_t allow_mult)
@@ -496,7 +527,7 @@ int riack_list_buckets(struct RIACK_CLIENT *client, RIACK_STRING_LIST* bucket_li
 	struct RIACK_PB_MSG *msg_resp;
 	RpbListBucketsResp *list_resp;
 	ProtobufCAllocator pb_allocator;
-	size_t i, buck_len;
+	size_t i;
 
 	if (!client || !bucket_list) {
 		return RIACK_ERROR_INVALID_INPUT;
