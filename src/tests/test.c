@@ -34,6 +34,8 @@ int main(int argc, char *argv[])
 			result = test_clientid(test);
 		} else if (strcmp(module, "2i") == 0) {
 			result = test_2i(test);
+		} else if (strcmp(module, "meta-links") == 0) {
+			result = test_meta_links(test);
 		} else if (strcmp(module, "load") == 0) {
 			result = test_load(test);
 		} else if (strcmp(module, "misc") == 0) {

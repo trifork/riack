@@ -120,6 +120,10 @@ RIACK_EXPORT int riack_2i_query_range(struct RIACK_CLIENT *client,
 								   	  RIACK_STRING search_key_max,
 								   	  RIACK_STRING_LIST *result_keys);
 
+RIACK_EXPORT RIACK_STRING riack_copy_from_cstring(struct RIACK_CLIENT* client, char* source);
+
+RIACK_EXPORT RIACK_STRING riack_copy_string(struct RIACK_CLIENT* client, RIACK_STRING source);
+
 RIACK_EXPORT void riack_free_object(struct RIACK_CLIENT* client, struct RIACK_OBJECT *pobject);
 
 RIACK_EXPORT void riack_free_get_object(struct RIACK_CLIENT* client, struct RIACK_GET_OBJECT *pobject);

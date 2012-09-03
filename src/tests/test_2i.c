@@ -75,6 +75,7 @@ int test_2i_load()
 			return 1;
 		}
 	}
+	free(indexes);
 	return 0;
 }
 

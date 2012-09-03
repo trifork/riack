@@ -122,7 +122,7 @@ void riak_free_copied_link(struct RIACK_CLIENT* client, struct RIACK_LINK *plink
 	RFREE(client, plink->tag.value);
 }
 
-void riak_free_copied_content(struct RIACK_CLIENT* client, struct RIACK_CONTENT *pcontent)
+void riak_free_content(struct RIACK_CLIENT* client, struct RIACK_CONTENT *pcontent)
 {
 	size_t cnt, i;
 	RFREE(client, pcontent->charset.value);
@@ -169,7 +169,7 @@ void riack_free_object(struct RIACK_CLIENT* client, struct RIACK_OBJECT *pobject
 		cnt = pobject->content_count;
 		if (cnt > 0) {
 			for (i=0; i<cnt; ++i) {
-				riak_free_copied_content(client, &pobject->content[i]);
+				riak_free_content(client, &pobject->content[i]);
 			}
 			RFREE(client,pobject->content);
 		}
@@ -222,6 +222,20 @@ void riack_free_string_linked_list(struct RIACK_CLIENT* client, struct RIACK_STR
 		 current = next;
 	 }
 	 *strings = 0;
+}
+
+RIACK_STRING riack_copy_string(struct RIACK_CLIENT* client, RIACK_STRING source)
+{
+	RIACK_STRING result;
+	RMALLOCCOPY(client, result.value, result.len, source.value, source.len);
+	return result;
+}
+
+RIACK_STRING riack_copy_from_cstring(struct RIACK_CLIENT* client, char* source)
+{
+	RIACK_STRING result;
+	RMALLOCCOPY(client, result.value, result.len, source, strlen(source));
+	return result;
 }
 
 void riack_string_linked_list_set_entry(struct RIACK_CLIENT *client,
