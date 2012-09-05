@@ -531,7 +531,7 @@ void riack_copy_object_to_rpbputreq(struct RIACK_CLIENT* client, struct RIACK_OB
 		pput_req->has_vclock = 1;
 		pput_req->vclock.len = pobject->vclock.len;
 		pput_req->vclock.data = (uint8_t*)RMALLOC(client, pobject->vclock.len);
-		memcpy(pput_req->vclock.data, pput_req->vclock.data, pobject->vclock.len);
+		memcpy(pput_req->vclock.data, pobject->vclock.clock, pobject->vclock.len);
 	}
 }
 
