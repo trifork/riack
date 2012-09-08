@@ -56,6 +56,10 @@ If your server is running on localhost with port 8081 set as protocol buffer por
 When ready you can simply do a make test.
 (on windows just choose the correct build target in Visual Studio)
 
+##Riack++
+I am in the process of making a C++ wrapper it can be found here https://github.com/TriKaspar/riack_cpp
+It does not require anything but riack and a C++ compiler.
+
 ##Disclamer
 This is a sparetime project, so if you so a silly bug don't blame my employer, instead 
 make a pull request ;)  

@@ -42,6 +42,54 @@ struct RIACK_STRING_LINKED_LIST *test_make_links(struct RIACK_STRING_LINKED_LIST
 	return current;
 }
 
+RIACK_STRING copy_string(RIACK_STRING *str) {
+	RIACK_STRING result;
+	result.len = str->len;
+	result.value = 0;
+	if (str->len>0) {
+		result.value = malloc(str->len);
+		memcpy(result.value, str->value, str->len);
+	}
+	return result;
+}
+
+struct RIACK_PAIR* copy_metas(struct RIACK_PAIR* pairs, size_t count) {
+	size_t i;
+	struct RIACK_PAIR* result = malloc(sizeof(struct RIACK_PAIR) * count);
+	for (i=0; i<count; ++i) {
+		result[i].key = copy_string(&(pairs[i].key));
+		result[i].value_present = pairs[i].value_present;
+		result[i].value_len = pairs[i].value_len;
+		if (pairs[i].value_len > 0) {
+			result[i].value = malloc(pairs[i].value_len);
+			memcpy(result[i].value, pairs[i].value, pairs[i].value_len);
+		}
+	}
+	return result;
+}
+
+struct RIACK_CONTENT *copy_content(struct RIACK_CONTENT *org) {
+	struct RIACK_CONTENT *result = malloc(sizeof(struct RIACK_CONTENT));
+	memset(result, 0, sizeof(struct RIACK_CONTENT));
+	result->charset = copy_string(&org->charset);
+	result->content_encoding = copy_string(&org->content_encoding);
+	result->content_type = copy_string(&org->content_type);
+	result->data_len = org->data_len;
+	if (org->data_len > 0) {
+		result->data = malloc(org->data_len);
+		memcpy(result->data, org->data, org->data_len);
+	}
+	result->usermeta_count = org->usermeta_count;
+	if (result->usermeta_count > 0) {
+		result->usermetas = copy_metas(org->usermetas, org->usermeta_count);
+	}
+	result->index_count = org->index_count;
+	if (org->index_count > 0) {
+		result->indexes = copy_metas(org->indexes, org->index_count);
+	}
+	return result;
+}
+
 int test_meta_links_load()
 {
 	RIACK_STRING bucket_posts, bucket_answers;
@@ -57,22 +105,22 @@ int test_meta_links_load()
 		(riack_list_keys(test_client, bucket_answers, &keys_answers) == RIACK_SUCCESS)) {
 		current_post = keys_posts;
 		current_answer = keys_answers;
-		while (current_post->next) {
+		while (current_post && current_post->next) {
 			if (riack_get(test_client, bucket_posts, current_post->string, 0, &get_post) == RIACK_SUCCESS) {
 				if (get_post.object.content_count == 1) {
 					memset(&put_post, 0, sizeof(put_post));
 
-					put_post.bucket = bucket_posts;
-					put_post.key = current_post->string;
+					put_post.bucket = copy_string(&bucket_posts);
+					put_post.key = copy_string(&current_post->string);
 
-					// TODO Don't do this, since we are freeing the get_post
-					put_post.content_count = get_post.object.content_count;
-					put_post.content = get_post.object.content;
+					put_post.content_count = 1;
+					put_post.content = copy_content(get_post.object.content);
 
 					current_answer = test_make_links(current_answer, get_post.object.content);
 					if (riack_put(test_client, put_post, 0, 0) != RIACK_SUCCESS) {
 						return 1;
 					}
+					riack_free_object(test_client, &put_post);
 				}
 				riack_free_get_object(test_client, &get_post);
 			}

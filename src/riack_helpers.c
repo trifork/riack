@@ -76,6 +76,7 @@ void riak_free_copied_rpb_content(struct RIACK_CLIENT* client, RpbContent* pcont
 	if (n > 0) {
 		for (i=0; i<n; ++i) {
 			riak_free_copied_rpb_pair(client, pcontent->indexes[i]);
+			RFREE(client, pcontent->indexes[i]);
 		}
 		RFREE(client, pcontent->indexes);
 	}
@@ -83,6 +84,7 @@ void riak_free_copied_rpb_content(struct RIACK_CLIENT* client, RpbContent* pcont
 	if (n > 0) {
 		for (i=0; i<n; ++i) {
 			riak_free_copied_rpb_pair(client, pcontent->usermeta[i]);
+			RFREE(client, pcontent->usermeta[i]);
 		}
 		RFREE(client, pcontent->usermeta);
 	}
@@ -90,6 +92,7 @@ void riak_free_copied_rpb_content(struct RIACK_CLIENT* client, RpbContent* pcont
 	if (n > 0) {
 		for (i=0; i<n; ++i) {
 			riak_free_copied_rpb_link(client, pcontent->links[i]);
+			RFREE(client, pcontent->links[i]);
 		}
 		RFREE(client, pcontent->links);
 	}
