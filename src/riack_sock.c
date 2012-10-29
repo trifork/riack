@@ -19,6 +19,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <errno.h>
 
 #ifdef WIN32
 #include <winsock2.h>
@@ -134,7 +135,24 @@ int sock_set_timeouts(int sockfd, uint32_t recv_timeout, uint32_t send_timeout)
 }
 int sock_recv(int sockfd, uint8_t* buff, int len)
 {
-	return recv(sockfd, (char*)buff, len, 0);
+	int offset = 0;
+
+	while (offset < len) {
+		int recieved;
+		recieved = recv(sockfd, (char*)buff + offset, len - offset, 0);
+		if (recieved < 0) {
+			if (errno == EINTR) {
+				/* Try again */
+				continue;
+			}
+			return recieved;
+		}
+		if (recieved == 0) {
+			break;
+		}
+		offset += recieved;
+	}
+	return offset;
 }
 
 int sock_send(int sockfd, uint8_t* data, int len)
