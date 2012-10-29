@@ -79,6 +79,7 @@ ADD_TEST(test-connect_with_opts  ${CMAKE_CURRENT_BINARY_DIR}/tests misc options 
 ADD_TEST(test-reconnect   ${CMAKE_CURRENT_BINARY_DIR}/tests misc reconnect ${RIAK_TEST_SERVER_IP} ${RIAK_TEST_SERVER_PB_PORT})
 ADD_TEST(test-serverinfo  ${CMAKE_CURRENT_BINARY_DIR}/tests misc serverinfo ${RIAK_TEST_SERVER_IP} ${RIAK_TEST_SERVER_PB_PORT})
 ADD_TEST(test-last-error  ${CMAKE_CURRENT_BINARY_DIR}/tests misc error ${RIAK_TEST_SERVER_IP} ${RIAK_TEST_SERVER_PB_PORT})
+ADD_TEST(test-largeobject ${CMAKE_CURRENT_BINARY_DIR}/tests misc large ${RIAK_TEST_SERVER_IP} ${RIAK_TEST_SERVER_PB_PORT})
 ADD_TEST(test-clientid 	  ${CMAKE_CURRENT_BINARY_DIR}/tests clientid basic ${RIAK_TEST_SERVER_IP} ${RIAK_TEST_SERVER_PB_PORT})
 ADD_TEST(test-bucket-props ${CMAKE_CURRENT_BINARY_DIR}/tests bucket props ${RIAK_TEST_SERVER_IP} ${RIAK_TEST_SERVER_PB_PORT})
 ADD_TEST(test-bucket-list ${CMAKE_CURRENT_BINARY_DIR}/tests bucket list ${RIAK_TEST_SERVER_IP} ${RIAK_TEST_SERVER_PB_PORT})

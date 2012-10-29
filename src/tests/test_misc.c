@@ -13,6 +13,8 @@ int test_misc(char* testcase)
 		return test_connect_with_options();
 	} else if (strcmp(testcase, "reconnect") == 0) {
 		return test_reconnect();
+	} else if (strcmp(testcase, "largeobject") == 0) {
+			return test_large_object();
 	} else {
 		return -1;
 	}
@@ -50,6 +52,37 @@ int test_connect_with_options()
 		result = 0;
 	}
 	riack_free(client);
+	return result;
+}
+
+int test_large_object()
+{
+	struct RIACK_GET_OBJECT obj;
+	RIACK_STRING key, bucket;
+	char* largeObject;
+	int result;
+
+	result = 1;
+
+	key.value = "LARGE_OBJECT";
+	key.len = strlen(key.value);
+	bucket.value = RIAK_TEST_BUCKET;
+	bucket.len = strlen(bucket.value);
+
+	largeObject = malloc(64*1024);
+	memset(largeObject, '#', 64*1024);
+	if (put(key.value, largeObject) == RIACK_SUCCESS) {
+		if (riack_get(test_client, bucket, key, 0, &obj) == RIACK_SUCCESS) {
+			// Validate the content we got back
+			if ((obj.object.content_count == 1) &&
+				(obj.object.content[0].data_len == 64*1024)) {
+				result = 0;
+			}
+		}
+		riack_free_object(test_client, &obj.object);
+	}
+	free(largeObject);
+	delete(key.value);
 	return result;
 }
 

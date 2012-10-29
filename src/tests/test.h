@@ -60,6 +60,7 @@ int test_meta_links_load();
 int test_meta_links_cleanup();
 int test_meta_links_metas();
 int test_meta_links_links();
+int test_large_object();
 
 // Helpers
 int test_load_cleanup_bucket(char* szbucket);
