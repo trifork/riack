@@ -135,10 +135,9 @@ int sock_set_timeouts(int sockfd, uint32_t recv_timeout, uint32_t send_timeout)
 }
 int sock_recv(int sockfd, uint8_t* buff, int len)
 {
+	int recieved;
 	int offset = 0;
-
 	while (offset < len) {
-		int recieved;
 		recieved = recv(sockfd, (char*)buff + offset, len - offset, 0);
 		if (recieved < 0) {
 			if (errno == EINTR) {
@@ -157,5 +156,20 @@ int sock_recv(int sockfd, uint8_t* buff, int len)
 
 int sock_send(int sockfd, uint8_t* data, int len)
 {
-	return send(sockfd, (char*)data, len, 0);
+	int sent;
+	int offset = 0;
+	while (offset < len) {
+		sent = send(sockfd, (char*)data + offset, len - offset, 0);
+		if (sent < 0) {
+			if (errno == EINTR) {
+			/* Try again */
+				continue;
+			}
+			return sent;
+		} else if (sent == 0) {
+			break;
+		}
+		offset += sent;
+	}
+	return sent;
 }

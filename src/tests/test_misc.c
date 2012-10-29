@@ -13,7 +13,7 @@ int test_misc(char* testcase)
 		return test_connect_with_options();
 	} else if (strcmp(testcase, "reconnect") == 0) {
 		return test_reconnect();
-	} else if (strcmp(testcase, "largeobject") == 0) {
+	} else if (strcmp(testcase, "large") == 0) {
 			return test_large_object();
 	} else {
 		return -1;
@@ -71,8 +71,11 @@ int test_large_object()
 
 	largeObject = malloc(64*1024);
 	memset(largeObject, '#', 64*1024);
+	printf("put1\n");
 	if (put(key.value, largeObject) == RIACK_SUCCESS) {
+		printf("put1\n");
 		if (riack_get(test_client, bucket, key, 0, &obj) == RIACK_SUCCESS) {
+			printf("get\n");
 			// Validate the content we got back
 			if ((obj.object.content_count == 1) &&
 				(obj.object.content[0].data_len == 64*1024)) {
@@ -80,6 +83,8 @@ int test_large_object()
 			}
 		}
 		riack_free_object(test_client, &obj.object);
+	} else {
+
 	}
 	free(largeObject);
 	delete(key.value);
