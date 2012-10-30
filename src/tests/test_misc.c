@@ -71,11 +71,8 @@ int test_large_object()
 
 	largeObject = malloc(64*1024);
 	memset(largeObject, '#', 64*1024);
-	printf("put1\n");
 	if (put(key.value, largeObject) == RIACK_SUCCESS) {
-		printf("put1\n");
 		if (riack_get(test_client, bucket, key, 0, &obj) == RIACK_SUCCESS) {
-			printf("get\n");
 			// Validate the content we got back
 			if ((obj.object.content_count == 1) &&
 				(obj.object.content[0].data_len == 64*1024)) {

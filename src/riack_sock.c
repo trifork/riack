@@ -171,5 +171,5 @@ int sock_send(int sockfd, uint8_t* data, int len)
 		}
 		offset += sent;
 	}
-	return sent;
+	return offset;
 }
