@@ -458,7 +458,9 @@ static void _list_keys_stream_callback(struct RIACK_CLIENT *client, void *args_r
 {
 	struct RIACK_STRING_LINKED_LIST **current = (struct RIACK_STRING_LINKED_LIST**)args_raw;
 	assert(current);
-	*current = riack_string_linked_list_add(client, current, key);
+	RIACK_STRING new_string;
+	RMALLOCCOPY(client, new_string.value, new_string.len, key.value, key.len);
+	riack_string_linked_list_add(client, current, new_string);
 }
 
 int riack_list_keys(struct RIACK_CLIENT *client, RIACK_STRING bucket, struct RIACK_STRING_LINKED_LIST** keys)
@@ -467,8 +469,7 @@ int riack_list_keys(struct RIACK_CLIENT *client, RIACK_STRING bucket, struct RIA
 		return RIACK_ERROR_INVALID_INPUT;
 	}
 	*keys = 0;
-	struct RIACK_STRING_LINKED_LIST* current = *keys;
-	return riack_stream_keys(client, bucket, _list_keys_stream_callback, &current);
+	return riack_stream_keys(client, bucket, _list_keys_stream_callback, keys);
 }
 
 int riack_stream_keys(struct RIACK_CLIENT *client, RIACK_STRING bucket,
