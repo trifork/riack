@@ -234,7 +234,7 @@ RIACK_STRING riack_copy_string(struct RIACK_CLIENT* client, RIACK_STRING source)
 	return result;
 }
 
-RIACK_STRING riack_copy_from_cstring(struct RIACK_CLIENT* client, char* source)
+RIACK_STRING riack_copy_from_cstring(struct RIACK_CLIENT* client, const char* source)
 {
 	RIACK_STRING result;
 	RMALLOCCOPY(client, result.value, result.len, source, strlen(source));
