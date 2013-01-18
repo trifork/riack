@@ -454,7 +454,29 @@ int riack_set_bucket_props(struct RIACK_CLIENT *client, RIACK_STRING bucket, uin
 	return result;
 }
 
+struct STREAM_LIST_CALLBACK_ARG {
+	struct RIACK_CLIENT *client;
+	struct RIACK_STRING_LINKED_LIST *current;
+};
+
+static void _list_keys_stream_callback(void *args_raw, RIACK_STRING key)
+{
+	struct STREAM_LIST_CALLBACK_ARG *args = (struct STREAM_LIST_CALLBACK_ARG*)args_raw;
+	assert(args);
+	args->current = riack_string_linked_list_add(args->client, &args->current, key);
+}
+
 int riack_list_keys(struct RIACK_CLIENT *client, RIACK_STRING bucket, struct RIACK_STRING_LINKED_LIST** keys)
+{
+	struct STREAM_LIST_CALLBACK_ARG arg;
+	arg.client = client;
+	*keys = 0;
+	arg.current = *keys;
+	return riack_stream_keys(client, bucket, _list_keys_stream_callback, &arg);
+}
+
+int riack_stream_keys(struct RIACK_CLIENT *client, RIACK_STRING bucket,
+					void(*callback)(void*,RIACK_STRING), void *callback_arg)
 {
 	int result;
 	struct RIACK_PB_MSG msg_req;
@@ -465,9 +487,8 @@ int riack_list_keys(struct RIACK_CLIENT *client, RIACK_STRING bucket, struct RIA
 	ProtobufCAllocator pb_allocator;
 	size_t packed_size, num_keys, i;
 	uint8_t *request_buffer, recvdone;
-	struct RIACK_STRING_LINKED_LIST* current;
 
-	if (!client || !keys || bucket.len == 0) {
+	if (!client || !callback || bucket.len == 0) {
 		return RIACK_ERROR_INVALID_INPUT;
 	}
 	pb_allocator = riack_pb_allocator(&client->allocator);
@@ -485,8 +506,6 @@ int riack_list_keys(struct RIACK_CLIENT *client, RIACK_STRING bucket, struct RIA
 		if (riack_send_message(client, &msg_req))
 		{
 			recvdone = 0;
-			*keys = 0;
-			current = *keys;
 			while (!recvdone) {
 				if (riack_receive_message(client, &msg_resp) > 0) {
 					if (msg_resp->msg_code == mc_RpbListKeysResp) {
@@ -497,14 +516,9 @@ int riack_list_keys(struct RIACK_CLIENT *client, RIACK_STRING bucket, struct RIA
 						}
 						num_keys = list_resp->n_keys;
 						for (i=0; i<num_keys; ++i) {
-							RMALLOCCOPY(client, current_string.value,
-												current_string.len,
-												list_resp->keys[i].data,
-												list_resp->keys[i].len);
-							current = riack_string_linked_list_add(client, &current, current_string);
-							if (*keys == 0) {
-								*keys = current;
-							}
+							current_string.value = (char*)list_resp->keys[i].data;
+							current_string.len   = list_resp->keys[i].len;
+							callback(callback_arg, current_string);
 						}
 						rpb_list_keys_resp__free_unpacked(list_resp, &pb_allocator);
 					} else {

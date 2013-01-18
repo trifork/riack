@@ -53,6 +53,11 @@ RIACK_EXPORT int riack_list_buckets(struct RIACK_CLIENT *client, RIACK_STRING_LI
 
 RIACK_EXPORT int riack_list_keys(struct RIACK_CLIENT *client, RIACK_STRING bucket, struct RIACK_STRING_LINKED_LIST** keys);
 
+/// Return all keys through the callback.
+/// This function shall be used instead of riack_list_keys(..) if your Bucket contains considerably large amount of keys.
+RIACK_EXPORT int riack_stream_keys(struct RIACK_CLIENT *client, RIACK_STRING bucket,
+									void(*callback)(void*, RIACK_STRING), void* callback_arg);
+
 /// Set bucket properties
 RIACK_EXPORT int riack_set_bucket_props(struct RIACK_CLIENT *client, RIACK_STRING bucket, uint32_t n_val, uint8_t allow_mult);
 
