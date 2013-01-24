@@ -454,7 +454,26 @@ int riack_set_bucket_props(struct RIACK_CLIENT *client, RIACK_STRING bucket, uin
 	return result;
 }
 
+static void _list_keys_stream_callback(struct RIACK_CLIENT *client, void *args_raw, RIACK_STRING key)
+{
+	struct RIACK_STRING_LINKED_LIST **current = (struct RIACK_STRING_LINKED_LIST**)args_raw;
+	assert(current);
+	RIACK_STRING new_string;
+	RMALLOCCOPY(client, new_string.value, new_string.len, key.value, key.len);
+	riack_string_linked_list_add(client, current, new_string);
+}
+
 int riack_list_keys(struct RIACK_CLIENT *client, RIACK_STRING bucket, struct RIACK_STRING_LINKED_LIST** keys)
+{
+	if (!keys) {
+		return RIACK_ERROR_INVALID_INPUT;
+	}
+	*keys = 0;
+	return riack_stream_keys(client, bucket, _list_keys_stream_callback, keys);
+}
+
+int riack_stream_keys(struct RIACK_CLIENT *client, RIACK_STRING bucket,
+					  void(*callback)(struct RIACK_CLIENT*, void*, RIACK_STRING), void *callback_arg)
 {
 	int result;
 	struct RIACK_PB_MSG msg_req;
@@ -465,9 +484,8 @@ int riack_list_keys(struct RIACK_CLIENT *client, RIACK_STRING bucket, struct RIA
 	ProtobufCAllocator pb_allocator;
 	size_t packed_size, num_keys, i;
 	uint8_t *request_buffer, recvdone;
-	struct RIACK_STRING_LINKED_LIST* current;
 
-	if (!client || !keys || bucket.len == 0) {
+	if (!client || !callback || bucket.len == 0) {
 		return RIACK_ERROR_INVALID_INPUT;
 	}
 	pb_allocator = riack_pb_allocator(&client->allocator);
@@ -485,8 +503,6 @@ int riack_list_keys(struct RIACK_CLIENT *client, RIACK_STRING bucket, struct RIA
 		if (riack_send_message(client, &msg_req))
 		{
 			recvdone = 0;
-			*keys = 0;
-			current = *keys;
 			while (!recvdone) {
 				if (riack_receive_message(client, &msg_resp) > 0) {
 					if (msg_resp->msg_code == mc_RpbListKeysResp) {
@@ -497,14 +513,9 @@ int riack_list_keys(struct RIACK_CLIENT *client, RIACK_STRING bucket, struct RIA
 						}
 						num_keys = list_resp->n_keys;
 						for (i=0; i<num_keys; ++i) {
-							RMALLOCCOPY(client, current_string.value,
-												current_string.len,
-												list_resp->keys[i].data,
-												list_resp->keys[i].len);
-							current = riack_string_linked_list_add(client, &current, current_string);
-							if (*keys == 0) {
-								*keys = current;
-							}
+							current_string.value = (char*)list_resp->keys[i].data;
+							current_string.len   = list_resp->keys[i].len;
+							callback(client, callback_arg, current_string);
 						}
 						rpb_list_keys_resp__free_unpacked(list_resp, &pb_allocator);
 					} else {
@@ -629,11 +640,35 @@ int riack_get_clientid(struct RIACK_CLIENT *client, RIACK_STRING *clientid)
 	return result;
 }
 
+static void _map_reduce_stream_callback(struct RIACK_CLIENT *client, void *args_raw, struct RIACK_MAPRED_STREAM_RESULT *result)
+{
+	struct RIACK_MAPRED_RESULT** chain = (struct RIACK_MAPRED_RESULT**)args_raw;
+	struct RIACK_MAPRED_RESULT* mapred_result_current =
+			(struct RIACK_MAPRED_RESULT*)RMALLOC(client, sizeof(struct RIACK_MAPRED_RESULT));
+	assert(chain);
+	assert(result);
+	riack_copy_strmapred_to_mapred(client, result, mapred_result_current);
+	riack_mapred_add_to_chain(client, chain, mapred_result_current);
+}
 
 int riack_map_redue(struct RIACK_CLIENT *client, size_t data_len, uint8_t* data,
 		enum RIACK_MAPRED_CONTENT_TYPE content_type, struct RIACK_MAPRED_RESULT** mapred_result)
 {
-	struct RIACK_MAPRED_RESULT* mapred_result_current;
+	if (!mapred_result) {
+		return RIACK_ERROR_INVALID_INPUT;
+	}
+	*mapred_result = 0;
+	return riack_map_reduce_stream(client, data_len, data, content_type, _map_reduce_stream_callback, mapred_result);
+}
+
+RIACK_EXPORT int riack_map_reduce_stream(struct RIACK_CLIENT *client,
+										 size_t data_len,
+										 uint8_t* data,
+										 enum RIACK_MAPRED_CONTENT_TYPE content_type,
+										 void(*callback)(struct RIACK_CLIENT*, void*, struct RIACK_MAPRED_STREAM_RESULT*),
+										 void* callback_arg)
+{
+	struct RIACK_MAPRED_STREAM_RESULT mapred_result_current;
 	int result;
 	size_t packed_size;
 	struct RIACK_PB_MSG msg_req, *msg_resp;
@@ -644,7 +679,9 @@ int riack_map_redue(struct RIACK_CLIENT *client, size_t data_len, uint8_t* data,
 	char* content_type_sz;
 	uint8_t last_message;
 
-	if (!client || !data || data_len == 0) {
+	memset(&mapred_result_current, 0, sizeof(mapred_result_current));
+
+	if (!client || !data || data_len == 0 || !callback) {
 		return RIACK_ERROR_INVALID_INPUT;
 	}
 
@@ -672,16 +709,11 @@ int riack_map_redue(struct RIACK_CLIENT *client, size_t data_len, uint8_t* data,
 		msg_req.msg = request_buffer;
 		if (riack_send_message(client, &msg_req)) {
 			last_message = 0;
-			*mapred_result = 0;
 			while ((last_message == 0) && (riack_receive_message(client, &msg_resp) > 0)) {
 				if (msg_resp->msg_code == mc_RpbMapRedResp) {
 					mr_resp = rpb_map_red_resp__unpack(&pb_allocator, msg_resp->msg_len, msg_resp->msg);
-					mapred_result_current = (struct RIACK_MAPRED_RESULT*)RMALLOC(client,
-							sizeof(struct RIACK_MAPRED_RESULT));
-
-					mapred_result_current->next_result = 0;
-					riack_copy_rpbmapred_to_mapred(client, mr_resp, mapred_result_current);
-					riack_mapred_add_to_chain(client, mapred_result, mapred_result_current);
+					riack_link_strmapred_with_rpbmapred(client, mr_resp, &mapred_result_current);
+					callback(client, callback_arg, &mapred_result_current);
 					if (mr_resp->has_done && mr_resp->done) {
 						result = RIACK_SUCCESS;
 						last_message = 1;

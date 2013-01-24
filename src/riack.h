@@ -53,6 +53,11 @@ RIACK_EXPORT int riack_list_buckets(struct RIACK_CLIENT *client, RIACK_STRING_LI
 
 RIACK_EXPORT int riack_list_keys(struct RIACK_CLIENT *client, RIACK_STRING bucket, struct RIACK_STRING_LINKED_LIST** keys);
 
+/// Return all keys through the callback.
+/// This function shall be used instead of riack_list_keys(..) if your Bucket contains considerably large amount of keys.
+RIACK_EXPORT int riack_stream_keys(struct RIACK_CLIENT *client, RIACK_STRING bucket,
+								   void(*callback)(struct RIACK_CLIENT*, void*, RIACK_STRING), void* callback_arg);
+
 /// Set bucket properties
 RIACK_EXPORT int riack_set_bucket_props(struct RIACK_CLIENT *client, RIACK_STRING bucket, uint32_t n_val, uint8_t allow_mult);
 
@@ -91,6 +96,14 @@ RIACK_EXPORT int riack_map_redue(struct RIACK_CLIENT *client,
 								 enum RIACK_MAPRED_CONTENT_TYPE content_type,
 								 struct RIACK_MAPRED_RESULT** mapred_result);
 
+/// Run a map reduce query on server, return the every result separately through the callback
+RIACK_EXPORT int riack_map_reduce_stream(struct RIACK_CLIENT *client,
+										 size_t data_len,
+										 uint8_t* data,
+										 enum RIACK_MAPRED_CONTENT_TYPE content_type,
+										 void(*callback)(struct RIACK_CLIENT*, void*, struct RIACK_MAPRED_STREAM_RESULT*),
+										 void* callback_arg);
+
 /// Do a put to the server
 /// props are optional and can be NULL in which case defaults will be used.
 RIACK_EXPORT int riack_put(struct RIACK_CLIENT *client,
@@ -120,7 +133,7 @@ RIACK_EXPORT int riack_2i_query_range(struct RIACK_CLIENT *client,
 								   	  RIACK_STRING search_key_max,
 								   	  RIACK_STRING_LIST *result_keys);
 
-RIACK_EXPORT RIACK_STRING riack_copy_from_cstring(struct RIACK_CLIENT* client, char* source);
+RIACK_EXPORT RIACK_STRING riack_copy_from_cstring(struct RIACK_CLIENT* client, const char* source);
 
 RIACK_EXPORT RIACK_STRING riack_copy_string(struct RIACK_CLIENT* client, RIACK_STRING source);
 

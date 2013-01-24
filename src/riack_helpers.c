@@ -234,7 +234,7 @@ RIACK_STRING riack_copy_string(struct RIACK_CLIENT* client, RIACK_STRING source)
 	return result;
 }
 
-RIACK_STRING riack_copy_from_cstring(struct RIACK_CLIENT* client, char* source)
+RIACK_STRING riack_copy_from_cstring(struct RIACK_CLIENT* client, const char* source)
 {
 	RIACK_STRING result;
 	RMALLOCCOPY(client, result.value, result.len, source, strlen(source));
@@ -538,18 +538,30 @@ void riack_copy_object_to_rpbputreq(struct RIACK_CLIENT* client, struct RIACK_OB
 	}
 }
 
-void riack_copy_rpbmapred_to_mapred(struct RIACK_CLIENT* client, RpbMapRedResp* source, struct RIACK_MAPRED_RESULT* target)
+void riack_link_strmapred_with_rpbmapred(struct RIACK_CLIENT* client, RpbMapRedResp* source,
+										 struct RIACK_MAPRED_STREAM_RESULT* target)
 {
-	target->next_result = 0;
 	target->phase_present = source->has_phase;
 	target->phase = source->phase;
 	if (source->has_response) {
 		target->data_size = source->response.len;
-		target->data = (uint8_t*)RMALLOC(client, source->response.len);
-		memcpy(target->data, source->response.data, source->response.len);
+		target->data = source->response.data;
 	} else {
 		target->data_size = 0;
 		target->data = 0;
+	}
+}
+
+void riack_copy_strmapred_to_mapred(struct RIACK_CLIENT* client, struct RIACK_MAPRED_STREAM_RESULT* source,
+									struct RIACK_MAPRED_RESULT* target)
+{
+	memset(target, 0, sizeof(*target));
+	target->phase = source->phase;
+	target->phase_present = source->phase_present;
+	if (source->data_size > 0) {
+		target->data_size = source->data_size;
+		target->data = (uint8_t*)RMALLOC(client, source->data_size);
+		memcpy(target->data, source->data, source->data_size);
 	}
 }
 

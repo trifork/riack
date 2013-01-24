@@ -31,7 +31,12 @@ void riack_copy_rpbcontent_to_content(struct RIACK_CLIENT* client, RpbContent* p
 
 void riack_copy_object_to_rpbputreq(struct RIACK_CLIENT* client, struct RIACK_OBJECT *pobject, RpbPutReq* pput_req);
 
-void riack_copy_rpbmapred_to_mapred(struct RIACK_CLIENT* client, RpbMapRedResp* source, struct RIACK_MAPRED_RESULT* target);
+/// This function will not allocate dynamic memory for data
+void riack_link_strmapred_with_rpbmapred(struct RIACK_CLIENT* client, RpbMapRedResp* source,
+										 struct RIACK_MAPRED_STREAM_RESULT* target);
+
+void riack_copy_strmapred_to_mapred(struct RIACK_CLIENT* client, struct RIACK_MAPRED_STREAM_RESULT* source,
+									struct RIACK_MAPRED_RESULT* target);
 
 struct RIACK_STRING_LINKED_LIST* riack_string_linked_list_add(struct RIACK_CLIENT *client,
 		struct RIACK_STRING_LINKED_LIST** base,

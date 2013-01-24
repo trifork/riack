@@ -123,6 +123,13 @@ enum RIACK_MAPRED_CONTENT_TYPE {
 	APPLICATION_ERLANG_TERM
 };
 
+struct RIACK_MAPRED_STREAM_RESULT {
+	uint8_t phase_present;
+	uint32_t phase;
+	size_t data_size;
+	uint8_t* data;
+};
+
 struct RIACK_MAPRED_RESULT {
 	uint8_t phase_present;
 	uint32_t phase;
