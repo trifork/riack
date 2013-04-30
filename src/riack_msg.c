@@ -99,7 +99,7 @@ int riack_receive_message(struct RIACK_CLIENT *client, struct RIACK_PB_MSG** msg
 	return -1;
 }
 
-uint32_t riack_send_message(struct RIACK_CLIENT *client, struct RIACK_PB_MSG* msg)
+int riack_send_message(struct RIACK_CLIENT *client, struct RIACK_PB_MSG* msg)
 {
 	uint8_t *buf;
 	uint32_t netlen, sendlen;

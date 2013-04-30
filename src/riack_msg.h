@@ -29,7 +29,7 @@ struct RIACK_PB_MSG
 
 void dbg_print_message(struct RIACK_PB_MSG* pmsg);
 
-uint32_t riack_send_message(struct RIACK_CLIENT *client, struct RIACK_PB_MSG* msg);
+int riack_send_message(struct RIACK_CLIENT *client, struct RIACK_PB_MSG* msg);
 int riack_receive_message(struct RIACK_CLIENT *client, struct RIACK_PB_MSG** msg);
 
 void riack_message_free(struct RIACK_CLIENT *client, struct RIACK_PB_MSG** ppMsg);

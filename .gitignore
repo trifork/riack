@@ -2,6 +2,7 @@
 .settings/
 .cproject
 .project
+.idea/
 precompiled/*.h
 install_manifest.txt
 CMakeCache.txt
@@ -18,6 +19,7 @@ Makefile
 /*.sln
 *.so
 *.a
+*.o
 *.obj
 *.pdb
 *.user

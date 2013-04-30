@@ -65,8 +65,8 @@ void riak_set_object_response_values_get(struct RIACK_CLIENT* client, struct RIA
 	if (!object || !getresp) {
 		return;
 	}
-	object->unchanged_present = getresp->has_unchanged;
-	object->unchanged = getresp->unchanged;
+	object->unchanged_present = getresp->has_unchanged ? 1 : 0;
+	object->unchanged = getresp->unchanged ? 1 : 0;
 	object->object.bucket.value = 0;
 	object->object.bucket.len = 0;
 	object->object.key.value = 0;
@@ -232,9 +232,9 @@ int riack_get(struct RIACK_CLIENT *client,
 
 	result = RIACK_ERROR_COMMUNICATION;
 	rpb_get_req__init(&get_req);
-	get_req.key.data = key.value;
+	get_req.key.data = (uint8_t *) key.value;
 	get_req.key.len = key.len;
-	get_req.bucket.data = bucket.value;
+	get_req.bucket.data = (uint8_t *) bucket.value;
 	get_req.bucket.len = bucket.len;
 	riack_set_get_properties(client, props, &get_req);
 
@@ -332,9 +332,9 @@ int riack_delete(struct RIACK_CLIENT *client, RIACK_STRING bucket, RIACK_STRING 
 	rpb_del_req__init(&del_req);
 
 	del_req.bucket.len = bucket.len;
-	del_req.bucket.data = bucket.value;
+	del_req.bucket.data = (uint8_t *) bucket.value;
 	del_req.key.len = key.len;
-	del_req.key.data = key.value;
+	del_req.key.data = (uint8_t *) key.value;
 	riack_set_del_properties(client, props, &del_req);
 
 	packed_size = rpb_del_req__get_packed_size(&del_req);
@@ -392,7 +392,7 @@ int riack_get_bucket_props(struct RIACK_CLIENT *client, RIACK_STRING bucket, uin
 			if (msg_resp->msg_code == mc_RpbIndexResp) {
 				response = rpb_get_bucket_resp__unpack(&pb_allocator, msg_resp->msg_len, msg_resp->msg);
 				if (response->props->has_allow_mult) {
-					*allow_mult = response->props->allow_mult;
+					*allow_mult = response->props->allow_mult ? 1 : 0;
 				}
 				if (response->props->has_n_val) {
 					*n_val = response->props->n_val;
