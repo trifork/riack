@@ -144,13 +144,15 @@ void riack_got_error_response(struct RIACK_CLIENT *client, struct RIACK_PB_MSG *
 	ProtobufCAllocator pb_allocator;
 	if (msg->msg_code == mc_RpbErrorResp) {
 		pb_allocator = riack_pb_allocator(&client->allocator);
-		resp = rpb_error_resp__unpack(&pb_allocator, msg->msg_len, msg->msg);
 		if (client->last_error) {
 			RFREE(client, client->last_error);
 		}
-		client->last_error_code = resp->errcode;
-		riack_copy_buffer_to_string(client, &resp->errmsg, &client->last_error);
-		rpb_error_resp__free_unpacked(resp, &pb_allocator);
+		resp = rpb_error_resp__unpack(&pb_allocator, msg->msg_len, msg->msg);
+		if (resp) {
+			client->last_error_code = resp->errcode;
+			riack_copy_buffer_to_string(client, &resp->errmsg, &client->last_error);
+			rpb_error_resp__free_unpacked(resp, &pb_allocator);
+		}
 	}
 }
 
@@ -169,22 +171,26 @@ int riack_server_info(struct RIACK_CLIENT *client, RIACK_STRING *node, RIACK_STR
 		(riack_receive_message(client, &msg_resp) > 0)) {
 		if (msg_resp->msg_code == mc_RpbGetServerInfoResp) {
 			response = rpb_get_server_info_resp__unpack(&pb_allocator, msg_req.msg_len, msg_req.msg);
-			if (response->has_node) {
-				RMALLOCCOPY(client, node->value, node->len, response->node.data, response->node.len);
+			if (response) {
+				if (response->has_node) {
+					RMALLOCCOPY(client, node->value, node->len, response->node.data, response->node.len);
+				} else {
+					node->len = 0;
+					node->value = 0;
+				}
+				if (response->has_server_version) {
+					RMALLOCCOPY(client, version->value, version->len,
+							response->server_version.data, response->server_version.len);
+				} else {
+					version->len = 0;
+					version->value = 0;
+				}
+				// Copy responses
+				rpb_get_server_info_resp__free_unpacked(response, &pb_allocator);
+				result = RIACK_SUCCESS;
 			} else {
-				node->len = 0;
-				node->value = 0;
+				result = RIACK_FAILED_PB_UNPACK;
 			}
-			if (response->has_server_version) {
-				RMALLOCCOPY(client, version->value, version->len,
-						response->server_version.data, response->server_version.len);
-			} else {
-				version->len = 0;
-				version->value = 0;
-			}
-			// Copy responses
-			rpb_get_server_info_resp__free_unpacked(response, &pb_allocator);
-			result = RIACK_SUCCESS;
 		} else {
 			riack_got_error_response(client, msg_resp);
 			result = RIACK_ERROR_RESPONSE;

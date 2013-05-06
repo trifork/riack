@@ -250,9 +250,13 @@ int riack_get(struct RIACK_CLIENT *client,
 		{
 			if (msg_resp->msg_code == mc_RpbGetResp) {
 				get_resp = rpb_get_resp__unpack(&pb_allocator, msg_resp->msg_len, msg_resp->msg);
-				riak_set_object_response_values_get(client, result_object, get_resp);
-				rpb_get_resp__free_unpacked(get_resp, &pb_allocator);
-				result = RIACK_SUCCESS;
+				if (get_resp) {
+					riak_set_object_response_values_get(client, result_object, get_resp);
+					rpb_get_resp__free_unpacked(get_resp, &pb_allocator);
+					result = RIACK_SUCCESS;
+				} else {
+					result = RIACK_FAILED_PB_UNPACK;
+				}
 			} else {
 				riack_got_error_response(client, msg_resp);
 				result = RIACK_ERROR_RESPONSE;
@@ -298,12 +302,16 @@ int riack_put(struct RIACK_CLIENT *client,
 			(riack_receive_message(client, &msg_resp) > 0))
 		{
 			if (msg_resp->msg_code == mc_RpbPutResp) {
+				result = RIACK_SUCCESS;
 				if (preturned_object) {
 					put_resp = rpb_put_resp__unpack(&pb_allocator, msg_resp->msg_len, msg_resp->msg);
-					riak_set_object_response_values(client, preturned_object, put_resp);
-					rpb_put_resp__free_unpacked(put_resp, &pb_allocator);
+					if (put_resp) {
+						riak_set_object_response_values(client, preturned_object, put_resp);
+						rpb_put_resp__free_unpacked(put_resp, &pb_allocator);
+					} else {
+						result = RIACK_FAILED_PB_UNPACK;
+					}
 				}
-				result = RIACK_SUCCESS;
 			} else {
 				riack_got_error_response(client, msg_resp);
 				result = RIACK_ERROR_RESPONSE;
@@ -389,16 +397,20 @@ int riack_get_bucket_props(struct RIACK_CLIENT *client, RIACK_STRING bucket, uin
 		if ((riack_send_message(client, &msg_req))&&
 			(riack_receive_message(client, &msg_resp) > 0))
 		{
-			if (msg_resp->msg_code == mc_RpbIndexResp) {
+			if (msg_resp->msg_code == mc_RpbGetBucketResp) {
 				response = rpb_get_bucket_resp__unpack(&pb_allocator, msg_resp->msg_len, msg_resp->msg);
-				if (response->props->has_allow_mult) {
-					*allow_mult = response->props->allow_mult ? 1 : 0;
+				if (response) {
+					if (response->props->has_allow_mult) {
+						*allow_mult = response->props->allow_mult ? 1 : 0;
+					}
+					if (response->props->has_n_val) {
+						*n_val = response->props->n_val;
+					}
+					rpb_get_bucket_resp__free_unpacked(response, &pb_allocator);
+					result = RIACK_SUCCESS;
+				} else {
+					result = RIACK_FAILED_PB_UNPACK;
 				}
-				if (response->props->has_n_val) {
-					*n_val = response->props->n_val;
-				}
-				rpb_get_bucket_resp__free_unpacked(response, &pb_allocator);
-				result = RIACK_SUCCESS;
 			} else {
 				riack_got_error_response(client, msg_resp);
 				result = RIACK_ERROR_RESPONSE;
@@ -507,17 +519,21 @@ int riack_stream_keys(struct RIACK_CLIENT *client, RIACK_STRING bucket,
 				if (riack_receive_message(client, &msg_resp) > 0) {
 					if (msg_resp->msg_code == mc_RpbListKeysResp) {
 						list_resp = rpb_list_keys_resp__unpack(&pb_allocator, msg_resp->msg_len, msg_resp->msg);
-						if (list_resp->has_done && list_resp->done) {
-							recvdone = 1;
-							result = RIACK_SUCCESS;
+						if (list_resp) {
+							if (list_resp->has_done && list_resp->done) {
+								recvdone = 1;
+								result = RIACK_SUCCESS;
+							}
+							num_keys = list_resp->n_keys;
+							for (i=0; i<num_keys; ++i) {
+								current_string.value = (char*)list_resp->keys[i].data;
+								current_string.len   = list_resp->keys[i].len;
+								callback(client, callback_arg, current_string);
+							}
+							rpb_list_keys_resp__free_unpacked(list_resp, &pb_allocator);
+						} else {
+							result = RIACK_FAILED_PB_UNPACK;
 						}
-						num_keys = list_resp->n_keys;
-						for (i=0; i<num_keys; ++i) {
-							current_string.value = (char*)list_resp->keys[i].data;
-							current_string.len   = list_resp->keys[i].len;
-							callback(client, callback_arg, current_string);
-						}
-						rpb_list_keys_resp__free_unpacked(list_resp, &pb_allocator);
 					} else {
 						riack_got_error_response(client, msg_resp);
 						recvdone = 1;
@@ -566,6 +582,8 @@ int riack_list_buckets(struct RIACK_CLIENT *client, RIACK_STRING_LIST* bucket_li
 				}
 				rpb_list_buckets_resp__free_unpacked(list_resp, &pb_allocator);
 				result = RIACK_SUCCESS;
+			} else {
+				result = RIACK_FAILED_PB_UNPACK;
 			}
 		} else {
 			riack_got_error_response(client, msg_resp);
@@ -628,9 +646,13 @@ int riack_get_clientid(struct RIACK_CLIENT *client, RIACK_STRING *clientid)
 		(riack_receive_message(client, &msg_resp) > 0)) {
 		if (msg_resp->msg_code == mc_RpbGetClientIdResp) {
 			id_resp = rpb_get_client_id_resp__unpack(&pb_allocator, msg_resp->msg_len, msg_resp->msg);
-			RMALLOCCOPY(client, clientid->value, clientid->len, id_resp->client_id.data, id_resp->client_id.len);
-			rpb_get_client_id_resp__free_unpacked(id_resp, &pb_allocator);
-			result = RIACK_SUCCESS;
+			if (id_resp) {
+				RMALLOCCOPY(client, clientid->value, clientid->len, id_resp->client_id.data, id_resp->client_id.len);
+				rpb_get_client_id_resp__free_unpacked(id_resp, &pb_allocator);
+				result = RIACK_SUCCESS;
+			} else {
+				result = RIACK_FAILED_PB_UNPACK;
+			}
 		} else {
 			riack_got_error_response(client, msg_resp);
 			result = RIACK_ERROR_RESPONSE;
@@ -712,13 +734,17 @@ RIACK_EXPORT int riack_map_reduce_stream(struct RIACK_CLIENT *client,
 			while ((last_message == 0) && (riack_receive_message(client, &msg_resp) > 0)) {
 				if (msg_resp->msg_code == mc_RpbMapRedResp) {
 					mr_resp = rpb_map_red_resp__unpack(&pb_allocator, msg_resp->msg_len, msg_resp->msg);
-					riack_link_strmapred_with_rpbmapred(client, mr_resp, &mapred_result_current);
-					callback(client, callback_arg, &mapred_result_current);
-					if (mr_resp->has_done && mr_resp->done) {
-						result = RIACK_SUCCESS;
-						last_message = 1;
+					if (mr_resp) {
+						riack_link_strmapred_with_rpbmapred(client, mr_resp, &mapred_result_current);
+						callback(client, callback_arg, &mapred_result_current);
+						if (mr_resp->has_done && mr_resp->done) {
+							result = RIACK_SUCCESS;
+							last_message = 1;
+						}
+						rpb_map_red_resp__free_unpacked(mr_resp, &pb_allocator);
+					} else {
+						result = RIACK_FAILED_PB_UNPACK;
 					}
-					rpb_map_red_resp__free_unpacked(mr_resp, &pb_allocator);
 				} else {
 					riack_got_error_response(client, msg_resp);
 					result = RIACK_ERROR_RESPONSE;
@@ -754,15 +780,19 @@ int riack_2i_query(struct RIACK_CLIENT *client, RpbIndexReq* request, RIACK_STRI
 			(riack_receive_message(client, &msg_resp) > 0)) {
 			if (msg_resp->msg_code == mc_RpbIndexResp) {
 				index_resp = rpb_index_resp__unpack(&pb_allocator, msg_resp->msg_len, msg_resp->msg);
-				keys = index_resp->n_keys;
-				result_keys->string_count = keys;
-				result_keys->strings = RMALLOC(client, sizeof(RIACK_STRING) * keys);
-				for (i=0; i<keys; ++i) {
-					RMALLOCCOPY(client, result_keys->strings[i].value, result_keys->strings[i].len,
-							index_resp->keys[i].data, index_resp->keys[i].len);
+				if (index_resp) {
+					keys = index_resp->n_keys;
+					result_keys->string_count = keys;
+					result_keys->strings = RMALLOC(client, sizeof(RIACK_STRING) * keys);
+					for (i=0; i<keys; ++i) {
+						RMALLOCCOPY(client, result_keys->strings[i].value, result_keys->strings[i].len,
+								index_resp->keys[i].data, index_resp->keys[i].len);
+					}
+					rpb_index_resp__free_unpacked(index_resp, &pb_allocator);
+					result = RIACK_SUCCESS;
+				} else {
+					result = RIACK_FAILED_PB_UNPACK;
 				}
-				rpb_index_resp__free_unpacked(index_resp, &pb_allocator);
-				result = RIACK_SUCCESS;
 			} else {
 				riack_got_error_response(client, msg_resp);
 				result = RIACK_ERROR_RESPONSE;

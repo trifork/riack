@@ -35,6 +35,7 @@
 #define RIACK_ERROR_COMMUNICATION -1
 #define RIACK_ERROR_RESPONSE -2
 #define RIACK_ERROR_INVALID_INPUT -3
+#define RIACK_FAILED_PB_UNPACK -4
 
 #define RMALLOC(client, size) client->allocator.alloc(0, size)
 #define RFREE(client, pointer) client->allocator.free(0, pointer)
