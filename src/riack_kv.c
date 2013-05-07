@@ -245,7 +245,7 @@ int riack_get(struct RIACK_CLIENT *client,
 		msg_req.msg_code = mc_RpbGetReq;
 		msg_req.msg_len = packed_size;
 		msg_req.msg = request_buffer;
-		if ((riack_send_message(client, &msg_req))&&
+		if ((riack_send_message(client, &msg_req) > 0)&&
 			(riack_receive_message(client, &msg_resp) > 0))
 		{
 			if (msg_resp->msg_code == mc_RpbGetResp) {
@@ -298,7 +298,7 @@ int riack_put(struct RIACK_CLIENT *client,
 		msg_req.msg_code = mc_RpbPutReq;
 		msg_req.msg_len = packed_size;
 		msg_req.msg = request_buffer;
-		if ((riack_send_message(client, &msg_req))&&
+		if ((riack_send_message(client, &msg_req) > 0)&&
 			(riack_receive_message(client, &msg_resp) > 0))
 		{
 			if (msg_resp->msg_code == mc_RpbPutResp) {
@@ -352,7 +352,7 @@ int riack_delete(struct RIACK_CLIENT *client, RIACK_STRING bucket, RIACK_STRING 
 		msg_req.msg_code = mc_RpbDelReq;
 		msg_req.msg_len = packed_size;
 		msg_req.msg = request_buffer;
-		if ((riack_send_message(client, &msg_req))&&
+		if ((riack_send_message(client, &msg_req) > 0)&&
 			(riack_receive_message(client, &msg_resp) > 0))
 		{
 			if (msg_resp->msg_code == mc_RpbDelResp) {
@@ -394,7 +394,7 @@ int riack_get_bucket_props(struct RIACK_CLIENT *client, RIACK_STRING bucket, uin
 		msg_req.msg_code = mc_RpbGetBucketReq;
 		msg_req.msg_len = packed_size;
 		msg_req.msg = request_buffer;
-		if ((riack_send_message(client, &msg_req))&&
+		if ((riack_send_message(client, &msg_req) > 0)&&
 			(riack_receive_message(client, &msg_resp) > 0))
 		{
 			if (msg_resp->msg_code == mc_RpbGetBucketResp) {
@@ -450,7 +450,7 @@ int riack_set_bucket_props(struct RIACK_CLIENT *client, RIACK_STRING bucket, uin
 		msg_req.msg_code = mc_RpbSetBucketReq;
 		msg_req.msg_len = packed_size;
 		msg_req.msg = request_buffer;
-		if ((riack_send_message(client, &msg_req))&&
+		if ((riack_send_message(client, &msg_req) > 0)&&
 			(riack_receive_message(client, &msg_resp) > 0))
 		{
 			if (msg_resp->msg_code == mc_RpbSetBucketResp) {
@@ -512,7 +512,7 @@ int riack_stream_keys(struct RIACK_CLIENT *client, RIACK_STRING bucket,
 		msg_req.msg_code = mc_RpbListKeysReq;
 		msg_req.msg_len = packed_size;
 		msg_req.msg = request_buffer;
-		if (riack_send_message(client, &msg_req))
+		if (riack_send_message(client, &msg_req) > 0)
 		{
 			recvdone = 0;
 			while (!recvdone) {
@@ -615,7 +615,7 @@ RIACK_EXPORT int riack_set_clientid(struct RIACK_CLIENT *client, RIACK_STRING cl
 		msg_req.msg_len = packed_size;
 		msg_req.msg_code = mc_RpbSetClientIdReq;
 		msg_req.msg = request_buffer;
-		if ((riack_send_message(client, &msg_req))&&
+		if ((riack_send_message(client, &msg_req) > 0)&&
 			(riack_receive_message(client, &msg_resp) > 0)) {
 			if (msg_resp->msg_code == mc_RpbSetClientIdResp) {
 				result = RIACK_SUCCESS;
@@ -729,7 +729,7 @@ RIACK_EXPORT int riack_map_reduce_stream(struct RIACK_CLIENT *client,
 		msg_req.msg_code = mc_RpbMapRedReq;
 		msg_req.msg_len = packed_size;
 		msg_req.msg = request_buffer;
-		if (riack_send_message(client, &msg_req)) {
+		if (riack_send_message(client, &msg_req) > 0) {
 			last_message = 0;
 			while ((last_message == 0) && (riack_receive_message(client, &msg_resp) > 0)) {
 				if (msg_resp->msg_code == mc_RpbMapRedResp) {
