@@ -415,6 +415,7 @@ int riack_get_bucket_props(struct RIACK_CLIENT *client, RIACK_STRING bucket, uin
 				riack_got_error_response(client, msg_resp);
 				result = RIACK_ERROR_RESPONSE;
 			}
+			riack_message_free(client, &msg_resp);
 		}
 
 		RFREE(client, request_buffer);
