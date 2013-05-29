@@ -28,6 +28,7 @@ Makefile
 *.pch
 *.vspscc
 *.vssscc
+*.vcproj
 *_i.c
 *_p.c
 *.ncb

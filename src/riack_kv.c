@@ -470,8 +470,8 @@ int riack_set_bucket_props(struct RIACK_CLIENT *client, RIACK_STRING bucket, uin
 static void _list_keys_stream_callback(struct RIACK_CLIENT *client, void *args_raw, RIACK_STRING key)
 {
 	struct RIACK_STRING_LINKED_LIST **current = (struct RIACK_STRING_LINKED_LIST**)args_raw;
-	assert(current);
 	RIACK_STRING new_string;
+	assert(current);
 	RMALLOCCOPY(client, new_string.value, new_string.len, key.value, key.len);
 	riack_string_linked_list_add(client, current, new_string);
 }
@@ -596,7 +596,7 @@ int riack_list_buckets(struct RIACK_CLIENT *client, RIACK_STRING_LIST* bucket_li
 }
 
 
-RIACK_EXPORT int riack_set_clientid(struct RIACK_CLIENT *client, RIACK_STRING clientid)
+int riack_set_clientid(struct RIACK_CLIENT *client, RIACK_STRING clientid)
 {
 	int result;
 	struct RIACK_PB_MSG msg_req, *msg_resp;
@@ -684,7 +684,7 @@ int riack_map_redue(struct RIACK_CLIENT *client, size_t data_len, uint8_t* data,
 	return riack_map_reduce_stream(client, data_len, data, content_type, _map_reduce_stream_callback, mapred_result);
 }
 
-RIACK_EXPORT int riack_map_reduce_stream(struct RIACK_CLIENT *client,
+int riack_map_reduce_stream(struct RIACK_CLIENT *client,
 										 size_t data_len,
 										 uint8_t* data,
 										 enum RIACK_MAPRED_CONTENT_TYPE content_type,
