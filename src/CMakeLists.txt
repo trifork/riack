@@ -8,11 +8,6 @@ OPTION (BUILD_SHARED_LIBS "Build Shared Libraries" ON)
 ENABLE_TESTING()
 
 SET(CMAKE_BUILD_TYPE DEBUG)
-SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/cmake/Modules/")
-
-find_package(ProtoBufC REQUIRED)
-include_directories(${PROTOBUFC_INCLUDE_DIRS})
-set(LIBS ${LIBS} ${PROTOBUFC_LIBRARIES})
 
 SET(RIACK_SRC	riack_sock.c
 				riack_sock.h
@@ -32,7 +27,10 @@ SET(RIACK_SRC	riack_sock.c
 				protocol/riak.pb-c.h
 				protocol/riak.pb-c.c
 				protocol/riak_kv.pb-c.h
-				protocol/riak_kv.pb-c.c)
+				protocol/riak_kv.pb-c.c
+				google/protobuf-c/protobuf-c-private.h
+				google/protobuf-c/protobuf-c.c
+				google/protobuf-c/protobuf-c.h)
 
 SET(TESTS_MAIN_SRC	tests/test.h
 				 	tests/test.c 

@@ -4,27 +4,6 @@ Is a C client library for Riak.
 ##Compilation
 ###Dependencies
 
-####protobuf-c
-Pure C bindings for google protocol buffers.
-Download at http://code.google.com/p/protobuf-c/
-
-to compile protobuf-c you first need to install Protocol Buffers find it here
-http://code.google.com/p/protobuf/
-
-On linux and Mac just do a 
-```
-./configure
-make
-sudo make install
-```
-On both protobuf libraries.
-
-On Windows
-Protocol Buffers follow the vsprojects/readme.txt in the downloaded the package.
-protobuf-c I recommend using cmake however at the time of writing this there is a bug
-which will give you a compile error if this is still the case visit 
-http://code.google.com/p/protobuf-c/issues/list to find a solution.
-
 ####cmake
 Riack uses cmake build system which means it can be compiled on most systems.
 Make sure you have installed cmake if not find it here http://www.cmake.org/ or
@@ -56,8 +35,14 @@ If your server is running on localhost with port 8081 set as protocol buffer por
 When ready you can simply do a make test.
 (on windows just choose the correct build target in Visual Studio)
 
-##Riack++
-I am in the process of making a C++ wrapper it can be found here https://github.com/TriKaspar/riack_cpp
+##Built with Riack
+
+###php_riak
+PHP extension featuring persistent connection, autoreconnect and a PHP session module.
+https://github.com/TriKaspar/php_riak
+
+###Riack++
+A C++ wrapper can be found here https://github.com/TriKaspar/riack_cpp
 It does not require anything but riack and a C++ compiler.
 
 ##Disclamer
