@@ -57,6 +57,11 @@
      * use size_t consistently
  */
 
+/*
+Kaspar Bach Pedersen:
+Changed inline to __inline for easier windows compilation
+*/
+
 #if HAVE_PROTOBUF_C_CONFIG_H
 #include "protobuf-c-config.h"
 #endif
@@ -224,7 +229,7 @@ protobuf_c_buffer_simple_append (ProtobufCBuffer *buffer,
 /* Return the number of bytes required to store the
    tag for the field (which includes 3 bits for
    the wire-type, and a single bit that denotes the end-of-tag. */
-static inline size_t
+static __inline size_t
 get_tag_size (unsigned number)
 {
   if (number < (1<<4))
@@ -242,7 +247,7 @@ get_tag_size (unsigned number)
 /* Return the number of bytes required to store
    a variable-length unsigned integer that fits in 32-bit uint
    in base-128 encoding. */
-static inline size_t
+static __inline size_t
 uint32_size (uint32_t v)
 {
   if (v < (1<<7))
@@ -259,7 +264,7 @@ uint32_size (uint32_t v)
 /* Return the number of bytes required to store
    a variable-length signed integer that fits in 32-bit int
    in base-128 encoding. */
-static inline size_t
+static __inline size_t
 int32_size (int32_t v)
 {
   if (v < 0)
@@ -276,7 +281,7 @@ int32_size (int32_t v)
     return 5;
 }
 /* return the zigzag-encoded 32-bit unsigned int from a 32-bit signed int */
-static inline uint32_t
+static __inline uint32_t
 zigzag32 (int32_t v)
 {
   if (v < 0)
@@ -288,7 +293,7 @@ zigzag32 (int32_t v)
    a variable-length signed integer that fits in 32-bit int,
    converted to unsigned via the zig-zag algorithm,
    then packed using base-128 encoding. */
-static inline size_t
+static __inline size_t
 sint32_size (int32_t v)
 {
   return uint32_size(zigzag32(v));
@@ -297,7 +302,7 @@ sint32_size (int32_t v)
 /* Return the number of bytes required to store
    a variable-length unsigned integer that fits in 64-bit uint
    in base-128 encoding. */
-static inline size_t
+static __inline size_t
 uint64_size (uint64_t v)
 {
   uint32_t upper_v = (uint32_t )(v>>32);
@@ -318,7 +323,7 @@ uint64_size (uint64_t v)
 }
 
 /* return the zigzag-encoded 64-bit unsigned int from a 64-bit signed int */
-static inline uint64_t
+static __inline uint64_t
 zigzag64 (int64_t v)
 {
   if (v < 0)
@@ -331,7 +336,7 @@ zigzag64 (int64_t v)
    a variable-length signed integer that fits in 64-bit int,
    converted to unsigned via the zig-zag algorithm,
    then packed using base-128 encoding. */
-static inline size_t
+static __inline size_t
 sint64_size (int64_t v)
 {
   return uint64_size(zigzag64(v));
@@ -505,7 +510,7 @@ repeated_field_get_packed_size (const ProtobufCFieldDescriptor *field,
 /* Get the packed size of a unknown field (meaning one that
    is passed through mostly uninterpreted... this is done
    for forward compatibilty with the addition of new fields). */
-static inline size_t
+static __inline size_t
 unknown_field_get_packed_size (const ProtobufCMessageUnknownField *field)
 {
   return get_tag_size (field->tag) + field->len;
@@ -538,7 +543,7 @@ protobuf_c_message_get_packed_size(const ProtobufCMessage *message)
 /* === pack() === */
 /* Pack an unsigned 32-bit integer in base-128 encoding, and return the number of bytes needed:
    this will be 5 or less. */
-static inline size_t
+static __inline size_t
 uint32_pack (uint32_t value, uint8_t *out)
 {
   unsigned rv = 0;
@@ -569,7 +574,7 @@ uint32_pack (uint32_t value, uint8_t *out)
 
 /* Pack a 32-bit signed integer, returning the number of bytes needed.
    Negative numbers are packed as twos-complement 64-bit integers. */
-static inline size_t
+static __inline size_t
 int32_pack (int32_t value, uint8_t *out)
 {
   if (value < 0)
@@ -588,7 +593,7 @@ int32_pack (int32_t value, uint8_t *out)
 }
 
 /* Pack a 32-bit integer in zigzag encoding. */
-static inline size_t
+static __inline size_t
 sint32_pack (int32_t value, uint8_t *out)
 {
   return uint32_pack (zigzag32 (value), out);
@@ -631,7 +636,7 @@ uint64_pack (uint64_t value, uint8_t *out)
 /* Pack a 64-bit signed integer in zigzan encoding,
    return the size of the packed output.
    (Max returned value is 10) */
-static inline size_t
+static __inline size_t
 sint64_pack (int64_t value, uint8_t *out)
 {
   return uint64_pack (zigzag64 (value), out);
@@ -639,7 +644,7 @@ sint64_pack (int64_t value, uint8_t *out)
 
 /* Pack a 32-bit value, little-endian.
    Used for fixed32, sfixed32, float) */
-static inline size_t
+static __inline size_t
 fixed32_pack (uint32_t value, void *out)
 {
 #if IS_LITTLE_ENDIAN
@@ -659,8 +664,8 @@ fixed32_pack (uint32_t value, void *out)
 /* XXX: the big-endian impl is really only good for 32-bit machines,
    a 64-bit version would be appreciated, plus a way
    to decide to use 64-bit math where convenient. */
-static inline size_t
-fixed64_pack (uint64_t value, void *out)
+static __inline size_t
+fixed64_pack (uint64_t value, char *out)
 {
 #if IS_LITTLE_ENDIAN
   memcpy (out, &value, 8);
@@ -676,7 +681,7 @@ fixed64_pack (uint64_t value, void *out)
    can really assume any integer value. */
 /* XXX: perhaps on some platforms "*out = !!value" would be
    a better impl, b/c that is idiotmatic c++ in some stl impls. */
-static inline size_t
+static __inline size_t
 boolean_pack (protobuf_c_boolean value, uint8_t *out)
 {
   *out = value ? 1 : 0;
@@ -692,7 +697,7 @@ boolean_pack (protobuf_c_boolean value, uint8_t *out)
    (See Issue 13 in the bug tracker for a 
    little more explanation).
  */
-static inline size_t
+static __inline size_t
 string_pack (const char * str, uint8_t *out)
 {
   if (str == NULL)
@@ -709,7 +714,7 @@ string_pack (const char * str, uint8_t *out)
     }
 }
 
-static inline size_t
+static __inline size_t
 binary_data_pack (const ProtobufCBinaryData *bd, uint8_t *out)
 {
   size_t len = bd->len;
@@ -718,7 +723,7 @@ binary_data_pack (const ProtobufCBinaryData *bd, uint8_t *out)
   return rv + len;
 }
 
-static inline size_t
+static __inline size_t
 prefixed_message_pack (const ProtobufCMessage *message, uint8_t *out)
 {
   if (message == NULL)
@@ -831,7 +836,7 @@ optional_field_pack (const ProtobufCFieldDescriptor *field,
 }
 
 /* TODO: implement as a table lookup */
-static inline size_t
+static __inline size_t
 sizeof_elt_in_repeated_array (ProtobufCType type)
 {
   switch (type)
@@ -1440,7 +1445,7 @@ protobuf_c_message_pack_to_buffer (const ProtobufCMessage *message,
 # define UNPACK_ERROR(args)  do { } while (0)
 #endif
 
-static inline int
+static __inline int
 int_range_lookup (unsigned n_ranges,
                   const ProtobufCIntRange *ranges,
                   int value)
@@ -1522,7 +1527,7 @@ struct _ScannedMember
   const uint8_t *data;
 };
 
-static inline uint32_t
+static __inline uint32_t
 scan_length_prefixed_data (size_t len, const uint8_t *data, size_t *prefix_len_out)
 {
   unsigned hdr_max = len < 5 ? len : 5;
@@ -1621,7 +1626,7 @@ count_packed_elements (ProtobufCType type,
     }
 }
 
-static inline uint32_t
+static __inline uint32_t
 parse_uint32 (unsigned len, const uint8_t *data)
 {
   unsigned rv = data[0] & 0x7f;
@@ -1641,12 +1646,12 @@ parse_uint32 (unsigned len, const uint8_t *data)
     }
   return rv;
 }
-static inline uint32_t
+static __inline uint32_t
 parse_int32 (unsigned len, const uint8_t *data)
 {
   return parse_uint32 (len, data);
 }
-static inline int32_t
+static __inline int32_t
 unzigzag32 (uint32_t v)
 {
   if (v&1)
@@ -1654,7 +1659,7 @@ unzigzag32 (uint32_t v)
   else
     return v>>1;
 }
-static inline uint32_t
+static __inline uint32_t
 parse_fixed_uint32 (const uint8_t *data)
 {
 #if IS_LITTLE_ENDIAN
@@ -1684,7 +1689,7 @@ parse_uint64 (unsigned len, const uint8_t *data)
     }
   return rv;
 }
-static inline int64_t
+static __inline int64_t
 unzigzag64 (uint64_t v)
 {
   if (v&1)
@@ -1692,7 +1697,7 @@ unzigzag64 (uint64_t v)
   else
     return v>>1;
 }
-static inline uint64_t
+static __inline uint64_t
 parse_fixed_uint64 (const uint8_t *data)
 {
 #if IS_LITTLE_ENDIAN
