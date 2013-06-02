@@ -19,7 +19,6 @@
 #define __RIACK_RIAK_C_H_
 
 #include "riack_defines.h"
-#include <stdint.h>
 
 extern struct RIACK_ALLOCATOR riack_default_allocator;
 

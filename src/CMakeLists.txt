@@ -1,13 +1,30 @@
 cmake_minimum_required (VERSION 2.6)
 project (Riack)
 
+SET(Riack_VERSION_MAJOR 1)
+SET(Riack_VERSION_MINOR 1)
+
 SET(RIAK_TEST_SERVER_IP 127.0.0.1)
 SET(RIAK_TEST_SERVER_PB_PORT 8087)
-OPTION (BUILD_SHARED_LIBS "Build Shared Libraries" ON)
+
+OPTION (BUILD_SHARED_LIBS "Build Shared Libraries" OFF)
+SET(CMAKE_BUILD_TYPE DEBUG)
+
+INCLUDE (CheckIncludeFiles)
+CHECK_INCLUDE_FILES ("stdint.h" HAVE_STDINT_H)
+
+SET (LIB_TYPE STATIC)
+IF (BUILD_SHARED_LIBS)
+  SET (LIB_TYPE SHARED)
+  SET (RIACK_SHARED 1)
+ENDIF (BUILD_SHARED_LIBS)
+
+CONFIGURE_FILE (
+  "${PROJECT_SOURCE_DIR}/riack-config.h.in"
+  "${PROJECT_BINARY_DIR}/riack-config.h"
+  )
 
 ENABLE_TESTING()
-
-SET(CMAKE_BUILD_TYPE DEBUG)
 
 SET(RIACK_SRC	riack_sock.c
 				riack_sock.h
@@ -20,6 +37,7 @@ SET(RIACK_SRC	riack_sock.c
 				riack_mem.c
 				riack_helpers.h
 				riack_helpers.c
+				ints.h
 				protocol/riak_msg_codes.h
 				protocol/riak_msg_codes.c
 				protocol/riak_search.pb-c.h
@@ -46,11 +64,6 @@ SET(TESTS_MAIN_SRC	tests/test.h
 					tests/test_load.c
 					tests/test_clientid.c)
 
-SET (LIB_TYPE STATIC)
-IF (BUILD_SHARED_LIBS)
-  SET (LIB_TYPE SHARED)
-ENDIF (BUILD_SHARED_LIBS)
-
 add_library (riack ${LIB_TYPE} ${RIACK_SRC})
 target_link_libraries(riack ${LIBS})
 
@@ -61,6 +74,9 @@ INSTALL(TARGETS riack
 INSTALL(FILES riack.h riack_defines.h
         DESTINATION include
         PERMISSIONS OWNER_READ GROUP_READ WORLD_READ)
+
+include_directories("${PROJECT_SOURCE_DIR}")
+include_directories("${PROJECT_BINARY_DIR}")
 
 add_executable(tests ${TESTS_MAIN_SRC})
 target_link_libraries(tests ${LIBS} riack)

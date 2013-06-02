@@ -17,7 +17,7 @@
 #ifndef __RIACK__SOCK__H__
 #define __RIACK__SOCK__H__
 
-#include <stdint.h>
+#include "ints.h"
 
 int sock_init(void);
 void sock_cleanup(void);

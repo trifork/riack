@@ -3,6 +3,7 @@
 .cproject
 .project
 .idea/
+riack-config.h
 precompiled/*.h
 install_manifest.txt
 CMakeCache.txt

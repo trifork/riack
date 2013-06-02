@@ -1,0 +1,7 @@
+
+#define Riack_VERSION_MAJOR @Riack_VERSION_MAJOR@
+#define Riack_VERSION_MINOR @Riack_VERSION_MINOR@
+
+#cmakedefine HAVE_STDINT_H @HAVE_STDINT_H@
+
+#cmakedefine RIACK_SHARED

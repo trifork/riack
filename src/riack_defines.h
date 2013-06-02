@@ -17,11 +17,11 @@
 #ifndef __RIACK__DEFINES__H__
 #define __RIACK__DEFINES__H__
 
-#include <stdint.h>
+#include "ints.h"
 #include <stdlib.h>
 #include <stddef.h>
 
-#if defined (_WIN32) 
+#ifdef RIACK_SHARED && _WIN32
   #if defined(riack_EXPORTS)
     #define  RIACK_EXPORT __declspec(dllexport)
   #else

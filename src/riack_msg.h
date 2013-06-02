@@ -17,7 +17,6 @@
 #ifndef RIACK_MSG_H_
 #define RIACK_MSG_H_
 
-#include <stdint.h>
 #include "riack_defines.h"
 
 struct RIACK_PB_MSG
