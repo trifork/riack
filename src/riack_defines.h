@@ -21,7 +21,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 
-#ifdef RIACK_SHARED && _WIN32
+#if defined(RIACK_SHARED) && defined(_WIN32)
   #if defined(riack_EXPORTS)
     #define  RIACK_EXPORT __declspec(dllexport)
   #else

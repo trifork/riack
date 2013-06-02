@@ -21,7 +21,7 @@ ENDIF (BUILD_SHARED_LIBS)
 
 CONFIGURE_FILE (
   "${PROJECT_SOURCE_DIR}/riack-config.h.in"
-  "${PROJECT_BINARY_DIR}/riack-config.h"
+  "${PROJECT_SOURCE_DIR}/riack-config.h"
   )
 
 ENABLE_TESTING()
