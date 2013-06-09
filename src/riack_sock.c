@@ -32,6 +32,7 @@
 #include <sys/time.h>
 #include <unistd.h>
 #include <netdb.h>
+#include <netinet/tcp.h>
 #endif
 
 int sock_init(void)
@@ -89,6 +90,8 @@ int sock_open(const char* host, int port)
 	for (p = servinfo; p !=NULL; p = p->ai_next) {
 		if ((sockfd = socket(p->ai_family, p->ai_socktype, p->ai_protocol)) > 0) {
 			if (connect(sockfd, p->ai_addr, p->ai_addrlen) == 0) {
+                int flag = 1;
+                setsockopt(sockfd, IPPROTO_TCP, TCP_NODELAY, (void*)&flag, sizeof(int));
 				break;
 			} else {
 				sock_close(sockfd);
