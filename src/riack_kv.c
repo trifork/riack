@@ -41,13 +41,13 @@ void riak_set_object_response_values(struct RIACK_CLIENT* client, struct RIACK_O
 	pobject->key.len = 0;
 	pobject->key.value = 0;
 	if (pput_resp->has_key) {
-		RMALLOCCOPY(client, pput_resp->key.data, pput_resp->key.len, pobject->key.value, pobject->key.len);
+		RMALLOCCOPY(client, pobject->key.value, pobject->key.len, pput_resp->key.data, pput_resp->key.len);
 	}
 	pobject->vclock.len = 0;
 	pobject->vclock.clock = 0;
 	if (pput_resp->has_vclock) {
-		RMALLOCCOPY(client, pput_resp->vclock.data, pput_resp->vclock.len,
-				pobject->vclock.clock, pobject->vclock.len);
+		RMALLOCCOPY(client, pobject->vclock.clock, pobject->vclock.len, 
+                pput_resp->vclock.data, pput_resp->vclock.len);
 	}
 	content_cnt = pput_resp->n_content;
 	pobject->content_count = content_cnt;
