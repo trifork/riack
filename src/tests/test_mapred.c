@@ -65,7 +65,7 @@ int test_mapred_basic() {
 		sprintf(buffer, mapred_test_query, RIAK_TEST_BUCKET, "test_mapred1",
 				RIAK_TEST_BUCKET, "test_mapred2",
 				RIAK_TEST_BUCKET, "test_mapred3");
-		if (riack_map_redue(test_client, strlen(buffer), buffer, APPLICATION_JSON, &mapresult) == RIACK_SUCCESS) {
+		if (riack_map_reduce(test_client, strlen(buffer), buffer, APPLICATION_JSON, &mapresult) == RIACK_SUCCESS) {
 			// TODO verufy the actual results instead of printing them
 
 			riack_free_mapred_result(test_client, mapresult);

@@ -97,7 +97,7 @@ int test_last_error()
 	key.len = strlen(TEST_NON_EXISTING_KEY);
 	key.value = TEST_NON_EXISTING_KEY;
 	// This is just plain wrong! (which is the general idea when testing error handling)
-	if (riack_map_redue(test_client, strlen(RIAK_TEST_BUCKET), RIAK_TEST_BUCKET, APPLICATION_ERLANG_TERM, &result) == RIACK_ERROR_RESPONSE) {
+	if (riack_map_reduce(test_client, strlen(RIAK_TEST_BUCKET), RIAK_TEST_BUCKET, APPLICATION_ERLANG_TERM, &result) == RIACK_ERROR_RESPONSE) {
 		if (strlen(test_client->last_error) > 0)
 			return 0;
 	}
