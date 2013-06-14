@@ -674,7 +674,7 @@ static void _map_reduce_stream_callback(struct RIACK_CLIENT *client, void *args_
 	riack_mapred_add_to_chain(client, chain, mapred_result_current);
 }
 
-int riack_map_redue(struct RIACK_CLIENT *client, size_t data_len, uint8_t* data,
+int riack_map_reduce(struct RIACK_CLIENT *client, size_t data_len, uint8_t* data,
 		enum RIACK_MAPRED_CONTENT_TYPE content_type, struct RIACK_MAPRED_RESULT** mapred_result)
 {
 	if (!mapred_result) {

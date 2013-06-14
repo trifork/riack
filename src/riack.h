@@ -89,7 +89,7 @@ RIACK_EXPORT int riack_delete(struct RIACK_CLIENT *client,
 				struct RIACK_DEL_PROPERTIES *props);
 
 /// Run a map reduce query on server
-RIACK_EXPORT int riack_map_redue(struct RIACK_CLIENT *client,
+RIACK_EXPORT int riack_map_reduce(struct RIACK_CLIENT *client,
 								 size_t data_len,
 								 uint8_t* data,
 								 enum RIACK_MAPRED_CONTENT_TYPE content_type,
