@@ -39,6 +39,7 @@ int test_bucket_list();
 int test_bucket_properties();
 int test_get1();
 int test_put1();
+int test_put_no_key();
 int test_put_return_header();
 int test_delete_basic();
 int test_ping_basic();

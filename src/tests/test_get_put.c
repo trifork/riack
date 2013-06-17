@@ -10,7 +10,9 @@ int test_get_put(char* testcase)
 		return test_put1();
 	} else if (strcmp(testcase, "put2") == 0) {
 		return test_put_return_header();
-	} else if (strcmp(testcase, "get1") == 0) {
+    } else if (strcmp(testcase, "put3") == 0) {
+        return test_put_no_key();
+    } else if (strcmp(testcase, "get1") == 0) {
 		return test_get1();
 	} else {
 		return -1;
@@ -20,6 +22,37 @@ int test_get_put(char* testcase)
 int put(char* key, char* data)
 {
 	return riack_put_simple(test_client, RIAK_TEST_BUCKET, key, data, strlen(data), "text/plain");
+}
+
+int test_put_no_key()
+{
+    struct RIACK_OBJECT obj, put_result;
+    char* data;
+    int result;
+
+    result = 1;
+
+    data = "{\"testvalue\": \"plappe lappe 2\"}";
+    obj.bucket.value = TEST_DATA1;
+    obj.bucket.len = strlen(TEST_DATA1);
+    obj.key.value = 0;
+    obj.key.len = 0;
+    obj.vclock.len = 0;
+    obj.content = (struct RIACK_CONTENT*)RMALLOC(test_client, sizeof(struct RIACK_CONTENT));
+    memset(obj.content, 0, sizeof(struct RIACK_CONTENT));
+    obj.content[0].content_type.value = "application/json";
+    obj.content[0].content_type.len = strlen(obj.content[0].content_type.value);
+    obj.content[0].data = data;
+    obj.content[0].data_len = strlen(data);
+
+    if (riack_put(test_client, obj, &put_result, (struct RIACK_PUT_PROPERTIES*)0) == RIACK_SUCCESS) {
+        if (put_result.key.len > 0) {
+            result = 0;
+        }
+        riack_free_object(test_client, &put_result);
+        RFREE(test_client, obj.content);
+    }
+    return result;
 }
 
 int test_put1()

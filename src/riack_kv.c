@@ -281,7 +281,7 @@ int riack_put(struct RIACK_CLIENT *client,
 	RpbPutResp *put_resp;
 	uint8_t *request_buffer;
 
-	if (!client || !object.bucket.value || !object.key.value) {
+    if (!client || !object.bucket.value) {
 		return RIACK_ERROR_INVALID_INPUT;
 	}
 
