@@ -91,7 +91,7 @@ int test_large_object()
 int test_last_error()
 {
 	RIACK_STRING bucket, key;
-    struct RIACK_MAPRED_RESULT_LIST *result;
+    struct RIACK_MAPRED_RESPONSE_LIST *result;
 	bucket.len = strlen(RIAK_TEST_BUCKET);
 	bucket.value = RIAK_TEST_BUCKET;
 	key.len = strlen(TEST_NON_EXISTING_KEY);

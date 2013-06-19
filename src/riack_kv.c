@@ -665,9 +665,9 @@ int riack_get_clientid(struct RIACK_CLIENT *client, RIACK_STRING *clientid)
 
 static void _map_reduce_stream_callback(struct RIACK_CLIENT *client, void *args_raw, struct RIACK_MAPRED_RESPONSE *result)
 {
-    struct RIACK_MAPRED_RESULT_LIST** chain = (struct RIACK_MAPRED_RESULT_LIST**)args_raw;
-    struct RIACK_MAPRED_RESULT_LIST* mapred_result_current =
-            (struct RIACK_MAPRED_RESULT_LIST*)RMALLOC(client, sizeof(struct RIACK_MAPRED_RESULT_LIST));
+    struct RIACK_MAPRED_RESPONSE_LIST** chain = (struct RIACK_MAPRED_RESPONSE_LIST**)args_raw;
+    struct RIACK_MAPRED_RESPONSE_LIST* mapred_result_current =
+            (struct RIACK_MAPRED_RESPONSE_LIST*)RMALLOC(client, sizeof(struct RIACK_MAPRED_RESPONSE_LIST));
 	assert(chain);
 	assert(result);
 	riack_copy_strmapred_to_mapred(client, result, mapred_result_current);
@@ -675,7 +675,7 @@ static void _map_reduce_stream_callback(struct RIACK_CLIENT *client, void *args_
 }
 
 int riack_map_reduce(struct RIACK_CLIENT *client, size_t data_len, uint8_t* data,
-        enum RIACK_MAPRED_CONTENT_TYPE content_type, struct RIACK_MAPRED_RESULT_LIST** mapred_result)
+        enum RIACK_MAPRED_CONTENT_TYPE content_type, struct RIACK_MAPRED_RESPONSE_LIST** mapred_result)
 {
 	if (!mapred_result) {
 		return RIACK_ERROR_INVALID_INPUT;

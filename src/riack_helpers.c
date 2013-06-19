@@ -24,8 +24,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-void riack_dbg_print_mapred_result(struct RIACK_MAPRED_RESULT_LIST *mapred) {
-    struct RIACK_MAPRED_RESULT_LIST *current;
+void riack_dbg_print_mapred_result(struct RIACK_MAPRED_RESPONSE_LIST *mapred) {
+    struct RIACK_MAPRED_RESPONSE_LIST *current;
 	char buffer[4000];
 	current = mapred;
 	while (current) {
@@ -184,9 +184,9 @@ void riack_free_get_object(struct RIACK_CLIENT* client, struct RIACK_GET_OBJECT 
 	riack_free_object(client, &pobject->object);
 }
 
-void riack_free_mapred_result(struct RIACK_CLIENT* client, struct RIACK_MAPRED_RESULT_LIST *result)
+void riack_free_mapred_result(struct RIACK_CLIENT* client, struct RIACK_MAPRED_RESPONSE_LIST *result)
 {
-    struct RIACK_MAPRED_RESULT_LIST *current, *last;
+    struct RIACK_MAPRED_RESPONSE_LIST *current, *last;
 	current = result;
 	last = 0;
 	while (current) {
@@ -269,10 +269,10 @@ struct RIACK_STRING_LINKED_LIST* riack_string_linked_list_add(struct RIACK_CLIEN
 }
 
 void riack_mapred_add_to_chain(struct RIACK_CLIENT *client,
-        struct RIACK_MAPRED_RESULT_LIST** base,
-        struct RIACK_MAPRED_RESULT_LIST* mapred_new)
+        struct RIACK_MAPRED_RESPONSE_LIST** base,
+        struct RIACK_MAPRED_RESPONSE_LIST* mapred_new)
 {
-    struct RIACK_MAPRED_RESULT_LIST* current;
+    struct RIACK_MAPRED_RESPONSE_LIST* current;
 	if (*base == 0) {
 		*base = mapred_new;
 	} else {
@@ -553,7 +553,7 @@ void riack_link_strmapred_with_rpbmapred(struct RIACK_CLIENT* client, RpbMapRedR
 }
 
 void riack_copy_strmapred_to_mapred(struct RIACK_CLIENT* client, struct RIACK_MAPRED_RESPONSE* source,
-                                    struct RIACK_MAPRED_RESULT_LIST* target)
+                                    struct RIACK_MAPRED_RESPONSE_LIST* target)
 {
 	memset(target, 0, sizeof(*target));
     target->response.phase = source->phase;

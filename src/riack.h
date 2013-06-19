@@ -93,7 +93,7 @@ RIACK_EXPORT int riack_map_reduce(struct RIACK_CLIENT *client,
 								 size_t data_len,
 								 uint8_t* data,
 								 enum RIACK_MAPRED_CONTENT_TYPE content_type,
-                                 struct RIACK_MAPRED_RESULT_LIST** mapred_result);
+                                 struct RIACK_MAPRED_RESPONSE_LIST** mapred_result);
 
 /// Run a map reduce query on server, return the every result separately through the callback
 RIACK_EXPORT int riack_map_reduce_stream(struct RIACK_CLIENT *client,
@@ -140,7 +140,7 @@ RIACK_EXPORT void riack_free_object(struct RIACK_CLIENT* client, struct RIACK_OB
 
 RIACK_EXPORT void riack_free_get_object(struct RIACK_CLIENT* client, struct RIACK_GET_OBJECT *pobject);
 
-RIACK_EXPORT void riack_free_mapred_result(struct RIACK_CLIENT* client, struct RIACK_MAPRED_RESULT_LIST *result);
+RIACK_EXPORT void riack_free_mapred_result(struct RIACK_CLIENT* client, struct RIACK_MAPRED_RESPONSE_LIST *result);
 
 RIACK_EXPORT void riack_free_string(struct RIACK_CLIENT* client, RIACK_STRING* string);
 

@@ -57,7 +57,7 @@ int test_mapred(char* testcase)
 int test_mapred_basic() {
 	int result;
 	char buffer[2000];
-    struct RIACK_MAPRED_RESULT_LIST *mapresult;
+    struct RIACK_MAPRED_RESPONSE_LIST *mapresult;
 	result = 1;
 	if (put("test_mapred1", testdata_1) == RIACK_SUCCESS &&
 		put("test_mapred2", testdata_2) == RIACK_SUCCESS &&

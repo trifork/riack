@@ -131,9 +131,9 @@ struct RIACK_MAPRED_RESPONSE {
 	uint8_t* data;
 };
 
-struct RIACK_MAPRED_RESULT_LIST {
+struct RIACK_MAPRED_RESPONSE_LIST {
     struct RIACK_MAPRED_RESPONSE response;
-    struct RIACK_MAPRED_RESULT_LIST* next_result;
+    struct RIACK_MAPRED_RESPONSE_LIST* next_result;
 };
 
 struct RIACK_VECTOR_CLOCK {

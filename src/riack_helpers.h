@@ -36,14 +36,14 @@ void riack_link_strmapred_with_rpbmapred(struct RIACK_CLIENT* client, RpbMapRedR
                                          struct RIACK_MAPRED_RESPONSE* target);
 
 void riack_copy_strmapred_to_mapred(struct RIACK_CLIENT* client, struct RIACK_MAPRED_RESPONSE* source,
-                                    struct RIACK_MAPRED_RESULT_LIST* target);
+                                    struct RIACK_MAPRED_RESPONSE_LIST* target);
 
 struct RIACK_STRING_LINKED_LIST* riack_string_linked_list_add(struct RIACK_CLIENT *client,
 		struct RIACK_STRING_LINKED_LIST** base,
 		RIACK_STRING string_new);
 
 void riack_mapred_add_to_chain(struct RIACK_CLIENT *client,
-        struct RIACK_MAPRED_RESULT_LIST** base,
-        struct RIACK_MAPRED_RESULT_LIST* mapred_new);
+        struct RIACK_MAPRED_RESPONSE_LIST** base,
+        struct RIACK_MAPRED_RESPONSE_LIST* mapred_new);
 
 #endif // __RIACK__HELPERS__H__
