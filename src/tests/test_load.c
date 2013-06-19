@@ -26,7 +26,7 @@ int process_file(char* filename, char* target_bucket)
 	if (infile) {
 		result = 1;
 		while (fscanf(infile, "%[-0-9]#%[^\n]\n", id, buffer) > 1) {
-			if (riack_put_simple(test_client, target_bucket, id, buffer, strlen(buffer), "application/json") != RIACK_SUCCESS) {
+            if (riack_put_simple(test_client, target_bucket, id, (uint8_t*)buffer, strlen(buffer), "application/json") != RIACK_SUCCESS) {
 				printf("Failed to put id %s\n", id);
 				result = 0;
 				break;

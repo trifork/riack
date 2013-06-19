@@ -24,15 +24,15 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-void riack_dbg_print_mapred_result(struct RIACK_MAPRED_RESULT *mapred) {
-	struct RIACK_MAPRED_RESULT *current;
+void riack_dbg_print_mapred_result(struct RIACK_MAPRED_RESULT_LIST *mapred) {
+    struct RIACK_MAPRED_RESULT_LIST *current;
 	char buffer[4000];
 	current = mapred;
 	while (current) {
-		printf("     Phase: %u\n", current->phase);
-		if (current->data_size > 0) {
-			memcpy(buffer, current->data, current->data_size);
-			buffer[current->data_size] = 0;
+        printf("     Phase: %u\n", current->response.phase);
+        if (current->response.data_size > 0) {
+            memcpy(buffer, current->response.data, current->response.data_size);
+            buffer[current->response.data_size] = 0;
 			printf("     Data:\n%s\n", buffer);
 		}
 		current = current->next_result;
@@ -184,17 +184,17 @@ void riack_free_get_object(struct RIACK_CLIENT* client, struct RIACK_GET_OBJECT 
 	riack_free_object(client, &pobject->object);
 }
 
-void riack_free_mapred_result(struct RIACK_CLIENT* client, struct RIACK_MAPRED_RESULT *result)
+void riack_free_mapred_result(struct RIACK_CLIENT* client, struct RIACK_MAPRED_RESULT_LIST *result)
 {
-	struct RIACK_MAPRED_RESULT *current, *last;
+    struct RIACK_MAPRED_RESULT_LIST *current, *last;
 	current = result;
 	last = 0;
 	while (current) {
-		if (current->data_size > 0 && current->data) {
-			RFREE(client, current->data);
+        if (current->response.data_size > 0 && current->response.data) {
+            RFREE(client, current->response.data);
 		}
 		last = current;
-		current = current->next_result;
+        current = current->next_result;
 		RFREE(client, last);
 	}
 }
@@ -269,10 +269,10 @@ struct RIACK_STRING_LINKED_LIST* riack_string_linked_list_add(struct RIACK_CLIEN
 }
 
 void riack_mapred_add_to_chain(struct RIACK_CLIENT *client,
-		struct RIACK_MAPRED_RESULT** base,
-		struct RIACK_MAPRED_RESULT* mapred_new)
+        struct RIACK_MAPRED_RESULT_LIST** base,
+        struct RIACK_MAPRED_RESULT_LIST* mapred_new)
 {
-	struct RIACK_MAPRED_RESULT* current;
+    struct RIACK_MAPRED_RESULT_LIST* current;
 	if (*base == 0) {
 		*base = mapred_new;
 	} else {
@@ -539,7 +539,7 @@ void riack_copy_object_to_rpbputreq(struct RIACK_CLIENT* client, struct RIACK_OB
 }
 
 void riack_link_strmapred_with_rpbmapred(struct RIACK_CLIENT* client, RpbMapRedResp* source,
-										 struct RIACK_MAPRED_STREAM_RESULT* target)
+                                         struct RIACK_MAPRED_RESPONSE* target)
 {
 	target->phase_present = source->has_phase;
 	target->phase = source->phase;
@@ -552,16 +552,16 @@ void riack_link_strmapred_with_rpbmapred(struct RIACK_CLIENT* client, RpbMapRedR
 	}
 }
 
-void riack_copy_strmapred_to_mapred(struct RIACK_CLIENT* client, struct RIACK_MAPRED_STREAM_RESULT* source,
-									struct RIACK_MAPRED_RESULT* target)
+void riack_copy_strmapred_to_mapred(struct RIACK_CLIENT* client, struct RIACK_MAPRED_RESPONSE* source,
+                                    struct RIACK_MAPRED_RESULT_LIST* target)
 {
 	memset(target, 0, sizeof(*target));
-	target->phase = source->phase;
-	target->phase_present = source->phase_present;
+    target->response.phase = source->phase;
+    target->response.phase_present = source->phase_present;
 	if (source->data_size > 0) {
-		target->data_size = source->data_size;
-		target->data = (uint8_t*)RMALLOC(client, source->data_size);
-		memcpy(target->data, source->data, source->data_size);
+        target->response.data_size = source->data_size;
+        target->response.data = (uint8_t*)RMALLOC(client, source->data_size);
+        memcpy(target->response.data, source->data, source->data_size);
 	}
 }
 

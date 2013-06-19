@@ -21,7 +21,7 @@ int test_get_put(char* testcase)
 
 int put(char* key, char* data)
 {
-	return riack_put_simple(test_client, RIAK_TEST_BUCKET, key, data, strlen(data), "text/plain");
+    return riack_put_simple(test_client, RIAK_TEST_BUCKET, key, (uint8_t*)data, strlen(data), "text/plain");
 }
 
 int test_put_no_key()
@@ -42,7 +42,7 @@ int test_put_no_key()
     memset(obj.content, 0, sizeof(struct RIACK_CONTENT));
     obj.content[0].content_type.value = "application/json";
     obj.content[0].content_type.len = strlen(obj.content[0].content_type.value);
-    obj.content[0].data = data;
+    obj.content[0].data = (uint8_t*)data;
     obj.content[0].data_len = strlen(data);
 
     if (riack_put(test_client, obj, &put_result, (struct RIACK_PUT_PROPERTIES*)0) == RIACK_SUCCESS) {
@@ -91,7 +91,7 @@ int test_put_return_header()
 	memset(obj.content, 0, sizeof(struct RIACK_CONTENT));
 	obj.content[0].content_type.value = "application/json";
 	obj.content[0].content_type.len = strlen(obj.content[0].content_type.value);
-	obj.content[0].data = data;
+    obj.content[0].data = (uint8_t*)data;
 	obj.content[0].data_len = strlen(data);
 
 	if (riack_put(test_client, obj, &put_result, &put_props) == RIACK_SUCCESS) {

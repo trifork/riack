@@ -40,7 +40,7 @@
 #define RMALLOC(client, size) client->allocator.alloc(0, size)
 #define RFREE(client, pointer) client->allocator.free(0, pointer)
 
-#define RMALLOCCOPY(client, target, target_len, source, len) target = (uint8_t*)RMALLOC(client, len); memcpy(target, source, len); target_len=len
+#define RMALLOCCOPY(client, target, target_len, source, len) target = (void*)RMALLOC(client, len); memcpy(target, source, len); target_len=len
 
 struct RIACK_ALLOCATOR
 {
@@ -124,19 +124,16 @@ enum RIACK_MAPRED_CONTENT_TYPE {
 	APPLICATION_ERLANG_TERM
 };
 
-struct RIACK_MAPRED_STREAM_RESULT {
+struct RIACK_MAPRED_RESPONSE {
 	uint8_t phase_present;
 	uint32_t phase;
 	size_t data_size;
 	uint8_t* data;
 };
 
-struct RIACK_MAPRED_RESULT {
-	uint8_t phase_present;
-	uint32_t phase;
-	size_t data_size;
-	uint8_t* data;
-	struct RIACK_MAPRED_RESULT* next_result;
+struct RIACK_MAPRED_RESULT_LIST {
+    struct RIACK_MAPRED_RESPONSE response;
+    struct RIACK_MAPRED_RESULT_LIST* next_result;
 };
 
 struct RIACK_VECTOR_CLOCK {

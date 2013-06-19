@@ -91,13 +91,13 @@ int test_large_object()
 int test_last_error()
 {
 	RIACK_STRING bucket, key;
-	struct RIACK_MAPRED_RESULT *result;
+    struct RIACK_MAPRED_RESULT_LIST *result;
 	bucket.len = strlen(RIAK_TEST_BUCKET);
 	bucket.value = RIAK_TEST_BUCKET;
 	key.len = strlen(TEST_NON_EXISTING_KEY);
 	key.value = TEST_NON_EXISTING_KEY;
 	// This is just plain wrong! (which is the general idea when testing error handling)
-	if (riack_map_reduce(test_client, strlen(RIAK_TEST_BUCKET), RIAK_TEST_BUCKET, APPLICATION_ERLANG_TERM, &result) == RIACK_ERROR_RESPONSE) {
+    if (riack_map_reduce(test_client, strlen(RIAK_TEST_BUCKET), (uint8_t*)RIAK_TEST_BUCKET, APPLICATION_ERLANG_TERM, &result) == RIACK_ERROR_RESPONSE) {
 		if (strlen(test_client->last_error) > 0)
 			return 0;
 	}
