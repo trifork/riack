@@ -70,4 +70,7 @@ int test_load_cleanup_bucket(char* szbucket);
 int put(char* key, char* data);
 int delete(char* key);
 
+int process_file(char* filename, char* target_bucket);
+int test_load_cleanup_bucket(char* szbucket);
+
 #endif /* TEST_H_ */

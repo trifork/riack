@@ -301,7 +301,7 @@ void riack_copy_string_to_buffer(struct RIACK_CLIENT* client, char* str, Protobu
 	memcpy(target->data, str, target->len);
 }
 
-void riak_copy_rpblink_to_link(struct RIACK_CLIENT* client, RpbLink* src, struct RIACK_LINK* target)
+void riack_copy_rpblink_to_link(struct RIACK_CLIENT* client, RpbLink* src, struct RIACK_LINK* target)
 {
 	if (src->has_key) {
 		RMALLOCCOPY(client, target->key.value, target->key.len, src->key.data, src->key.len);
@@ -324,9 +324,9 @@ void riak_copy_rpblink_to_link(struct RIACK_CLIENT* client, RpbLink* src, struct
 }
 
 /**
- * Copy a RIAK_LINK structure to a RpbLink structure
+ * Copy a RIACK_LINK structure to a RpbLink structure
  */
-void riak_copy_link_to_rpblink(struct RIACK_CLIENT* client, struct RIACK_LINK* rlink, RpbLink* rpc_link)
+void riack_copy_link_to_rpblink(struct RIACK_CLIENT* client, struct RIACK_LINK* rlink, RpbLink* rpc_link)
 {
 	rpb_link__init(rpc_link);
 	if (rlink->bucket.value) {
@@ -347,9 +347,9 @@ void riak_copy_link_to_rpblink(struct RIACK_CLIENT* client, struct RIACK_LINK* r
 }
 
 /**
- * Copy a RIAK_PAIR structure to a RpbPair structure
+ * Copy a RIACK_PAIR structure to a RpbPair structure
  */
-void riak_copy_pair_to_rpbpair(struct RIACK_CLIENT* client, struct RIACK_PAIR* rpair, RpbPair* rpc_pair)
+void riack_copy_pair_to_rpbpair(struct RIACK_CLIENT* client, struct RIACK_PAIR* rpair, RpbPair* rpc_pair)
 {
 	rpb_pair__init(rpc_pair);
 	if (rpair->key.value) {
@@ -363,7 +363,7 @@ void riak_copy_pair_to_rpbpair(struct RIACK_CLIENT* client, struct RIACK_PAIR* r
 	}
 }
 
-void riak_copy_rpbpair_to_pair(struct RIACK_CLIENT* client, RpbPair* rpc_pair, struct RIACK_PAIR* rpair)
+void riack_copy_rpbpair_to_pair(struct RIACK_CLIENT* client, RpbPair* rpc_pair, struct RIACK_PAIR* rpair)
 {
 	RMALLOCCOPY(client, rpair->key.value, rpair->key.len, rpc_pair->key.data, rpc_pair->key.len);
 	rpair->value_present = rpc_pair->has_value;
@@ -375,7 +375,7 @@ void riak_copy_rpbpair_to_pair(struct RIACK_CLIENT* client, RpbPair* rpc_pair, s
 }
 
 /**
- * Copy the content of a RIAK_CONTENT structure to a RpbContent structure
+ * Copy the content of a RIACK_CONTENT structure to a RpbContent structure
  * All memory and strings are copied
  */
 void riack_copy_content_to_rpbcontent(struct RIACK_CLIENT* client, struct RIACK_CONTENT *pcontent, RpbContent* ppbc_content)
@@ -410,7 +410,7 @@ void riack_copy_content_to_rpbcontent(struct RIACK_CLIENT* client, struct RIACK_
 		ppbc_content->links = (RpbLink**)RMALLOC(client, sizeof(RpbLink**) * pcontent->link_count);
 		for (i=0; i<pcontent->link_count; ++i) {
 			ppbc_content->links[i] = (RpbLink*)RMALLOC(client, sizeof(RpbLink));
-			riak_copy_link_to_rpblink(client, &pcontent->links[i], ppbc_content->links[i]);
+            riack_copy_link_to_rpblink(client, &pcontent->links[i], ppbc_content->links[i]);
 		}
 	}
 
@@ -426,7 +426,7 @@ void riack_copy_content_to_rpbcontent(struct RIACK_CLIENT* client, struct RIACK_
 		ppbc_content->usermeta = (RpbPair**)RMALLOC(client, sizeof(RpbPair**) * pcontent->usermeta_count);
 		for (i=0; i<pcontent->usermeta_count; ++i) {
 			ppbc_content->usermeta[i] = (RpbPair*)RMALLOC(client, sizeof(RpbPair));
-			riak_copy_pair_to_rpbpair(client, &pcontent->usermetas[i], ppbc_content->usermeta[i]);
+            riack_copy_pair_to_rpbpair(client, &pcontent->usermetas[i], ppbc_content->usermeta[i]);
 		}
 	}
 
@@ -435,13 +435,13 @@ void riack_copy_content_to_rpbcontent(struct RIACK_CLIENT* client, struct RIACK_
 		ppbc_content->indexes = (RpbPair**)RMALLOC(client, sizeof(RpbPair**) * pcontent->index_count);
 		for (i=0; i<pcontent->index_count; ++i) {
 			ppbc_content->indexes[i] = (RpbPair*)RMALLOC(client, sizeof(RpbPair));
-			riak_copy_pair_to_rpbpair(client, &pcontent->indexes[i], ppbc_content->indexes[i]);
+            riack_copy_pair_to_rpbpair(client, &pcontent->indexes[i], ppbc_content->indexes[i]);
 		}
 	}
 }
 
 /**
- * Copy contents of a RpbContent request into a RIAK_CONTENT structure.
+ * Copy contents of a RpbContent request into a RIACK_CONTENT structure.
  * Memory is copied so ppbc_content is ok to release after.
  */
 void riack_copy_rpbcontent_to_content(struct RIACK_CLIENT* client, RpbContent *src, struct RIACK_CONTENT *target)
@@ -483,7 +483,7 @@ void riack_copy_rpbcontent_to_content(struct RIACK_CLIENT* client, RpbContent *s
 	if (cnt > 0) {
 		target->indexes = (struct RIACK_PAIR*)RMALLOC(client, sizeof(struct RIACK_PAIR) * cnt);
 		for (i=0; i<cnt; ++i) {
-			riak_copy_rpbpair_to_pair(client, src->indexes[i], &target->indexes[i]);
+            riack_copy_rpbpair_to_pair(client, src->indexes[i], &target->indexes[i]);
 		}
 	}
 
@@ -492,7 +492,7 @@ void riack_copy_rpbcontent_to_content(struct RIACK_CLIENT* client, RpbContent *s
 	if (cnt > 0) {
 		target->usermetas = (struct RIACK_PAIR*)RMALLOC(client, sizeof(struct RIACK_PAIR) * cnt);
 		for (i=0; i<cnt; ++i) {
-			riak_copy_rpbpair_to_pair(client, src->usermeta[i], &target->usermetas[i]);
+            riack_copy_rpbpair_to_pair(client, src->usermeta[i], &target->usermetas[i]);
 		}
 	}
 
@@ -501,7 +501,7 @@ void riack_copy_rpbcontent_to_content(struct RIACK_CLIENT* client, RpbContent *s
 	if (cnt > 0) {
 		target->links = (struct RIACK_LINK*)RMALLOC(client, sizeof(struct RIACK_LINK) * cnt);
 		for (i=0; i<cnt; ++i) {
-			riak_copy_rpblink_to_link(client, src->links[i], &target->links[i]);
+            riack_copy_rpblink_to_link(client, src->links[i], &target->links[i]);
 		}
 	}
 

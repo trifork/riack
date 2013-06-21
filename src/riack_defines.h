@@ -274,7 +274,7 @@ struct RIACK_SEARCH_RESULT {
     uint8_t max_score_present;
     float max_score;
     uint8_t num_found_present;
-    uint32_t num_fount;
+    uint32_t num_found;
 };
 
 #endif // __RIACK__DEFINES__H__

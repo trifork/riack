@@ -31,6 +31,8 @@ void riack_copy_rpbcontent_to_content(struct RIACK_CLIENT* client, RpbContent* p
 
 void riack_copy_object_to_rpbputreq(struct RIACK_CLIENT* client, struct RIACK_OBJECT *pobject, RpbPutReq* pput_req);
 
+void riack_copy_rpbpair_to_pair(struct RIACK_CLIENT* client, RpbPair* rpc_pair, struct RIACK_PAIR* rpair);
+
 /// This function will not allocate dynamic memory for data
 void riack_link_strmapred_with_rpbmapred(struct RIACK_CLIENT* client, RpbMapRedResp* source,
                                          struct RIACK_MAPRED_RESPONSE* target);

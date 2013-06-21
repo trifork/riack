@@ -136,7 +136,7 @@ RIACK_EXPORT int riack_search(struct RIACK_CLIENT *client,
                               RIACK_STRING query,
                               RIACK_STRING index,
                               struct RIACK_SEARCH_OPTIONAL_PARAMETERS* optional_parameters,
-                              struct RIACK_SEARCH_RESULT** search_result);
+                              struct RIACK_SEARCH_RESULT* search_result);
 
 RIACK_EXPORT RIACK_STRING riack_copy_from_cstring(struct RIACK_CLIENT* client, const char* source);
 

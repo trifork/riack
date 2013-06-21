@@ -63,6 +63,9 @@ void riack_set_optional_search_properties_on_req(struct RIACK_CLIENT *client,
                                                  RpbSearchQueryReq* search_req)
 {
     size_t cnt;
+    if (!props) {
+        return;
+    }
     if (props->default_field_present) {
         search_req->has_df = 1;
         RMALLOCCOPY(client,
@@ -114,12 +117,50 @@ void riack_set_optional_search_properties_on_req(struct RIACK_CLIENT *client,
     }
 }
 
+void riack_copy_rpbsearchdoc_to_searchdoc(struct RIACK_CLIENT *client,
+                                          RpbSearchDoc* rpbsearchdoc,
+                                          struct RIACK_SEARCH_DOCUMENT *searchdoc)
+{
+    size_t cnt, i;
+    cnt = rpbsearchdoc->n_fields;
+    searchdoc->field_count = cnt;
+    if (cnt > 0) {
+        searchdoc->fields = RMALLOC(client, sizeof(struct RIACK_PAIR)*cnt);
+        for (i=0; i<cnt; ++i) {
+            riack_copy_rpbpair_to_pair(client, rpbsearchdoc->fields[i], &searchdoc->fields[i]);
+        }
+    }
+}
+
+void riack_set_search_result_from_response(struct RIACK_CLIENT *client,
+                                           RpbSearchQueryResp *response,
+                                           struct RIACK_SEARCH_RESULT* search_result)
+{
+    memset(search_result, 0, sizeof(struct RIACK_SEARCH_RESULT));
+    if (response->has_max_score) {
+        search_result->max_score_present = 1;
+        search_result->max_score = response->max_score;
+    }
+    if (response->has_num_found) {
+        search_result->num_found_present = 1;
+        search_result->num_found = response->num_found;
+    }
+    search_result->document_count = response->n_docs;
+    if (response->n_docs > 0) {
+        size_t cnt, i;
+        cnt = response->n_docs;
+        search_result->documents = (struct RIACK_SEARCH_DOCUMENT*)RMALLOC(client, sizeof(struct RIACK_SEARCH_DOCUMENT) * cnt);
+        for (i=0; i<cnt; ++i) {
+            riack_copy_rpbsearchdoc_to_searchdoc(client, response->docs[i], &search_result->documents[i]);
+        }
+    }
+}
 
 int riack_search(struct RIACK_CLIENT *client,
                  RIACK_STRING query,
                  RIACK_STRING index,
                  struct RIACK_SEARCH_OPTIONAL_PARAMETERS* optional_parameters,
-                 struct RIACK_SEARCH_RESULT** search_result)
+                 struct RIACK_SEARCH_RESULT* search_result)
 {
     int result;
     struct RIACK_PB_MSG msg_req, *msg_resp;
@@ -152,7 +193,13 @@ int riack_search(struct RIACK_CLIENT *client,
             (riack_receive_message(client, &msg_resp) > 0))
         {
             if (msg_resp->msg_code == mc_RbpSearchQueryResp) {
-                //
+                response = rpb_search_query_resp__unpack(&pb_allocator, msg_resp->msg_len, msg_resp->msg);
+                if (response) {
+                    riack_set_search_result_from_response(client, response, search_result);
+                    rpb_search_query_resp__free_unpacked(response, &pb_allocator);
+                } else {
+                    result = RIACK_FAILED_PB_UNPACK;
+                }
             } else {
                 riack_got_error_response(client, msg_resp);
                 result = RIACK_ERROR_RESPONSE;
