@@ -132,6 +132,12 @@ RIACK_EXPORT int riack_2i_query_range(struct RIACK_CLIENT *client,
 								   	  RIACK_STRING search_key_max,
 								   	  RIACK_STRING_LIST *result_keys);
 
+RIACK_EXPORT int riack_search(struct RIACK_CLIENT *client,
+                              RIACK_STRING query,
+                              RIACK_STRING index,
+                              struct RIACK_SEARCH_OPTIONAL_PARAMETERS* optional_parameters,
+                              struct RIACK_SEARCH_RESULT** search_result);
+
 RIACK_EXPORT RIACK_STRING riack_copy_from_cstring(struct RIACK_CLIENT* client, const char* source);
 
 RIACK_EXPORT RIACK_STRING riack_copy_string(struct RIACK_CLIENT* client, RIACK_STRING source);

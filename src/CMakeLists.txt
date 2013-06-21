@@ -30,6 +30,7 @@ SET(RIACK_SRC	riack_sock.c
 				riack_sock.h
 				riack.c
 				riack_kv.c
+                                riack_search.c
 				riack.h
 				riack_defines.h
 				riack_msg.c
@@ -61,7 +62,8 @@ SET(TESTS_MAIN_SRC	tests/test.h
 					tests/test_delete.c
 					tests/test_meta_links.c
 					tests/test_misc.c
-					tests/test_load.c
+                                        tests/test_load.c
+                                        tests/test_search.c
 					tests/test_clientid.c)
 
 add_library (riack ${LIB_TYPE} ${RIACK_SRC})
@@ -103,6 +105,7 @@ ADD_TEST(test-put2 		  ${CMAKE_CURRENT_BINARY_DIR}/tests get_put put2 ${RIAK_TES
 ADD_TEST(test-put3 		  ${CMAKE_CURRENT_BINARY_DIR}/tests get_put put3 ${RIAK_TEST_SERVER_IP} ${RIAK_TEST_SERVER_PB_PORT})
 ADD_TEST(test-get1 		  ${CMAKE_CURRENT_BINARY_DIR}/tests get_put get1 ${RIAK_TEST_SERVER_IP} ${RIAK_TEST_SERVER_PB_PORT})
 ADD_TEST(test-mapred1 	  ${CMAKE_CURRENT_BINARY_DIR}/tests mapred basic ${RIAK_TEST_SERVER_IP} ${RIAK_TEST_SERVER_PB_PORT})
+ADD_TEST(test-search1 	  ${CMAKE_CURRENT_BINARY_DIR}/tests search search1 ${RIAK_TEST_SERVER_IP} ${RIAK_TEST_SERVER_PB_PORT})
 ADD_TEST(test-2i-load	  ${CMAKE_CURRENT_BINARY_DIR}/tests 2i load ${RIAK_TEST_SERVER_IP} ${RIAK_TEST_SERVER_PB_PORT})
 ADD_TEST(test-2i-exact    ${CMAKE_CURRENT_BINARY_DIR}/tests 2i exact ${RIAK_TEST_SERVER_IP} ${RIAK_TEST_SERVER_PB_PORT})
 ADD_TEST(test-2i-range    ${CMAKE_CURRENT_BINARY_DIR}/tests 2i range ${RIAK_TEST_SERVER_IP} ${RIAK_TEST_SERVER_PB_PORT})
@@ -111,4 +114,3 @@ ADD_TEST(test-ml-load	  ${CMAKE_CURRENT_BINARY_DIR}/tests meta-links load ${RIAK
 ADD_TEST(test-ml-links    ${CMAKE_CURRENT_BINARY_DIR}/tests meta-links links ${RIAK_TEST_SERVER_IP} ${RIAK_TEST_SERVER_PB_PORT})
 ADD_TEST(test-ml-metas    ${CMAKE_CURRENT_BINARY_DIR}/tests meta-links metas ${RIAK_TEST_SERVER_IP} ${RIAK_TEST_SERVER_PB_PORT})
 ADD_TEST(test-cleanup     ${CMAKE_CURRENT_BINARY_DIR}/tests load cleanup ${RIAK_TEST_SERVER_IP} ${RIAK_TEST_SERVER_PB_PORT})
-

@@ -33,6 +33,7 @@ int test_load(char* testcase);
 int test_misc(char* testcase);
 int test_2i(char* testcase);
 int test_meta_links(char* testcase);
+int test_search(char* testcase);
 
 // Specific tests
 int test_bucket_list();
@@ -62,6 +63,7 @@ int test_meta_links_cleanup();
 int test_meta_links_metas();
 int test_meta_links_links();
 int test_large_object();
+int test_search1();
 
 // Helpers
 int test_load_cleanup_bucket(char* szbucket);

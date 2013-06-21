@@ -31,15 +31,22 @@
  #define RIACK_EXPORT
 #endif
 
+/* Success */
 #define RIACK_SUCCESS 1
+/* Communication failed, socket closed etc. */
 #define RIACK_ERROR_COMMUNICATION -1
+/* Riak returned an unexpected response */
 #define RIACK_ERROR_RESPONSE -2
+/* Bad argument or invalid arguments */
 #define RIACK_ERROR_INVALID_INPUT -3
+/* Failed to unpack an pb message (most likely low memory conditions) */
 #define RIACK_FAILED_PB_UNPACK -4
 
+/* Allacate memory using client allocator */
 #define RMALLOC(client, size) client->allocator.alloc(0, size)
+/* Free allocated memory */
 #define RFREE(client, pointer) client->allocator.free(0, pointer)
-
+/* Allocate and copy memory */
 #define RMALLOCCOPY(client, target, target_len, source, len) target = (void*)RMALLOC(client, len); memcpy(target, source, len); target_len=len
 
 struct RIACK_ALLOCATOR
@@ -49,44 +56,59 @@ struct RIACK_ALLOCATOR
 	void *allocator_optional_data;
 };
 
+/* Socket connection options */
 struct RIACK_CONNECTION_OPTIONS {
 	uint32_t recv_timeout_ms;
 	uint32_t send_timeout_ms;
 };
 
+/* Riack's base string type */
 typedef struct {
 	char* value;
 	size_t len;
 } RIACK_STRING;
 
+/* List of strings */
 typedef struct {
 	RIACK_STRING* strings;
 	size_t string_count;
 } RIACK_STRING_LIST;
 
+/* Linked list of strings */
 struct RIACK_STRING_LINKED_LIST {
 	RIACK_STRING string;
 	struct RIACK_STRING_LINKED_LIST* next;
 };
 
+/* Riack client */
 struct RIACK_CLIENT {
+    /* Socket handle */
 	int sockfd;
+    /* Last error text zero terminated */
 	char* last_error;
+    /* Last error code */
 	uint32_t last_error_code;
+    /* Riak host, zero terminated */
 	char* host;
+    /* Riak port number (protocol buffers port) */
 	int port;
+    /* Connection options */
 	struct RIACK_CONNECTION_OPTIONS options;
 
+    /* Allocator to use with this client */
 	struct RIACK_ALLOCATOR allocator;
 };
 
+/* Link to an object */
 struct RIACK_LINK
 {
 	RIACK_STRING bucket;
 	RIACK_STRING key;
+    /* Link tag */
 	RIACK_STRING tag;
 };
 
+/* key/value pair */
 struct RIACK_PAIR
 {
 	RIACK_STRING key;
@@ -119,18 +141,23 @@ struct RIACK_CONTENT
 	struct RIACK_PAIR *indexes;
 };
 
+/* MapReduce content type */
 enum RIACK_MAPRED_CONTENT_TYPE {
 	APPLICATION_JSON,
 	APPLICATION_ERLANG_TERM
 };
 
+/* MapReduce response structure */
 struct RIACK_MAPRED_RESPONSE {
+    /* What phase is this response from */
 	uint8_t phase_present;
 	uint32_t phase;
+
 	size_t data_size;
 	uint8_t* data;
 };
 
+/* Mapreduce response list */
 struct RIACK_MAPRED_RESPONSE_LIST {
     struct RIACK_MAPRED_RESPONSE response;
     struct RIACK_MAPRED_RESPONSE_LIST* next_result;
@@ -208,6 +235,46 @@ struct RIACK_DEL_PROPERTIES
 	uint8_t dw_use;
 	uint32_t dw;
 	struct RIACK_VECTOR_CLOCK vclock;
+};
+
+/*
+  RIAK SEARCH
+*/
+
+/* Optional search parameters */
+struct RIACK_SEARCH_OPTIONAL_PARAMETERS {
+    uint8_t rowlimit_present;
+    uint32_t rowlimit;
+    uint8_t start_present;
+    uint32_t start;
+    uint8_t sort_present;
+    RIACK_STRING sort;
+    uint8_t filter_present;
+    RIACK_STRING filter;
+    uint8_t default_field_present;
+    RIACK_STRING default_field;
+    uint8_t default_operation_present;
+    RIACK_STRING default_operation;
+    uint8_t presort_present;
+    RIACK_STRING presort;
+    size_t field_limits_count;
+    RIACK_STRING *field_limits;
+};
+
+/* Search document */
+struct RIACK_SEARCH_DOCUMENT {
+    size_t field_count;
+    struct RIACK_PAIR *fields;
+};
+
+/* Result from a search */
+struct RIACK_SEARCH_RESULT {
+    size_t document_count;
+    struct RIACK_SEARCH_DOCUMENT* documents;
+    uint8_t max_score_present;
+    float max_score;
+    uint8_t num_found_present;
+    uint32_t num_fount;
 };
 
 #endif // __RIACK__DEFINES__H__
