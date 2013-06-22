@@ -42,7 +42,7 @@ void riack_dbg_print_mapred_result(struct RIACK_MAPRED_RESPONSE_LIST *mapred) {
 /**
  * Free all memory associated with a RpbPair
  */
-void riak_free_copied_rpb_pair(struct RIACK_CLIENT* client, RpbPair* ppair)
+void riack_free_copied_rpb_pair(struct RIACK_CLIENT* client, RpbPair* ppair)
 {
 	RFREE(client, ppair->key.data);
 	if (ppair->has_value) {
@@ -53,7 +53,7 @@ void riak_free_copied_rpb_pair(struct RIACK_CLIENT* client, RpbPair* ppair)
 /**
  * Free all memory associated with a RpbLink
  */
-void riak_free_copied_rpb_link(struct RIACK_CLIENT* client, RpbLink* plink)
+void riack_free_copied_rpb_link(struct RIACK_CLIENT* client, RpbLink* plink)
 {
 	RFREE(client, plink->bucket.data);
 	RFREE(client, plink->key.data);
@@ -63,7 +63,7 @@ void riak_free_copied_rpb_link(struct RIACK_CLIENT* client, RpbLink* plink)
 /**
  * Free all memory associated with this RpbContent
  */
-void riak_free_copied_rpb_content(struct RIACK_CLIENT* client, RpbContent* pcontent)
+void riack_free_copied_rpb_content(struct RIACK_CLIENT* client, RpbContent* pcontent)
 {
 	size_t n, i;
 
@@ -75,7 +75,7 @@ void riak_free_copied_rpb_content(struct RIACK_CLIENT* client, RpbContent* pcont
 	n = pcontent->n_indexes;
 	if (n > 0) {
 		for (i=0; i<n; ++i) {
-			riak_free_copied_rpb_pair(client, pcontent->indexes[i]);
+            riack_free_copied_rpb_pair(client, pcontent->indexes[i]);
 			RFREE(client, pcontent->indexes[i]);
 		}
 		RFREE(client, pcontent->indexes);
@@ -83,7 +83,7 @@ void riak_free_copied_rpb_content(struct RIACK_CLIENT* client, RpbContent* pcont
 	n = pcontent->n_usermeta;
 	if (n > 0) {
 		for (i=0; i<n; ++i) {
-			riak_free_copied_rpb_pair(client, pcontent->usermeta[i]);
+            riack_free_copied_rpb_pair(client, pcontent->usermeta[i]);
 			RFREE(client, pcontent->usermeta[i]);
 		}
 		RFREE(client, pcontent->usermeta);
@@ -91,7 +91,7 @@ void riak_free_copied_rpb_content(struct RIACK_CLIENT* client, RpbContent* pcont
 	n = pcontent->n_links;
 	if (n > 0) {
 		for (i=0; i<n; ++i) {
-			riak_free_copied_rpb_link(client, pcontent->links[i]);
+            riack_free_copied_rpb_link(client, pcontent->links[i]);
 			RFREE(client, pcontent->links[i]);
 		}
 		RFREE(client, pcontent->links);
@@ -107,25 +107,27 @@ void riack_free_copied_rpb_put_req(struct RIACK_CLIENT* client, RpbPutReq* pput_
 		RFREE(client, pput_req->bucket.data);
 		RFREE(client, pput_req->vclock.data);
 		RFREE(client, pput_req->key.data);
-		riak_free_copied_rpb_content(client, pput_req->content);
+        riack_free_copied_rpb_content(client, pput_req->content);
 		RFREE(client, pput_req->content);
 	}
 }
 
-void riak_free_copied_pair(struct RIACK_CLIENT* client, struct RIACK_PAIR *ppair) {
+void riack_free_copied_pair(struct RIACK_CLIENT* client, struct RIACK_PAIR *ppair)
+{
 	RFREE(client, ppair->key.value);
 	if (ppair->value_present) {
 		RFREE(client, ppair->value);
 	}
 }
 
-void riak_free_copied_link(struct RIACK_CLIENT* client, struct RIACK_LINK *plink) {
+void riack_free_copied_link(struct RIACK_CLIENT* client, struct RIACK_LINK *plink)
+{
 	RFREE(client, plink->bucket.value);
 	RFREE(client, plink->key.value);
 	RFREE(client, plink->tag.value);
 }
 
-void riak_free_content(struct RIACK_CLIENT* client, struct RIACK_CONTENT *pcontent)
+void riack_free_content(struct RIACK_CLIENT* client, struct RIACK_CONTENT *pcontent)
 {
 	size_t cnt, i;
 	RFREE(client, pcontent->charset.value);
@@ -138,7 +140,7 @@ void riak_free_content(struct RIACK_CLIENT* client, struct RIACK_CONTENT *pconte
 	cnt = pcontent->index_count;
 	if (cnt > 0) {
 		for (i=0; i<cnt; ++i) {
-			riak_free_copied_pair(client, &pcontent->indexes[i]);
+            riack_free_copied_pair(client, &pcontent->indexes[i]);
 		}
 		RFREE(client,pcontent->indexes);
 	}
@@ -146,7 +148,7 @@ void riak_free_content(struct RIACK_CLIENT* client, struct RIACK_CONTENT *pconte
 	cnt = pcontent->usermeta_count;
 	if (cnt > 0) {
 		for (i=0; i<cnt; ++i) {
-			riak_free_copied_pair(client, &pcontent->usermetas[i]);
+            riack_free_copied_pair(client, &pcontent->usermetas[i]);
 		}
 		RFREE(client,pcontent->usermetas);
 	}
@@ -154,7 +156,7 @@ void riak_free_content(struct RIACK_CLIENT* client, struct RIACK_CONTENT *pconte
 	cnt = pcontent->link_count;
 	if (cnt > 0) {
 		for (i=0; i<cnt; ++i) {
-			riak_free_copied_link(client, &pcontent->links[i]);
+            riack_free_copied_link(client, &pcontent->links[i]);
 		}
 		RFREE(client,pcontent->links);
 	}
@@ -172,7 +174,7 @@ void riack_free_object(struct RIACK_CLIENT* client, struct RIACK_OBJECT *pobject
 		cnt = pobject->content_count;
 		if (cnt > 0) {
 			for (i=0; i<cnt; ++i) {
-				riak_free_content(client, &pobject->content[i]);
+                riack_free_content(client, &pobject->content[i]);
 			}
 			RFREE(client,pobject->content);
 		}

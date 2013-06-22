@@ -148,6 +148,8 @@ RIACK_EXPORT void riack_free_get_object(struct RIACK_CLIENT* client, struct RIAC
 
 RIACK_EXPORT void riack_free_mapred_result(struct RIACK_CLIENT* client, struct RIACK_MAPRED_RESPONSE_LIST *result);
 
+RIACK_EXPORT void riack_free_search_result(struct RIACK_CLIENT* client, struct RIACK_SEARCH_RESULT* search_result);
+
 RIACK_EXPORT void riack_free_string(struct RIACK_CLIENT* client, RIACK_STRING* string);
 
 RIACK_EXPORT void riack_free_string_list(struct RIACK_CLIENT* client, RIACK_STRING_LIST* strings);

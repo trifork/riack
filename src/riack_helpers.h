@@ -22,6 +22,7 @@
 #include "protocol/riak_kv.pb-c.h"
 
 void riack_free_copied_rpb_put_req(struct RIACK_CLIENT* client, RpbPutReq* pput_req);
+void riack_free_copied_pair(struct RIACK_CLIENT* client, struct RIACK_PAIR *ppair);
 
 void riack_copy_string_to_buffer(struct RIACK_CLIENT* client, char* str, ProtobufCBinaryData* target);
 void riack_copy_buffer_to_string(struct RIACK_CLIENT* client, ProtobufCBinaryData* src, char** str);

@@ -156,6 +156,31 @@ void riack_set_search_result_from_response(struct RIACK_CLIENT *client,
     }
 }
 
+void riack_free_search_document(struct RIACK_CLIENT* client,
+                                struct RIACK_SEARCH_DOCUMENT* search_doc)
+{
+    size_t cnt = search_doc->field_count;
+    if (cnt > 0) {
+        size_t i;
+        for (i=0; i<cnt; ++i) {
+            riack_free_copied_pair(client, &search_doc->fields[i]);
+        }
+        RFREE(client, search_doc->fields);
+    }
+}
+
+void riack_free_search_result(struct RIACK_CLIENT* client, struct RIACK_SEARCH_RESULT* search_result)
+{
+    size_t cnt = search_result->document_count;
+    if (cnt > 0) {
+        size_t i;
+        for (i=0; i<cnt; ++i) {
+            riack_free_search_document(client, &search_result->documents[i]);
+        }
+        RFREE(client, search_result->documents);
+    }
+}
+
 int riack_search(struct RIACK_CLIENT *client,
                  RIACK_STRING query,
                  RIACK_STRING index,
@@ -197,6 +222,7 @@ int riack_search(struct RIACK_CLIENT *client,
                 if (response) {
                     riack_set_search_result_from_response(client, response, search_result);
                     rpb_search_query_resp__free_unpacked(response, &pb_allocator);
+                    result = RIACK_SUCCESS;
                 } else {
                     result = RIACK_FAILED_PB_UNPACK;
                 }

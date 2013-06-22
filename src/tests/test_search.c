@@ -32,9 +32,12 @@ int test_search1()
     index.value = SEARCH_BUCKET1;
     index.len = strlen(index.value);
     if (riack_search(test_client, test_query, index, &params, &search_result) == RIACK_SUCCESS) {
-        result = 0;
+        // There should be two matches in data
+        if (search_result.document_count == 2) {
+            result = 0;
+        }
+        riack_free_search_result(test_client, &search_result);
     }
-    // TODO Free result.
     test_load_cleanup_bucket(SEARCH_BUCKET1);
     return result;
 }
