@@ -218,6 +218,7 @@ struct RIACK_PUT_PROPERTIES
 	uint8_t return_body;
 	uint8_t return_head_use;
 	uint8_t return_head;
+    struct RIACK_VECTOR_CLOCK vclock;
 };
 
 struct RIACK_DEL_PROPERTIES

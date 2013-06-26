@@ -108,8 +108,8 @@ void riack_free_copied_rpb_put_req(struct RIACK_CLIENT* client, RpbPutReq* pput_
 		RFREE(client, pput_req->vclock.data);
 		RFREE(client, pput_req->key.data);
         riack_free_copied_rpb_content(client, pput_req->content);
-		RFREE(client, pput_req->content);
-	}
+        RFREE(client, pput_req->content);
+    }
 }
 
 void riack_free_copied_pair(struct RIACK_CLIENT* client, struct RIACK_PAIR *ppair)

@@ -110,7 +110,7 @@ int riack_put_simple(struct RIACK_CLIENT *client, char* bucket, char* key, uint8
 	return result;
 }
 
-void riack_set_object_properties(struct RIACK_PUT_PROPERTIES* pprops, RpbPutReq* pput_req)
+void riack_set_object_properties(struct RIACK_CLIENT *client, struct RIACK_PUT_PROPERTIES* pprops, RpbPutReq* pput_req)
 {
 	if (pprops) {
 		pput_req->has_w = pprops->w_use;
@@ -127,6 +127,12 @@ void riack_set_object_properties(struct RIACK_PUT_PROPERTIES* pprops, RpbPutReq*
 		pput_req->return_body = pprops->return_body;
 		pput_req->has_return_head = pprops->return_head_use;
 		pput_req->return_head = pprops->return_head;
+        if (pprops->vclock.clock != 0) {
+            pput_req->has_vclock = 1;
+            pput_req->vclock.len = pprops->vclock.len;
+            pput_req->vclock.data = RMALLOC(client, pprops->vclock.len);
+            memcpy(pput_req->vclock.data, pprops->vclock.clock, pprops->vclock.len);
+        }
 	} else {
 		pput_req->has_w = 0;
 		pput_req->has_dw = 0;
@@ -134,7 +140,9 @@ void riack_set_object_properties(struct RIACK_PUT_PROPERTIES* pprops, RpbPutReq*
 		pput_req->has_if_none_match = 0;
 		pput_req->has_if_not_modified = 0;
 		pput_req->has_return_body = 0;
-		pput_req->has_return_head = 0;
+        pput_req->has_return_head = 0;
+        pput_req->has_vclock = 0;
+        pput_req->vclock.data = 0;
 	}
 }
 
@@ -289,7 +297,7 @@ int riack_put(struct RIACK_CLIENT *client,
 	result = RIACK_ERROR_COMMUNICATION;
 	rpb_put_req__init(&put_req);
 	riack_copy_object_to_rpbputreq(client, &object, &put_req);
-	riack_set_object_properties(properties, &put_req);
+    riack_set_object_properties(client, properties, &put_req);
 
 	packed_size = rpb_put_req__get_packed_size(&put_req);
 	request_buffer = (uint8_t*)RMALLOC(client, packed_size);
@@ -320,7 +328,7 @@ int riack_put(struct RIACK_CLIENT *client,
 		}
 		RFREE(client, request_buffer);
 	}
-	riack_free_copied_rpb_put_req(client, &put_req);
+    riack_free_copied_rpb_put_req(client, &put_req);
 	return result;
 }
 
@@ -366,8 +374,8 @@ int riack_delete(struct RIACK_CLIENT *client, RIACK_STRING bucket, RIACK_STRING 
 		RFREE(client, request_buffer);
 	}
 
-	RFREE(client, del_req.vclock.data);
-	return result;
+    RFREE(client, del_req.vclock.data);
+    return result;
 }
 
 int riack_get_bucket_props(struct RIACK_CLIENT *client, RIACK_STRING bucket, uint32_t *n_val, uint8_t *allow_mult)
