@@ -188,14 +188,14 @@ struct RIACK_GET_PROPERTIES
 	uint32_t r;
 	uint8_t pr_use;
 	uint32_t pr;
-	uint8_t basic_quorum_present;
+    uint8_t basic_quorum_use;
 	uint8_t basic_quorum;
-	uint8_t notfound_ok_present;
+    uint8_t notfound_ok_use;
 	uint8_t notfound_ok;
 
 	uint8_t head_use;
 	uint8_t head;
-	uint8_t deletedvclock_present;
+    uint8_t deletedvclock_use;
 	uint8_t deletedvclock;
 
 	uint8_t if_modified_use;

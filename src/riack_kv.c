@@ -141,14 +141,14 @@ void riack_set_object_properties(struct RIACK_PUT_PROPERTIES* pprops, RpbPutReq*
 void riack_set_get_properties(struct RIACK_CLIENT *client, struct RIACK_GET_PROPERTIES* props, RpbGetReq* get_req)
 {
 	if (props) {
-		get_req->has_basic_quorum = props->basic_quorum_present;
+        get_req->has_basic_quorum = props->basic_quorum_use;
 		get_req->basic_quorum = props->basic_quorum;
-		get_req->has_deletedvclock = props->deletedvclock_present;
+        get_req->has_deletedvclock = props->deletedvclock_use;
 		get_req->deletedvclock = props->deletedvclock;
 		get_req->has_head = props->head_use;
 		get_req->head = props->head;
 		get_req->has_if_modified = 0;
-		get_req->has_notfound_ok = props->notfound_ok_present;
+        get_req->has_notfound_ok = props->notfound_ok_use;
 		get_req->notfound_ok = props->notfound_ok;
 		get_req->has_pr = props->pr_use;
 		get_req->pr = props->pr;
