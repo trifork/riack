@@ -135,6 +135,307 @@ void   rpb_pair__free_unpacked
   PROTOBUF_C_ASSERT (message->base.descriptor == &rpb_pair__descriptor);
   protobuf_c_message_free_unpacked ((ProtobufCMessage*)message, allocator);
 }
+void   rpb_get_bucket_req__init
+                     (RpbGetBucketReq         *message)
+{
+  static RpbGetBucketReq init_value = RPB_GET_BUCKET_REQ__INIT;
+  *message = init_value;
+}
+size_t rpb_get_bucket_req__get_packed_size
+                     (const RpbGetBucketReq *message)
+{
+  PROTOBUF_C_ASSERT (message->base.descriptor == &rpb_get_bucket_req__descriptor);
+  return protobuf_c_message_get_packed_size ((const ProtobufCMessage*)(message));
+}
+size_t rpb_get_bucket_req__pack
+                     (const RpbGetBucketReq *message,
+                      uint8_t       *out)
+{
+  PROTOBUF_C_ASSERT (message->base.descriptor == &rpb_get_bucket_req__descriptor);
+  return protobuf_c_message_pack ((const ProtobufCMessage*)message, out);
+}
+size_t rpb_get_bucket_req__pack_to_buffer
+                     (const RpbGetBucketReq *message,
+                      ProtobufCBuffer *buffer)
+{
+  PROTOBUF_C_ASSERT (message->base.descriptor == &rpb_get_bucket_req__descriptor);
+  return protobuf_c_message_pack_to_buffer ((const ProtobufCMessage*)message, buffer);
+}
+RpbGetBucketReq *
+       rpb_get_bucket_req__unpack
+                     (ProtobufCAllocator  *allocator,
+                      size_t               len,
+                      const uint8_t       *data)
+{
+  return (RpbGetBucketReq *)
+     protobuf_c_message_unpack (&rpb_get_bucket_req__descriptor,
+                                allocator, len, data);
+}
+void   rpb_get_bucket_req__free_unpacked
+                     (RpbGetBucketReq *message,
+                      ProtobufCAllocator *allocator)
+{
+  PROTOBUF_C_ASSERT (message->base.descriptor == &rpb_get_bucket_req__descriptor);
+  protobuf_c_message_free_unpacked ((ProtobufCMessage*)message, allocator);
+}
+void   rpb_get_bucket_resp__init
+                     (RpbGetBucketResp         *message)
+{
+  static RpbGetBucketResp init_value = RPB_GET_BUCKET_RESP__INIT;
+  *message = init_value;
+}
+size_t rpb_get_bucket_resp__get_packed_size
+                     (const RpbGetBucketResp *message)
+{
+  PROTOBUF_C_ASSERT (message->base.descriptor == &rpb_get_bucket_resp__descriptor);
+  return protobuf_c_message_get_packed_size ((const ProtobufCMessage*)(message));
+}
+size_t rpb_get_bucket_resp__pack
+                     (const RpbGetBucketResp *message,
+                      uint8_t       *out)
+{
+  PROTOBUF_C_ASSERT (message->base.descriptor == &rpb_get_bucket_resp__descriptor);
+  return protobuf_c_message_pack ((const ProtobufCMessage*)message, out);
+}
+size_t rpb_get_bucket_resp__pack_to_buffer
+                     (const RpbGetBucketResp *message,
+                      ProtobufCBuffer *buffer)
+{
+  PROTOBUF_C_ASSERT (message->base.descriptor == &rpb_get_bucket_resp__descriptor);
+  return protobuf_c_message_pack_to_buffer ((const ProtobufCMessage*)message, buffer);
+}
+RpbGetBucketResp *
+       rpb_get_bucket_resp__unpack
+                     (ProtobufCAllocator  *allocator,
+                      size_t               len,
+                      const uint8_t       *data)
+{
+  return (RpbGetBucketResp *)
+     protobuf_c_message_unpack (&rpb_get_bucket_resp__descriptor,
+                                allocator, len, data);
+}
+void   rpb_get_bucket_resp__free_unpacked
+                     (RpbGetBucketResp *message,
+                      ProtobufCAllocator *allocator)
+{
+  PROTOBUF_C_ASSERT (message->base.descriptor == &rpb_get_bucket_resp__descriptor);
+  protobuf_c_message_free_unpacked ((ProtobufCMessage*)message, allocator);
+}
+void   rpb_set_bucket_req__init
+                     (RpbSetBucketReq         *message)
+{
+  static RpbSetBucketReq init_value = RPB_SET_BUCKET_REQ__INIT;
+  *message = init_value;
+}
+size_t rpb_set_bucket_req__get_packed_size
+                     (const RpbSetBucketReq *message)
+{
+  PROTOBUF_C_ASSERT (message->base.descriptor == &rpb_set_bucket_req__descriptor);
+  return protobuf_c_message_get_packed_size ((const ProtobufCMessage*)(message));
+}
+size_t rpb_set_bucket_req__pack
+                     (const RpbSetBucketReq *message,
+                      uint8_t       *out)
+{
+  PROTOBUF_C_ASSERT (message->base.descriptor == &rpb_set_bucket_req__descriptor);
+  return protobuf_c_message_pack ((const ProtobufCMessage*)message, out);
+}
+size_t rpb_set_bucket_req__pack_to_buffer
+                     (const RpbSetBucketReq *message,
+                      ProtobufCBuffer *buffer)
+{
+  PROTOBUF_C_ASSERT (message->base.descriptor == &rpb_set_bucket_req__descriptor);
+  return protobuf_c_message_pack_to_buffer ((const ProtobufCMessage*)message, buffer);
+}
+RpbSetBucketReq *
+       rpb_set_bucket_req__unpack
+                     (ProtobufCAllocator  *allocator,
+                      size_t               len,
+                      const uint8_t       *data)
+{
+  return (RpbSetBucketReq *)
+     protobuf_c_message_unpack (&rpb_set_bucket_req__descriptor,
+                                allocator, len, data);
+}
+void   rpb_set_bucket_req__free_unpacked
+                     (RpbSetBucketReq *message,
+                      ProtobufCAllocator *allocator)
+{
+  PROTOBUF_C_ASSERT (message->base.descriptor == &rpb_set_bucket_req__descriptor);
+  protobuf_c_message_free_unpacked ((ProtobufCMessage*)message, allocator);
+}
+void   rpb_reset_bucket_req__init
+                     (RpbResetBucketReq         *message)
+{
+  static RpbResetBucketReq init_value = RPB_RESET_BUCKET_REQ__INIT;
+  *message = init_value;
+}
+size_t rpb_reset_bucket_req__get_packed_size
+                     (const RpbResetBucketReq *message)
+{
+  PROTOBUF_C_ASSERT (message->base.descriptor == &rpb_reset_bucket_req__descriptor);
+  return protobuf_c_message_get_packed_size ((const ProtobufCMessage*)(message));
+}
+size_t rpb_reset_bucket_req__pack
+                     (const RpbResetBucketReq *message,
+                      uint8_t       *out)
+{
+  PROTOBUF_C_ASSERT (message->base.descriptor == &rpb_reset_bucket_req__descriptor);
+  return protobuf_c_message_pack ((const ProtobufCMessage*)message, out);
+}
+size_t rpb_reset_bucket_req__pack_to_buffer
+                     (const RpbResetBucketReq *message,
+                      ProtobufCBuffer *buffer)
+{
+  PROTOBUF_C_ASSERT (message->base.descriptor == &rpb_reset_bucket_req__descriptor);
+  return protobuf_c_message_pack_to_buffer ((const ProtobufCMessage*)message, buffer);
+}
+RpbResetBucketReq *
+       rpb_reset_bucket_req__unpack
+                     (ProtobufCAllocator  *allocator,
+                      size_t               len,
+                      const uint8_t       *data)
+{
+  return (RpbResetBucketReq *)
+     protobuf_c_message_unpack (&rpb_reset_bucket_req__descriptor,
+                                allocator, len, data);
+}
+void   rpb_reset_bucket_req__free_unpacked
+                     (RpbResetBucketReq *message,
+                      ProtobufCAllocator *allocator)
+{
+  PROTOBUF_C_ASSERT (message->base.descriptor == &rpb_reset_bucket_req__descriptor);
+  protobuf_c_message_free_unpacked ((ProtobufCMessage*)message, allocator);
+}
+void   rpb_mod_fun__init
+                     (RpbModFun         *message)
+{
+  static RpbModFun init_value = RPB_MOD_FUN__INIT;
+  *message = init_value;
+}
+size_t rpb_mod_fun__get_packed_size
+                     (const RpbModFun *message)
+{
+  PROTOBUF_C_ASSERT (message->base.descriptor == &rpb_mod_fun__descriptor);
+  return protobuf_c_message_get_packed_size ((const ProtobufCMessage*)(message));
+}
+size_t rpb_mod_fun__pack
+                     (const RpbModFun *message,
+                      uint8_t       *out)
+{
+  PROTOBUF_C_ASSERT (message->base.descriptor == &rpb_mod_fun__descriptor);
+  return protobuf_c_message_pack ((const ProtobufCMessage*)message, out);
+}
+size_t rpb_mod_fun__pack_to_buffer
+                     (const RpbModFun *message,
+                      ProtobufCBuffer *buffer)
+{
+  PROTOBUF_C_ASSERT (message->base.descriptor == &rpb_mod_fun__descriptor);
+  return protobuf_c_message_pack_to_buffer ((const ProtobufCMessage*)message, buffer);
+}
+RpbModFun *
+       rpb_mod_fun__unpack
+                     (ProtobufCAllocator  *allocator,
+                      size_t               len,
+                      const uint8_t       *data)
+{
+  return (RpbModFun *)
+     protobuf_c_message_unpack (&rpb_mod_fun__descriptor,
+                                allocator, len, data);
+}
+void   rpb_mod_fun__free_unpacked
+                     (RpbModFun *message,
+                      ProtobufCAllocator *allocator)
+{
+  PROTOBUF_C_ASSERT (message->base.descriptor == &rpb_mod_fun__descriptor);
+  protobuf_c_message_free_unpacked ((ProtobufCMessage*)message, allocator);
+}
+void   rpb_commit_hook__init
+                     (RpbCommitHook         *message)
+{
+  static RpbCommitHook init_value = RPB_COMMIT_HOOK__INIT;
+  *message = init_value;
+}
+size_t rpb_commit_hook__get_packed_size
+                     (const RpbCommitHook *message)
+{
+  PROTOBUF_C_ASSERT (message->base.descriptor == &rpb_commit_hook__descriptor);
+  return protobuf_c_message_get_packed_size ((const ProtobufCMessage*)(message));
+}
+size_t rpb_commit_hook__pack
+                     (const RpbCommitHook *message,
+                      uint8_t       *out)
+{
+  PROTOBUF_C_ASSERT (message->base.descriptor == &rpb_commit_hook__descriptor);
+  return protobuf_c_message_pack ((const ProtobufCMessage*)message, out);
+}
+size_t rpb_commit_hook__pack_to_buffer
+                     (const RpbCommitHook *message,
+                      ProtobufCBuffer *buffer)
+{
+  PROTOBUF_C_ASSERT (message->base.descriptor == &rpb_commit_hook__descriptor);
+  return protobuf_c_message_pack_to_buffer ((const ProtobufCMessage*)message, buffer);
+}
+RpbCommitHook *
+       rpb_commit_hook__unpack
+                     (ProtobufCAllocator  *allocator,
+                      size_t               len,
+                      const uint8_t       *data)
+{
+  return (RpbCommitHook *)
+     protobuf_c_message_unpack (&rpb_commit_hook__descriptor,
+                                allocator, len, data);
+}
+void   rpb_commit_hook__free_unpacked
+                     (RpbCommitHook *message,
+                      ProtobufCAllocator *allocator)
+{
+  PROTOBUF_C_ASSERT (message->base.descriptor == &rpb_commit_hook__descriptor);
+  protobuf_c_message_free_unpacked ((ProtobufCMessage*)message, allocator);
+}
+void   rpb_bucket_props__init
+                     (RpbBucketProps         *message)
+{
+  static RpbBucketProps init_value = RPB_BUCKET_PROPS__INIT;
+  *message = init_value;
+}
+size_t rpb_bucket_props__get_packed_size
+                     (const RpbBucketProps *message)
+{
+  PROTOBUF_C_ASSERT (message->base.descriptor == &rpb_bucket_props__descriptor);
+  return protobuf_c_message_get_packed_size ((const ProtobufCMessage*)(message));
+}
+size_t rpb_bucket_props__pack
+                     (const RpbBucketProps *message,
+                      uint8_t       *out)
+{
+  PROTOBUF_C_ASSERT (message->base.descriptor == &rpb_bucket_props__descriptor);
+  return protobuf_c_message_pack ((const ProtobufCMessage*)message, out);
+}
+size_t rpb_bucket_props__pack_to_buffer
+                     (const RpbBucketProps *message,
+                      ProtobufCBuffer *buffer)
+{
+  PROTOBUF_C_ASSERT (message->base.descriptor == &rpb_bucket_props__descriptor);
+  return protobuf_c_message_pack_to_buffer ((const ProtobufCMessage*)message, buffer);
+}
+RpbBucketProps *
+       rpb_bucket_props__unpack
+                     (ProtobufCAllocator  *allocator,
+                      size_t               len,
+                      const uint8_t       *data)
+{
+  return (RpbBucketProps *)
+     protobuf_c_message_unpack (&rpb_bucket_props__descriptor,
+                                allocator, len, data);
+}
+void   rpb_bucket_props__free_unpacked
+                     (RpbBucketProps *message,
+                      ProtobufCAllocator *allocator)
+{
+  PROTOBUF_C_ASSERT (message->base.descriptor == &rpb_bucket_props__descriptor);
+  protobuf_c_message_free_unpacked ((ProtobufCMessage*)message, allocator);
+}
 static const ProtobufCFieldDescriptor rpb_error_resp__field_descriptors[2] =
 {
   {
@@ -286,5 +587,643 @@ const ProtobufCMessageDescriptor rpb_pair__descriptor =
   rpb_pair__field_indices_by_name,
   1,  rpb_pair__number_ranges,
   (ProtobufCMessageInit) rpb_pair__init,
+  NULL,NULL,NULL    /* reserved[123] */
+};
+static const ProtobufCFieldDescriptor rpb_get_bucket_req__field_descriptors[1] =
+{
+  {
+    "bucket",
+    1,
+    PROTOBUF_C_LABEL_REQUIRED,
+    PROTOBUF_C_TYPE_BYTES,
+    0,   /* quantifier_offset */
+    PROTOBUF_C_OFFSETOF(RpbGetBucketReq, bucket),
+    NULL,
+    NULL,
+    0,            /* packed */
+    0,NULL,NULL    /* reserved1,reserved2, etc */
+  },
+};
+static const unsigned rpb_get_bucket_req__field_indices_by_name[] = {
+  0,   /* field[0] = bucket */
+};
+static const ProtobufCIntRange rpb_get_bucket_req__number_ranges[1 + 1] =
+{
+  { 1, 0 },
+  { 0, 1 }
+};
+const ProtobufCMessageDescriptor rpb_get_bucket_req__descriptor =
+{
+  PROTOBUF_C_MESSAGE_DESCRIPTOR_MAGIC,
+  "RpbGetBucketReq",
+  "RpbGetBucketReq",
+  "RpbGetBucketReq",
+  "",
+  sizeof(RpbGetBucketReq),
+  1,
+  rpb_get_bucket_req__field_descriptors,
+  rpb_get_bucket_req__field_indices_by_name,
+  1,  rpb_get_bucket_req__number_ranges,
+  (ProtobufCMessageInit) rpb_get_bucket_req__init,
+  NULL,NULL,NULL    /* reserved[123] */
+};
+static const ProtobufCFieldDescriptor rpb_get_bucket_resp__field_descriptors[1] =
+{
+  {
+    "props",
+    1,
+    PROTOBUF_C_LABEL_REQUIRED,
+    PROTOBUF_C_TYPE_MESSAGE,
+    0,   /* quantifier_offset */
+    PROTOBUF_C_OFFSETOF(RpbGetBucketResp, props),
+    &rpb_bucket_props__descriptor,
+    NULL,
+    0,            /* packed */
+    0,NULL,NULL    /* reserved1,reserved2, etc */
+  },
+};
+static const unsigned rpb_get_bucket_resp__field_indices_by_name[] = {
+  0,   /* field[0] = props */
+};
+static const ProtobufCIntRange rpb_get_bucket_resp__number_ranges[1 + 1] =
+{
+  { 1, 0 },
+  { 0, 1 }
+};
+const ProtobufCMessageDescriptor rpb_get_bucket_resp__descriptor =
+{
+  PROTOBUF_C_MESSAGE_DESCRIPTOR_MAGIC,
+  "RpbGetBucketResp",
+  "RpbGetBucketResp",
+  "RpbGetBucketResp",
+  "",
+  sizeof(RpbGetBucketResp),
+  1,
+  rpb_get_bucket_resp__field_descriptors,
+  rpb_get_bucket_resp__field_indices_by_name,
+  1,  rpb_get_bucket_resp__number_ranges,
+  (ProtobufCMessageInit) rpb_get_bucket_resp__init,
+  NULL,NULL,NULL    /* reserved[123] */
+};
+static const ProtobufCFieldDescriptor rpb_set_bucket_req__field_descriptors[2] =
+{
+  {
+    "bucket",
+    1,
+    PROTOBUF_C_LABEL_REQUIRED,
+    PROTOBUF_C_TYPE_BYTES,
+    0,   /* quantifier_offset */
+    PROTOBUF_C_OFFSETOF(RpbSetBucketReq, bucket),
+    NULL,
+    NULL,
+    0,            /* packed */
+    0,NULL,NULL    /* reserved1,reserved2, etc */
+  },
+  {
+    "props",
+    2,
+    PROTOBUF_C_LABEL_REQUIRED,
+    PROTOBUF_C_TYPE_MESSAGE,
+    0,   /* quantifier_offset */
+    PROTOBUF_C_OFFSETOF(RpbSetBucketReq, props),
+    &rpb_bucket_props__descriptor,
+    NULL,
+    0,            /* packed */
+    0,NULL,NULL    /* reserved1,reserved2, etc */
+  },
+};
+static const unsigned rpb_set_bucket_req__field_indices_by_name[] = {
+  0,   /* field[0] = bucket */
+  1,   /* field[1] = props */
+};
+static const ProtobufCIntRange rpb_set_bucket_req__number_ranges[1 + 1] =
+{
+  { 1, 0 },
+  { 0, 2 }
+};
+const ProtobufCMessageDescriptor rpb_set_bucket_req__descriptor =
+{
+  PROTOBUF_C_MESSAGE_DESCRIPTOR_MAGIC,
+  "RpbSetBucketReq",
+  "RpbSetBucketReq",
+  "RpbSetBucketReq",
+  "",
+  sizeof(RpbSetBucketReq),
+  2,
+  rpb_set_bucket_req__field_descriptors,
+  rpb_set_bucket_req__field_indices_by_name,
+  1,  rpb_set_bucket_req__number_ranges,
+  (ProtobufCMessageInit) rpb_set_bucket_req__init,
+  NULL,NULL,NULL    /* reserved[123] */
+};
+static const ProtobufCFieldDescriptor rpb_reset_bucket_req__field_descriptors[1] =
+{
+  {
+    "bucket",
+    1,
+    PROTOBUF_C_LABEL_REQUIRED,
+    PROTOBUF_C_TYPE_BYTES,
+    0,   /* quantifier_offset */
+    PROTOBUF_C_OFFSETOF(RpbResetBucketReq, bucket),
+    NULL,
+    NULL,
+    0,            /* packed */
+    0,NULL,NULL    /* reserved1,reserved2, etc */
+  },
+};
+static const unsigned rpb_reset_bucket_req__field_indices_by_name[] = {
+  0,   /* field[0] = bucket */
+};
+static const ProtobufCIntRange rpb_reset_bucket_req__number_ranges[1 + 1] =
+{
+  { 1, 0 },
+  { 0, 1 }
+};
+const ProtobufCMessageDescriptor rpb_reset_bucket_req__descriptor =
+{
+  PROTOBUF_C_MESSAGE_DESCRIPTOR_MAGIC,
+  "RpbResetBucketReq",
+  "RpbResetBucketReq",
+  "RpbResetBucketReq",
+  "",
+  sizeof(RpbResetBucketReq),
+  1,
+  rpb_reset_bucket_req__field_descriptors,
+  rpb_reset_bucket_req__field_indices_by_name,
+  1,  rpb_reset_bucket_req__number_ranges,
+  (ProtobufCMessageInit) rpb_reset_bucket_req__init,
+  NULL,NULL,NULL    /* reserved[123] */
+};
+static const ProtobufCFieldDescriptor rpb_mod_fun__field_descriptors[2] =
+{
+  {
+    "module",
+    1,
+    PROTOBUF_C_LABEL_REQUIRED,
+    PROTOBUF_C_TYPE_BYTES,
+    0,   /* quantifier_offset */
+    PROTOBUF_C_OFFSETOF(RpbModFun, module),
+    NULL,
+    NULL,
+    0,            /* packed */
+    0,NULL,NULL    /* reserved1,reserved2, etc */
+  },
+  {
+    "function",
+    2,
+    PROTOBUF_C_LABEL_REQUIRED,
+    PROTOBUF_C_TYPE_BYTES,
+    0,   /* quantifier_offset */
+    PROTOBUF_C_OFFSETOF(RpbModFun, function),
+    NULL,
+    NULL,
+    0,            /* packed */
+    0,NULL,NULL    /* reserved1,reserved2, etc */
+  },
+};
+static const unsigned rpb_mod_fun__field_indices_by_name[] = {
+  1,   /* field[1] = function */
+  0,   /* field[0] = module */
+};
+static const ProtobufCIntRange rpb_mod_fun__number_ranges[1 + 1] =
+{
+  { 1, 0 },
+  { 0, 2 }
+};
+const ProtobufCMessageDescriptor rpb_mod_fun__descriptor =
+{
+  PROTOBUF_C_MESSAGE_DESCRIPTOR_MAGIC,
+  "RpbModFun",
+  "RpbModFun",
+  "RpbModFun",
+  "",
+  sizeof(RpbModFun),
+  2,
+  rpb_mod_fun__field_descriptors,
+  rpb_mod_fun__field_indices_by_name,
+  1,  rpb_mod_fun__number_ranges,
+  (ProtobufCMessageInit) rpb_mod_fun__init,
+  NULL,NULL,NULL    /* reserved[123] */
+};
+static const ProtobufCFieldDescriptor rpb_commit_hook__field_descriptors[2] =
+{
+  {
+    "modfun",
+    1,
+    PROTOBUF_C_LABEL_OPTIONAL,
+    PROTOBUF_C_TYPE_MESSAGE,
+    0,   /* quantifier_offset */
+    PROTOBUF_C_OFFSETOF(RpbCommitHook, modfun),
+    &rpb_mod_fun__descriptor,
+    NULL,
+    0,            /* packed */
+    0,NULL,NULL    /* reserved1,reserved2, etc */
+  },
+  {
+    "name",
+    2,
+    PROTOBUF_C_LABEL_OPTIONAL,
+    PROTOBUF_C_TYPE_BYTES,
+    PROTOBUF_C_OFFSETOF(RpbCommitHook, has_name),
+    PROTOBUF_C_OFFSETOF(RpbCommitHook, name),
+    NULL,
+    NULL,
+    0,            /* packed */
+    0,NULL,NULL    /* reserved1,reserved2, etc */
+  },
+};
+static const unsigned rpb_commit_hook__field_indices_by_name[] = {
+  0,   /* field[0] = modfun */
+  1,   /* field[1] = name */
+};
+static const ProtobufCIntRange rpb_commit_hook__number_ranges[1 + 1] =
+{
+  { 1, 0 },
+  { 0, 2 }
+};
+const ProtobufCMessageDescriptor rpb_commit_hook__descriptor =
+{
+  PROTOBUF_C_MESSAGE_DESCRIPTOR_MAGIC,
+  "RpbCommitHook",
+  "RpbCommitHook",
+  "RpbCommitHook",
+  "",
+  sizeof(RpbCommitHook),
+  2,
+  rpb_commit_hook__field_descriptors,
+  rpb_commit_hook__field_indices_by_name,
+  1,  rpb_commit_hook__number_ranges,
+  (ProtobufCMessageInit) rpb_commit_hook__init,
+  NULL,NULL,NULL    /* reserved[123] */
+};
+const ProtobufCEnumValue rpb_bucket_props__rpb_repl_mode__enum_values_by_number[4] =
+{
+  { "FALSE", "RPB_BUCKET_PROPS__RPB_REPL_MODE__FALSE", 0 },
+  { "REALTIME", "RPB_BUCKET_PROPS__RPB_REPL_MODE__REALTIME", 1 },
+  { "FULLSYNC", "RPB_BUCKET_PROPS__RPB_REPL_MODE__FULLSYNC", 2 },
+  { "TRUE", "RPB_BUCKET_PROPS__RPB_REPL_MODE__TRUE", 3 },
+};
+static const ProtobufCIntRange rpb_bucket_props__rpb_repl_mode__value_ranges[] = {
+{0, 0},{0, 4}
+};
+const ProtobufCEnumValueIndex rpb_bucket_props__rpb_repl_mode__enum_values_by_name[4] =
+{
+  { "FALSE", 0 },
+  { "FULLSYNC", 2 },
+  { "REALTIME", 1 },
+  { "TRUE", 3 },
+};
+const ProtobufCEnumDescriptor rpb_bucket_props__rpb_repl_mode__descriptor =
+{
+  PROTOBUF_C_ENUM_DESCRIPTOR_MAGIC,
+  "RpbBucketProps.RpbReplMode",
+  "RpbReplMode",
+  "RpbBucketProps__RpbReplMode",
+  "",
+  4,
+  rpb_bucket_props__rpb_repl_mode__enum_values_by_number,
+  4,
+  rpb_bucket_props__rpb_repl_mode__enum_values_by_name,
+  1,
+  rpb_bucket_props__rpb_repl_mode__value_ranges,
+  NULL,NULL,NULL,NULL   /* reserved[1234] */
+};
+static const protobuf_c_boolean rpb_bucket_props__has_precommit__default_value = 0;
+static const protobuf_c_boolean rpb_bucket_props__has_postcommit__default_value = 0;
+static const ProtobufCFieldDescriptor rpb_bucket_props__field_descriptors[24] =
+{
+  {
+    "n_val",
+    1,
+    PROTOBUF_C_LABEL_OPTIONAL,
+    PROTOBUF_C_TYPE_UINT32,
+    PROTOBUF_C_OFFSETOF(RpbBucketProps, has_n_val),
+    PROTOBUF_C_OFFSETOF(RpbBucketProps, n_val),
+    NULL,
+    NULL,
+    0,            /* packed */
+    0,NULL,NULL    /* reserved1,reserved2, etc */
+  },
+  {
+    "allow_mult",
+    2,
+    PROTOBUF_C_LABEL_OPTIONAL,
+    PROTOBUF_C_TYPE_BOOL,
+    PROTOBUF_C_OFFSETOF(RpbBucketProps, has_allow_mult),
+    PROTOBUF_C_OFFSETOF(RpbBucketProps, allow_mult),
+    NULL,
+    NULL,
+    0,            /* packed */
+    0,NULL,NULL    /* reserved1,reserved2, etc */
+  },
+  {
+    "last_write_wins",
+    3,
+    PROTOBUF_C_LABEL_OPTIONAL,
+    PROTOBUF_C_TYPE_BOOL,
+    PROTOBUF_C_OFFSETOF(RpbBucketProps, has_last_write_wins),
+    PROTOBUF_C_OFFSETOF(RpbBucketProps, last_write_wins),
+    NULL,
+    NULL,
+    0,            /* packed */
+    0,NULL,NULL    /* reserved1,reserved2, etc */
+  },
+  {
+    "precommit",
+    4,
+    PROTOBUF_C_LABEL_REPEATED,
+    PROTOBUF_C_TYPE_MESSAGE,
+    PROTOBUF_C_OFFSETOF(RpbBucketProps, n_precommit),
+    PROTOBUF_C_OFFSETOF(RpbBucketProps, precommit),
+    &rpb_commit_hook__descriptor,
+    NULL,
+    0,            /* packed */
+    0,NULL,NULL    /* reserved1,reserved2, etc */
+  },
+  {
+    "has_precommit",
+    5,
+    PROTOBUF_C_LABEL_OPTIONAL,
+    PROTOBUF_C_TYPE_BOOL,
+    PROTOBUF_C_OFFSETOF(RpbBucketProps, has_has_precommit),
+    PROTOBUF_C_OFFSETOF(RpbBucketProps, has_precommit),
+    NULL,
+    &rpb_bucket_props__has_precommit__default_value,
+    0,            /* packed */
+    0,NULL,NULL    /* reserved1,reserved2, etc */
+  },
+  {
+    "postcommit",
+    6,
+    PROTOBUF_C_LABEL_REPEATED,
+    PROTOBUF_C_TYPE_MESSAGE,
+    PROTOBUF_C_OFFSETOF(RpbBucketProps, n_postcommit),
+    PROTOBUF_C_OFFSETOF(RpbBucketProps, postcommit),
+    &rpb_commit_hook__descriptor,
+    NULL,
+    0,            /* packed */
+    0,NULL,NULL    /* reserved1,reserved2, etc */
+  },
+  {
+    "has_postcommit",
+    7,
+    PROTOBUF_C_LABEL_OPTIONAL,
+    PROTOBUF_C_TYPE_BOOL,
+    PROTOBUF_C_OFFSETOF(RpbBucketProps, has_has_postcommit),
+    PROTOBUF_C_OFFSETOF(RpbBucketProps, has_postcommit),
+    NULL,
+    &rpb_bucket_props__has_postcommit__default_value,
+    0,            /* packed */
+    0,NULL,NULL    /* reserved1,reserved2, etc */
+  },
+  {
+    "chash_keyfun",
+    8,
+    PROTOBUF_C_LABEL_OPTIONAL,
+    PROTOBUF_C_TYPE_MESSAGE,
+    0,   /* quantifier_offset */
+    PROTOBUF_C_OFFSETOF(RpbBucketProps, chash_keyfun),
+    &rpb_mod_fun__descriptor,
+    NULL,
+    0,            /* packed */
+    0,NULL,NULL    /* reserved1,reserved2, etc */
+  },
+  {
+    "linkfun",
+    9,
+    PROTOBUF_C_LABEL_OPTIONAL,
+    PROTOBUF_C_TYPE_MESSAGE,
+    0,   /* quantifier_offset */
+    PROTOBUF_C_OFFSETOF(RpbBucketProps, linkfun),
+    &rpb_mod_fun__descriptor,
+    NULL,
+    0,            /* packed */
+    0,NULL,NULL    /* reserved1,reserved2, etc */
+  },
+  {
+    "old_vclock",
+    10,
+    PROTOBUF_C_LABEL_OPTIONAL,
+    PROTOBUF_C_TYPE_UINT32,
+    PROTOBUF_C_OFFSETOF(RpbBucketProps, has_old_vclock),
+    PROTOBUF_C_OFFSETOF(RpbBucketProps, old_vclock),
+    NULL,
+    NULL,
+    0,            /* packed */
+    0,NULL,NULL    /* reserved1,reserved2, etc */
+  },
+  {
+    "young_vclock",
+    11,
+    PROTOBUF_C_LABEL_OPTIONAL,
+    PROTOBUF_C_TYPE_UINT32,
+    PROTOBUF_C_OFFSETOF(RpbBucketProps, has_young_vclock),
+    PROTOBUF_C_OFFSETOF(RpbBucketProps, young_vclock),
+    NULL,
+    NULL,
+    0,            /* packed */
+    0,NULL,NULL    /* reserved1,reserved2, etc */
+  },
+  {
+    "big_vclock",
+    12,
+    PROTOBUF_C_LABEL_OPTIONAL,
+    PROTOBUF_C_TYPE_UINT32,
+    PROTOBUF_C_OFFSETOF(RpbBucketProps, has_big_vclock),
+    PROTOBUF_C_OFFSETOF(RpbBucketProps, big_vclock),
+    NULL,
+    NULL,
+    0,            /* packed */
+    0,NULL,NULL    /* reserved1,reserved2, etc */
+  },
+  {
+    "small_vclock",
+    13,
+    PROTOBUF_C_LABEL_OPTIONAL,
+    PROTOBUF_C_TYPE_UINT32,
+    PROTOBUF_C_OFFSETOF(RpbBucketProps, has_small_vclock),
+    PROTOBUF_C_OFFSETOF(RpbBucketProps, small_vclock),
+    NULL,
+    NULL,
+    0,            /* packed */
+    0,NULL,NULL    /* reserved1,reserved2, etc */
+  },
+  {
+    "pr",
+    14,
+    PROTOBUF_C_LABEL_OPTIONAL,
+    PROTOBUF_C_TYPE_UINT32,
+    PROTOBUF_C_OFFSETOF(RpbBucketProps, has_pr),
+    PROTOBUF_C_OFFSETOF(RpbBucketProps, pr),
+    NULL,
+    NULL,
+    0,            /* packed */
+    0,NULL,NULL    /* reserved1,reserved2, etc */
+  },
+  {
+    "r",
+    15,
+    PROTOBUF_C_LABEL_OPTIONAL,
+    PROTOBUF_C_TYPE_UINT32,
+    PROTOBUF_C_OFFSETOF(RpbBucketProps, has_r),
+    PROTOBUF_C_OFFSETOF(RpbBucketProps, r),
+    NULL,
+    NULL,
+    0,            /* packed */
+    0,NULL,NULL    /* reserved1,reserved2, etc */
+  },
+  {
+    "w",
+    16,
+    PROTOBUF_C_LABEL_OPTIONAL,
+    PROTOBUF_C_TYPE_UINT32,
+    PROTOBUF_C_OFFSETOF(RpbBucketProps, has_w),
+    PROTOBUF_C_OFFSETOF(RpbBucketProps, w),
+    NULL,
+    NULL,
+    0,            /* packed */
+    0,NULL,NULL    /* reserved1,reserved2, etc */
+  },
+  {
+    "pw",
+    17,
+    PROTOBUF_C_LABEL_OPTIONAL,
+    PROTOBUF_C_TYPE_UINT32,
+    PROTOBUF_C_OFFSETOF(RpbBucketProps, has_pw),
+    PROTOBUF_C_OFFSETOF(RpbBucketProps, pw),
+    NULL,
+    NULL,
+    0,            /* packed */
+    0,NULL,NULL    /* reserved1,reserved2, etc */
+  },
+  {
+    "dw",
+    18,
+    PROTOBUF_C_LABEL_OPTIONAL,
+    PROTOBUF_C_TYPE_UINT32,
+    PROTOBUF_C_OFFSETOF(RpbBucketProps, has_dw),
+    PROTOBUF_C_OFFSETOF(RpbBucketProps, dw),
+    NULL,
+    NULL,
+    0,            /* packed */
+    0,NULL,NULL    /* reserved1,reserved2, etc */
+  },
+  {
+    "rw",
+    19,
+    PROTOBUF_C_LABEL_OPTIONAL,
+    PROTOBUF_C_TYPE_UINT32,
+    PROTOBUF_C_OFFSETOF(RpbBucketProps, has_rw),
+    PROTOBUF_C_OFFSETOF(RpbBucketProps, rw),
+    NULL,
+    NULL,
+    0,            /* packed */
+    0,NULL,NULL    /* reserved1,reserved2, etc */
+  },
+  {
+    "basic_quorum",
+    20,
+    PROTOBUF_C_LABEL_OPTIONAL,
+    PROTOBUF_C_TYPE_BOOL,
+    PROTOBUF_C_OFFSETOF(RpbBucketProps, has_basic_quorum),
+    PROTOBUF_C_OFFSETOF(RpbBucketProps, basic_quorum),
+    NULL,
+    NULL,
+    0,            /* packed */
+    0,NULL,NULL    /* reserved1,reserved2, etc */
+  },
+  {
+    "notfound_ok",
+    21,
+    PROTOBUF_C_LABEL_OPTIONAL,
+    PROTOBUF_C_TYPE_BOOL,
+    PROTOBUF_C_OFFSETOF(RpbBucketProps, has_notfound_ok),
+    PROTOBUF_C_OFFSETOF(RpbBucketProps, notfound_ok),
+    NULL,
+    NULL,
+    0,            /* packed */
+    0,NULL,NULL    /* reserved1,reserved2, etc */
+  },
+  {
+    "backend",
+    22,
+    PROTOBUF_C_LABEL_OPTIONAL,
+    PROTOBUF_C_TYPE_BYTES,
+    PROTOBUF_C_OFFSETOF(RpbBucketProps, has_backend),
+    PROTOBUF_C_OFFSETOF(RpbBucketProps, backend),
+    NULL,
+    NULL,
+    0,            /* packed */
+    0,NULL,NULL    /* reserved1,reserved2, etc */
+  },
+  {
+    "search",
+    23,
+    PROTOBUF_C_LABEL_OPTIONAL,
+    PROTOBUF_C_TYPE_BOOL,
+    PROTOBUF_C_OFFSETOF(RpbBucketProps, has_search),
+    PROTOBUF_C_OFFSETOF(RpbBucketProps, search),
+    NULL,
+    NULL,
+    0,            /* packed */
+    0,NULL,NULL    /* reserved1,reserved2, etc */
+  },
+  {
+    "repl",
+    24,
+    PROTOBUF_C_LABEL_OPTIONAL,
+    PROTOBUF_C_TYPE_ENUM,
+    PROTOBUF_C_OFFSETOF(RpbBucketProps, has_repl),
+    PROTOBUF_C_OFFSETOF(RpbBucketProps, repl),
+    &rpb_bucket_props__rpb_repl_mode__descriptor,
+    NULL,
+    0,            /* packed */
+    0,NULL,NULL    /* reserved1,reserved2, etc */
+  },
+};
+static const unsigned rpb_bucket_props__field_indices_by_name[] = {
+  1,   /* field[1] = allow_mult */
+  21,   /* field[21] = backend */
+  19,   /* field[19] = basic_quorum */
+  11,   /* field[11] = big_vclock */
+  7,   /* field[7] = chash_keyfun */
+  17,   /* field[17] = dw */
+  6,   /* field[6] = has_postcommit */
+  4,   /* field[4] = has_precommit */
+  2,   /* field[2] = last_write_wins */
+  8,   /* field[8] = linkfun */
+  0,   /* field[0] = n_val */
+  20,   /* field[20] = notfound_ok */
+  9,   /* field[9] = old_vclock */
+  5,   /* field[5] = postcommit */
+  13,   /* field[13] = pr */
+  3,   /* field[3] = precommit */
+  16,   /* field[16] = pw */
+  14,   /* field[14] = r */
+  23,   /* field[23] = repl */
+  18,   /* field[18] = rw */
+  22,   /* field[22] = search */
+  12,   /* field[12] = small_vclock */
+  15,   /* field[15] = w */
+  10,   /* field[10] = young_vclock */
+};
+static const ProtobufCIntRange rpb_bucket_props__number_ranges[1 + 1] =
+{
+  { 1, 0 },
+  { 0, 24 }
+};
+const ProtobufCMessageDescriptor rpb_bucket_props__descriptor =
+{
+  PROTOBUF_C_MESSAGE_DESCRIPTOR_MAGIC,
+  "RpbBucketProps",
+  "RpbBucketProps",
+  "RpbBucketProps",
+  "",
+  sizeof(RpbBucketProps),
+  24,
+  rpb_bucket_props__field_descriptors,
+  rpb_bucket_props__field_indices_by_name,
+  1,  rpb_bucket_props__number_ranges,
+  (ProtobufCMessageInit) rpb_bucket_props__init,
   NULL,NULL,NULL    /* reserved[123] */
 };
