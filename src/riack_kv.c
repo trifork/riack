@@ -422,51 +422,6 @@ int riack_get_bucket_props(struct RIACK_CLIENT *client, RIACK_STRING bucket, uin
 	}
 	return result;
 }
-
-int riack_set_bucket_props(struct RIACK_CLIENT *client, RIACK_STRING bucket, uint32_t n_val, uint8_t allow_mult)
-{
-	int result;
-	struct RIACK_PB_MSG msg_req, *msg_resp;
-	size_t packed_size;
-	uint8_t *request_buffer;
-	RpbSetBucketReq set_request = RPB_SET_BUCKET_REQ__INIT;
-	RpbBucketProps bck_props = RPB_BUCKET_PROPS__INIT;
-
-	if (!client || !bucket.value || bucket.len == 0) {
-		return RIACK_ERROR_INVALID_INPUT;
-	}
-
-	result = RIACK_ERROR_COMMUNICATION;
-	bck_props.has_allow_mult = 1;
-	bck_props.allow_mult = allow_mult;
-	bck_props.has_n_val = 1;
-	bck_props.n_val = n_val;
-	set_request.props = &bck_props;
-	set_request.bucket.len = bucket.len;
-	set_request.bucket.data = (uint8_t*)bucket.value;
-	packed_size = rpb_set_bucket_req__get_packed_size(&set_request);
-	request_buffer = (uint8_t*)RMALLOC(client, packed_size);
-	if (request_buffer) {
-		rpb_set_bucket_req__pack(&set_request, request_buffer);
-		msg_req.msg_code = mc_RpbSetBucketReq;
-		msg_req.msg_len = packed_size;
-		msg_req.msg = request_buffer;
-		if ((riack_send_message(client, &msg_req) > 0)&&
-			(riack_receive_message(client, &msg_resp) > 0))
-		{
-			if (msg_resp->msg_code == mc_RpbSetBucketResp) {
-				result = RIACK_SUCCESS;
-			} else {
-				riack_got_error_response(client, msg_resp);
-				result = RIACK_ERROR_RESPONSE;
-			}
-			riack_message_free(client, &msg_resp);
-		}
-		RFREE(client, request_buffer);
-	}
-	return result;
-}
-
 static void _list_keys_stream_callback(struct RIACK_CLIENT *client, void *args_raw, RIACK_STRING key)
 {
 	struct RIACK_STRING_LINKED_LIST **current = (struct RIACK_STRING_LINKED_LIST**)args_raw;

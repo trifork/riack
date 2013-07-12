@@ -60,6 +60,12 @@ RIACK_EXPORT int riack_stream_keys(struct RIACK_CLIENT *client, RIACK_STRING buc
 /// Set bucket properties
 RIACK_EXPORT int riack_set_bucket_props(struct RIACK_CLIENT *client, RIACK_STRING bucket, uint32_t n_val, uint8_t allow_mult);
 
+/// Set extended bucket properties Riak 1.4+ required
+RIACK_EXPORT int riack_set_bucket_props_ext(struct RIACK_CLIENT *client, RIACK_STRING bucket, struct RIACK_BUCKET_PROPERTIES* properties);
+
+/// Reste bucket properties to default Riak 1.4+ required
+RIACK_EXPORT int riack_reset_bucket_props(struct RIACK_CLIENT *client, RIACK_STRING bucket);
+
 /// Get bucket properties
 /// Note if the server chooses not to respond with n_val or allow_mult it will not be set
 RIACK_EXPORT int riack_get_bucket_props(struct RIACK_CLIENT *client, RIACK_STRING bucket, uint32_t *n_val, uint8_t *allow_mult);

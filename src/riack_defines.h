@@ -141,6 +141,81 @@ struct RIACK_CONTENT
 	struct RIACK_PAIR *indexes;
 };
 
+
+struct RIACK_MODULE_FUNCTION {
+    RIACK_STRING module;
+    RIACK_STRING function;
+};
+
+struct RIACK_COMMIT_HOOK {
+    struct RIACK_MODULE_FUNCTION modfun;
+    RIACK_STRING name;
+};
+
+/* Riak 1.4+ replication mode bucket setting */
+enum RIACK_REPLICATION_MODE {
+    REALTIME_AND_FULLSYNC, // TRUE in pbc interface
+    REALTIME,
+    FULLSYNC,
+    DISABLED  // FALSE in pbc interface
+};
+
+/* Riak bucket properties for riak 1.4+ */
+struct RIACK_BUCKET_PROPERTIES {
+    uint8_t n_val_use;
+    uint32_t n_val;
+    uint8_t allow_mult_use;
+    uint8_t allow_mult;
+
+    // Riak 1.4+ properties
+    uint8_t last_write_wins_use;
+    uint8_t last_write_wins;
+
+    size_t precommit_hook_count;
+    struct RIACK_COMMIT_HOOK* precommit_hooks;
+
+    size_t postcommit_hook_count;
+    struct RIACK_COMMIT_HOOK* postcommit_hooks;
+
+    uint8_t linkfun_use;
+    struct RIACK_MODULE_FUNCTION linkfun;
+    uint8_t crash_keyfun_use;
+    struct RIACK_MODULE_FUNCTION crash_keyfun;
+    uint8_t old_vclock_use;
+    uint32_t old_vclock;
+    uint8_t young_vclock_use;
+    uint32_t young_vclock;
+    uint8_t small_vclock_use;
+    uint32_t small_vclock;
+
+    uint8_t pr_use;
+    uint32_t pr;
+    uint8_t r_use;
+    uint32_t r;
+    uint8_t w_use;
+    uint32_t w;
+    uint8_t dw_use;
+    uint32_t dw;
+    uint8_t pw_use;
+    uint32_t pw;
+    uint8_t rw_use;
+    uint32_t rw;
+
+    uint8_t basic_quorum_use;
+    uint8_t basic_quorum;
+    uint8_t notfound_ok_use;
+    uint8_t notfound_ok;
+
+    RIACK_STRING backend;
+
+    uint8_t search_use;
+    uint8_t search;
+
+    uint8_t replication_mode_use;
+    enum RIACK_REPLICATION_MODE replication_mode;
+
+};
+
 /* MapReduce content type */
 enum RIACK_MAPRED_CONTENT_TYPE {
 	APPLICATION_JSON,
