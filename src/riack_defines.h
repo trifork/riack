@@ -49,6 +49,8 @@
 /* Allocate and copy memory */
 #define RMALLOCCOPY(client, target, target_len, source, len) target = (void*)RMALLOC(client, len); memcpy(target, source, len); target_len=len
 
+#define RSTR_HAS_CONTENT(s) (s.len > 0 && s.value)
+
 struct RIACK_ALLOCATOR
 {
 	void *(*alloc)(void *optional_data, size_t size);
@@ -171,9 +173,11 @@ struct RIACK_BUCKET_PROPERTIES {
     uint8_t last_write_wins_use;
     uint8_t last_write_wins;
 
+    uint8_t has_precommit_hooks;
     size_t precommit_hook_count;
     struct RIACK_COMMIT_HOOK* precommit_hooks;
 
+    uint8_t has_postcommit_hooks;
     size_t postcommit_hook_count;
     struct RIACK_COMMIT_HOOK* postcommit_hooks;
 
@@ -181,12 +185,15 @@ struct RIACK_BUCKET_PROPERTIES {
     struct RIACK_MODULE_FUNCTION linkfun;
     uint8_t crash_keyfun_use;
     struct RIACK_MODULE_FUNCTION crash_keyfun;
+
     uint8_t old_vclock_use;
     uint32_t old_vclock;
     uint8_t young_vclock_use;
     uint32_t young_vclock;
     uint8_t small_vclock_use;
     uint32_t small_vclock;
+    uint8_t big_vclock_use;
+    uint32_t big_vclock;
 
     uint8_t pr_use;
     uint32_t pr;

@@ -156,15 +156,104 @@ void riack_got_error_response(struct RIACK_CLIENT *client, struct RIACK_PB_MSG *
 	}
 }
 
-
 int riack_reset_bucket_props(struct RIACK_CLIENT *client, RIACK_STRING bucket)
 {
-    // TODO
+    int result;
+    if (!client || !bucket.value || bucket.len == 0) {
+        return RIACK_ERROR_INVALID_INPUT;
+    }
+    result = RIACK_ERROR_COMMUNICATION;
+    //
+    return result;
+}
+
+RpbBucketProps__RpbReplMode replmode_from_riack_replication_mode(enum RIACK_REPLICATION_MODE replication_mode) {
+    switch (replication_mode) {
+    case REALTIME_AND_FULLSYNC:
+        return RPB_BUCKET_PROPS__RPB_REPL_MODE__TRUE;
+    case REALTIME:
+        return RPB_BUCKET_PROPS__RPB_REPL_MODE__REALTIME;
+    case FULLSYNC:
+        return RPB_BUCKET_PROPS__RPB_REPL_MODE__FULLSYNC;
+    case DISABLED:
+        break;
+    }
+    return RPB_BUCKET_PROPS__RPB_REPL_MODE__FALSE;
+}
+
+void riack_set_rpb_bucket_props(struct RIACK_CLIENT *client, struct RIACK_BUCKET_PROPERTIES* props, RpbBucketProps *rpb_props)
+{
+#define COPY_PROPERTY_HAS_TO_USE(FROM, TO, PROP_NAME_FROM, PROP_NAME_TO) if (FROM->PROP_NAME_FROM##_use) { \
+                                                                            TO->has_##PROP_NAME_TO = 1; \
+                                                                            TO->PROP_NAME_TO = FROM->PROP_NAME_FROM; \
+                                                                            }
+    COPY_PROPERTY_HAS_TO_USE(props, rpb_props, allow_mult, allow_mult);
+    COPY_PROPERTY_HAS_TO_USE(props, rpb_props, basic_quorum, basic_quorum);
+    COPY_PROPERTY_HAS_TO_USE(props, rpb_props, big_vclock, big_vclock);
+    COPY_PROPERTY_HAS_TO_USE(props, rpb_props, small_vclock, small_vclock);
+    COPY_PROPERTY_HAS_TO_USE(props, rpb_props, young_vclock, young_vclock);
+    COPY_PROPERTY_HAS_TO_USE(props, rpb_props, old_vclock, old_vclock);
+    COPY_PROPERTY_HAS_TO_USE(props, rpb_props, dw, dw);
+    COPY_PROPERTY_HAS_TO_USE(props, rpb_props, w, w);
+    COPY_PROPERTY_HAS_TO_USE(props, rpb_props, pw, pw);
+    COPY_PROPERTY_HAS_TO_USE(props, rpb_props, rw, rw);
+    COPY_PROPERTY_HAS_TO_USE(props, rpb_props, pr, pr);
+    COPY_PROPERTY_HAS_TO_USE(props, rpb_props, r, r);
+    COPY_PROPERTY_HAS_TO_USE(props, rpb_props, n_val, n_val);
+    COPY_PROPERTY_HAS_TO_USE(props, rpb_props, last_write_wins, last_write_wins);
+    COPY_PROPERTY_HAS_TO_USE(props, rpb_props, notfound_ok, notfound_ok);
+    COPY_PROPERTY_HAS_TO_USE(props, rpb_props, search, search);
+    if (props->has_postcommit_hooks) {
+        rpb_props->n_postcommit = props->postcommit_hook_count;
+        // TODO The actual hooks
+    }
+    if (props->has_precommit_hooks) {
+        rpb_props->n_precommit = props->precommit_hook_count;
+        // TODO
+    }
+    if (RSTR_HAS_CONTENT(props->backend)) {
+        rpb_props->has_backend = 1;
+        rpb_props->backend.len = props->backend.len;
+        rpb_props->backend.data = (uint8_t*)RMALLOC(client, props->backend.len);
+        memcpy(rpb_props->backend.data, props->backend.value, props->backend.len);
+    }
+    if (props->crash_keyfun_use) {
+        // TODO
+    }
+    if (props->linkfun_use) {
+        // TODO
+    }
+    if (props->replication_mode_use) {
+        rpb_props->has_repl = 1;
+        rpb_props->repl = replmode_from_riack_replication_mode(props->replication_mode);
+    }
+
+/*
+  RpbCommitHook **precommit;
+  RpbCommitHook **postcommit;
+  RpbModFun *chash_keyfun;
+  RpbModFun *linkfun;
+*/
+    /*
+struct  _RpbModFun
+{
+  ProtobufCBinaryData module;
+  ProtobufCBinaryData function;
+};
+*/
 }
 
 int riack_set_bucket_props_ext(struct RIACK_CLIENT *client, RIACK_STRING bucket, struct RIACK_BUCKET_PROPERTIES* properties)
 {
-    // TODO
+    int result;
+    RpbSetBucketReq set_request = RPB_SET_BUCKET_REQ__INIT;
+    RpbBucketProps bck_props = RPB_BUCKET_PROPS__INIT;
+    if (!client || !bucket.value || bucket.len == 0) {
+        return RIACK_ERROR_INVALID_INPUT;
+    }
+    result = RIACK_ERROR_COMMUNICATION;
+    //
+    return result;
 }
 
 
