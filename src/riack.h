@@ -63,6 +63,8 @@ RIACK_EXPORT int riack_set_bucket_props(struct RIACK_CLIENT *client, RIACK_STRIN
 /// Set extended bucket properties Riak 1.4+ required
 RIACK_EXPORT int riack_set_bucket_props_ext(struct RIACK_CLIENT *client, RIACK_STRING bucket, struct RIACK_BUCKET_PROPERTIES* properties);
 
+RIACK_EXPORT int riack_get_bucket_props_ext(struct RIACK_CLIENT *client, RIACK_STRING bucket, struct RIACK_BUCKET_PROPERTIES** properties);
+
 /// Reste bucket properties to default Riak 1.4+ required
 RIACK_EXPORT int riack_reset_bucket_props(struct RIACK_CLIENT *client, RIACK_STRING bucket);
 

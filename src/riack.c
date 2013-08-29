@@ -159,11 +159,38 @@ void riack_got_error_response(struct RIACK_CLIENT *client, struct RIACK_PB_MSG *
 int riack_reset_bucket_props(struct RIACK_CLIENT *client, RIACK_STRING bucket)
 {
     int result;
-    if (!client || !bucket.value || bucket.len == 0) {
+    size_t packed_size;
+    RpbResetBucketReq reset_req;
+    struct RIACK_PB_MSG msg_req;
+    struct RIACK_PB_MSG *msg_resp;
+    uint8_t *request_buffer;
+
+    if (!client || !RSTR_HAS_CONTENT(bucket)) {
         return RIACK_ERROR_INVALID_INPUT;
     }
     result = RIACK_ERROR_COMMUNICATION;
-    //
+    reset_req.bucket.data = (uint8_t*)bucket.value;
+    reset_req.bucket.len = bucket.len;
+    packed_size = rpb_reset_bucket_req__get_packed_size(&reset_req);
+    request_buffer = (uint8_t*)RMALLOC(client, packed_size);
+    if (request_buffer)  {
+        rpb_reset_bucket_req__pack(&reset_req, request_buffer);
+        msg_req.msg_code = mc_RpbResetBucketReq;
+        msg_req.msg_len = packed_size;
+        msg_req.msg = request_buffer;
+        if ((riack_send_message(client, &msg_req) > 0)&&
+            (riack_receive_message(client, &msg_resp) > 0))
+        {
+            if (msg_resp->msg_code == mc_RpbResetBucketResp) {
+                result = RIACK_SUCCESS;
+            } else {
+                riack_got_error_response(client, msg_resp);
+                result = RIACK_ERROR_RESPONSE;
+            }
+            riack_message_free(client, &msg_resp);
+        }
+        RFREE(client, request_buffer);
+    }
     return result;
 }
 
@@ -181,12 +208,40 @@ RpbBucketProps__RpbReplMode replmode_from_riack_replication_mode(enum RIACK_REPL
     return RPB_BUCKET_PROPS__RPB_REPL_MODE__FALSE;
 }
 
+RpbCommitHook** riack_hooks_to_rpb_hooks(struct RIACK_CLIENT *client,
+                                         struct RIACK_COMMIT_HOOK* hooks, size_t hook_count) {
+    size_t i;
+    RpbCommitHook** result;
+    if (hook_count == 0) {
+        return NULL;
+    }
+    result = RMALLOC(client, sizeof(RpbCommitHook *) * hook_count);
+    for (i=0; i<hook_count; ++i) {
+        if (RSTR_HAS_CONTENT(hooks[i].name)) {
+            result[i]->has_name = 1;
+            RMALLOCCOPY(client, result[i]->name.data, result[i]->name.len,
+                        hooks[i].name.value, hooks[i].name.len);
+        } else {
+            result[i]->has_name = 0;
+            result[i]->name.data = 0;
+            result[i]->name.len = 0;
+        }
+        result[i]->modfun = (RpbModFun*)RMALLOC(client, sizeof(RpbModFun));
+        RMALLOCCOPY(client, result[i]->modfun->function.data, result[i]->modfun->function.len,
+                    hooks[i].modfun.function.value, hooks[i].modfun.function.len);
+        RMALLOCCOPY(client, result[i]->modfun->module.data, result[i]->modfun->module.len,
+                    hooks[i].modfun.module.value, hooks[i].modfun.module.len);
+    }
+    return result;
+}
+
 void riack_set_rpb_bucket_props(struct RIACK_CLIENT *client, struct RIACK_BUCKET_PROPERTIES* props, RpbBucketProps *rpb_props)
 {
 #define COPY_PROPERTY_HAS_TO_USE(FROM, TO, PROP_NAME_FROM, PROP_NAME_TO) if (FROM->PROP_NAME_FROM##_use) { \
                                                                             TO->has_##PROP_NAME_TO = 1; \
                                                                             TO->PROP_NAME_TO = FROM->PROP_NAME_FROM; \
                                                                             }
+
     COPY_PROPERTY_HAS_TO_USE(props, rpb_props, allow_mult, allow_mult);
     COPY_PROPERTY_HAS_TO_USE(props, rpb_props, basic_quorum, basic_quorum);
     COPY_PROPERTY_HAS_TO_USE(props, rpb_props, big_vclock, big_vclock);
@@ -205,11 +260,11 @@ void riack_set_rpb_bucket_props(struct RIACK_CLIENT *client, struct RIACK_BUCKET
     COPY_PROPERTY_HAS_TO_USE(props, rpb_props, search, search);
     if (props->has_postcommit_hooks) {
         rpb_props->n_postcommit = props->postcommit_hook_count;
-        // TODO The actual hooks
+        rpb_props->postcommit = riack_hooks_to_rpb_hooks(client, props->postcommit_hooks, props->postcommit_hook_count);
     }
     if (props->has_precommit_hooks) {
+        rpb_props->precommit = riack_hooks_to_rpb_hooks(client, props->precommit_hooks, props->precommit_hook_count);
         rpb_props->n_precommit = props->precommit_hook_count;
-        // TODO
     }
     if (RSTR_HAS_CONTENT(props->backend)) {
         rpb_props->has_backend = 1;
@@ -217,71 +272,46 @@ void riack_set_rpb_bucket_props(struct RIACK_CLIENT *client, struct RIACK_BUCKET
         rpb_props->backend.data = (uint8_t*)RMALLOC(client, props->backend.len);
         memcpy(rpb_props->backend.data, props->backend.value, props->backend.len);
     }
+    rpb_props->chash_keyfun = (RpbModFun*)RMALLOC(client, sizeof(RpbModFun));
     if (props->crash_keyfun_use) {
-        // TODO
+        RMALLOCCOPY(client, rpb_props->chash_keyfun->function.data, rpb_props->chash_keyfun->function.len,
+                    props->crash_keyfun.function.value, props->crash_keyfun.function.len);
+        RMALLOCCOPY(client, rpb_props->chash_keyfun->module.data, rpb_props->chash_keyfun->module.len,
+                    props->crash_keyfun.module.value, props->crash_keyfun.module.len);
+    } else {
+        rpb_props->chash_keyfun->function.len = 0;
+        rpb_props->chash_keyfun->function.data = 0;
+        rpb_props->chash_keyfun->module.len = 0;
+        rpb_props->chash_keyfun->module.data = 0;
     }
+    rpb_props->linkfun = (RpbModFun*)RMALLOC(client, sizeof(RpbModFun));
     if (props->linkfun_use) {
-        // TODO
+        RMALLOCCOPY(client, rpb_props->linkfun->function.data, rpb_props->linkfun->function.len,
+                    props->linkfun.function.value, props->linkfun.function.len);
+        RMALLOCCOPY(client, rpb_props->linkfun->module.data, rpb_props->linkfun->module.len,
+                    props->linkfun.module.value, props->linkfun.module.len);
+    } else {
+        rpb_props->linkfun->function.len = 0;
+        rpb_props->linkfun->function.data = 0;
+        rpb_props->linkfun->module.len = 0;
+        rpb_props->linkfun->module.data = 0;
     }
     if (props->replication_mode_use) {
         rpb_props->has_repl = 1;
         rpb_props->repl = replmode_from_riack_replication_mode(props->replication_mode);
     }
-
-/*
-  RpbCommitHook **precommit;
-  RpbCommitHook **postcommit;
-  RpbModFun *chash_keyfun;
-  RpbModFun *linkfun;
-*/
-    /*
-struct  _RpbModFun
-{
-  ProtobufCBinaryData module;
-  ProtobufCBinaryData function;
-};
-*/
 }
 
-int riack_set_bucket_props_ext(struct RIACK_CLIENT *client, RIACK_STRING bucket, struct RIACK_BUCKET_PROPERTIES* properties)
-{
-    int result;
-    RpbSetBucketReq set_request = RPB_SET_BUCKET_REQ__INIT;
-    RpbBucketProps bck_props = RPB_BUCKET_PROPS__INIT;
-    if (!client || !bucket.value || bucket.len == 0) {
-        return RIACK_ERROR_INVALID_INPUT;
-    }
-    result = RIACK_ERROR_COMMUNICATION;
-    //
-    return result;
-}
-
-
-int riack_set_bucket_props(struct RIACK_CLIENT *client, RIACK_STRING bucket, uint32_t n_val, uint8_t allow_mult)
-{
-    int result;
+int riack_set_bucket_props_base(struct RIACK_CLIENT *client, RpbSetBucketReq *set_request) {
     struct RIACK_PB_MSG msg_req, *msg_resp;
-    size_t packed_size;
     uint8_t *request_buffer;
-    RpbSetBucketReq set_request = RPB_SET_BUCKET_REQ__INIT;
-    RpbBucketProps bck_props = RPB_BUCKET_PROPS__INIT;
-
-    if (!client || !bucket.value || bucket.len == 0) {
-        return RIACK_ERROR_INVALID_INPUT;
-    }
-
+    size_t packed_size;
+    int result;
     result = RIACK_ERROR_COMMUNICATION;
-    bck_props.has_allow_mult = 1;
-    bck_props.allow_mult = allow_mult;
-    bck_props.has_n_val = 1;
-    bck_props.n_val = n_val;
-    set_request.props = &bck_props;
-    set_request.bucket.len = bucket.len;
-    set_request.bucket.data = (uint8_t*)bucket.value;
-    packed_size = rpb_set_bucket_req__get_packed_size(&set_request);
+    packed_size = rpb_set_bucket_req__get_packed_size(set_request);
     request_buffer = (uint8_t*)RMALLOC(client, packed_size);
     if (request_buffer) {
-        rpb_set_bucket_req__pack(&set_request, request_buffer);
+        rpb_set_bucket_req__pack(set_request, request_buffer);
         msg_req.msg_code = mc_RpbSetBucketReq;
         msg_req.msg_len = packed_size;
         msg_req.msg = request_buffer;
@@ -297,6 +327,118 @@ int riack_set_bucket_props(struct RIACK_CLIENT *client, RIACK_STRING bucket, uin
             riack_message_free(client, &msg_resp);
         }
         RFREE(client, request_buffer);
+    }
+    return result;
+}
+
+int riack_set_bucket_props_ext(struct RIACK_CLIENT *client, RIACK_STRING bucket, struct RIACK_BUCKET_PROPERTIES* properties)
+{
+    RpbSetBucketReq set_request = RPB_SET_BUCKET_REQ__INIT;
+    RpbBucketProps bck_props = RPB_BUCKET_PROPS__INIT;
+    if (!client || !bucket.value || bucket.len == 0) {
+        return RIACK_ERROR_INVALID_INPUT;
+    }
+    riack_set_rpb_bucket_props(client, properties, &bck_props);
+    set_request.props = &bck_props;
+    set_request.bucket.len = bucket.len;
+    set_request.bucket.data = (uint8_t*)bucket.value;
+    return riack_set_bucket_props_base(client, &set_request);
+}
+
+int riack_set_bucket_props(struct RIACK_CLIENT *client, RIACK_STRING bucket, uint32_t n_val, uint8_t allow_mult)
+{
+    RpbSetBucketReq set_request = RPB_SET_BUCKET_REQ__INIT;
+    RpbBucketProps bck_props = RPB_BUCKET_PROPS__INIT;
+    if (!client || !bucket.value || bucket.len == 0) {
+        return RIACK_ERROR_INVALID_INPUT;
+    }
+    bck_props.has_allow_mult = 1;
+    bck_props.allow_mult = allow_mult;
+    bck_props.has_n_val = 1;
+    bck_props.n_val = n_val;
+    set_request.props = &bck_props;
+    set_request.bucket.len = bucket.len;
+    set_request.bucket.data = (uint8_t*)bucket.value;
+    return riack_set_bucket_props_base(client, &set_request);
+}
+
+
+int riack_get_bucket_base(struct RIACK_CLIENT *client, RIACK_STRING bucket, RpbGetBucketResp **response) {
+    int result;
+    struct RIACK_PB_MSG msg_req, *msg_resp;
+    ProtobufCAllocator pb_allocator;
+    size_t packed_size;
+    uint8_t *request_buffer;
+    RpbGetBucketReq get_request = RPB_GET_BUCKET_REQ__INIT;
+
+    pb_allocator = riack_pb_allocator(&client->allocator);
+    result = RIACK_ERROR_COMMUNICATION;
+    get_request.bucket.len = bucket.len;
+    get_request.bucket.data = (uint8_t*)bucket.value;
+    packed_size = rpb_get_bucket_req__get_packed_size(&get_request);
+    request_buffer = (uint8_t*)RMALLOC(client, packed_size);
+    if (request_buffer) {
+        rpb_get_bucket_req__pack(&get_request, request_buffer);
+        msg_req.msg_code = mc_RpbGetBucketReq;
+        msg_req.msg_len = packed_size;
+        msg_req.msg = request_buffer;
+        if ((riack_send_message(client, &msg_req) > 0)&&
+            (riack_receive_message(client, &msg_resp) > 0))
+        {
+            if (msg_resp->msg_code == mc_RpbGetBucketResp) {
+                *response = rpb_get_bucket_resp__unpack(&pb_allocator, msg_resp->msg_len, msg_resp->msg);
+                if (*response) {
+                    result = RIACK_SUCCESS;
+                } else {
+                    result = RIACK_FAILED_PB_UNPACK;
+                }
+            } else {
+                riack_got_error_response(client, msg_resp);
+                result = RIACK_ERROR_RESPONSE;
+            }
+            riack_message_free(client, &msg_resp);
+        }
+        RFREE(client, request_buffer);
+    }
+    return result;
+}
+
+int riack_get_bucket_props_ext(struct RIACK_CLIENT *client, RIACK_STRING bucket, struct RIACK_BUCKET_PROPERTIES** properties)
+{
+    ProtobufCAllocator pb_allocator;
+    int result;
+    RpbGetBucketResp *response;
+    if (!client || !bucket.value || bucket.len == 0) {
+        return RIACK_ERROR_INVALID_INPUT;
+    }
+    pb_allocator = riack_pb_allocator(&client->allocator);
+    result = riack_get_bucket_base(client, bucket, &response);
+    if (result == RIACK_SUCCESS) {
+        // TODO
+        rpb_get_bucket_resp__free_unpacked(response, &pb_allocator);
+    }
+    return result;
+}
+
+
+int riack_get_bucket_props(struct RIACK_CLIENT *client, RIACK_STRING bucket, uint32_t *n_val, uint8_t *allow_mult)
+{
+    ProtobufCAllocator pb_allocator;
+    int result;
+    RpbGetBucketResp *response;
+    if (!client || !bucket.value || bucket.len == 0) {
+        return RIACK_ERROR_INVALID_INPUT;
+    }
+    pb_allocator = riack_pb_allocator(&client->allocator);
+    result = riack_get_bucket_base(client, bucket, &response);
+    if (result == RIACK_SUCCESS) {
+        if (response->props->has_allow_mult) {
+            *allow_mult = response->props->allow_mult ? 1 : 0;
+        }
+        if (response->props->has_n_val) {
+            *n_val = response->props->n_val;
+        }
+        rpb_get_bucket_resp__free_unpacked(response, &pb_allocator);
     }
     return result;
 }

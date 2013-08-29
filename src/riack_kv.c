@@ -370,58 +370,6 @@ int riack_delete(struct RIACK_CLIENT *client, RIACK_STRING bucket, RIACK_STRING 
     return result;
 }
 
-int riack_get_bucket_props(struct RIACK_CLIENT *client, RIACK_STRING bucket, uint32_t *n_val, uint8_t *allow_mult)
-{
-	int result;
-	struct RIACK_PB_MSG msg_req, *msg_resp;
-	ProtobufCAllocator pb_allocator;
-	size_t packed_size;
-	uint8_t *request_buffer;
-	RpbGetBucketResp *response;
-	RpbGetBucketReq get_request = RPB_GET_BUCKET_REQ__INIT;
-
-	if (!client || !bucket.value || bucket.len == 0) {
-		return RIACK_ERROR_INVALID_INPUT;
-	}
-	pb_allocator = riack_pb_allocator(&client->allocator);
-	result = RIACK_ERROR_COMMUNICATION;
-	get_request.bucket.len = bucket.len;
-	get_request.bucket.data = (uint8_t*)bucket.value;
-	packed_size = rpb_get_bucket_req__get_packed_size(&get_request);
-	request_buffer = (uint8_t*)RMALLOC(client, packed_size);
-	if (request_buffer) {
-		rpb_get_bucket_req__pack(&get_request, request_buffer);
-		msg_req.msg_code = mc_RpbGetBucketReq;
-		msg_req.msg_len = packed_size;
-		msg_req.msg = request_buffer;
-		if ((riack_send_message(client, &msg_req) > 0)&&
-			(riack_receive_message(client, &msg_resp) > 0))
-		{
-			if (msg_resp->msg_code == mc_RpbGetBucketResp) {
-				response = rpb_get_bucket_resp__unpack(&pb_allocator, msg_resp->msg_len, msg_resp->msg);
-				if (response) {
-					if (response->props->has_allow_mult) {
-						*allow_mult = response->props->allow_mult ? 1 : 0;
-					}
-					if (response->props->has_n_val) {
-						*n_val = response->props->n_val;
-					}
-					rpb_get_bucket_resp__free_unpacked(response, &pb_allocator);
-					result = RIACK_SUCCESS;
-				} else {
-					result = RIACK_FAILED_PB_UNPACK;
-				}
-			} else {
-				riack_got_error_response(client, msg_resp);
-				result = RIACK_ERROR_RESPONSE;
-			}
-			riack_message_free(client, &msg_resp);
-		}
-
-		RFREE(client, request_buffer);
-	}
-	return result;
-}
 static void _list_keys_stream_callback(struct RIACK_CLIENT *client, void *args_raw, RIACK_STRING key)
 {
 	struct RIACK_STRING_LINKED_LIST **current = (struct RIACK_STRING_LINKED_LIST**)args_raw;
@@ -453,10 +401,10 @@ int riack_stream_keys(struct RIACK_CLIENT *client, RIACK_STRING bucket,
 	size_t packed_size, num_keys, i;
 	uint8_t *request_buffer, recvdone;
 
-	if (!client || !callback || bucket.len == 0) {
-		return RIACK_ERROR_INVALID_INPUT;
-	}
-	pb_allocator = riack_pb_allocator(&client->allocator);
+    if (!client || !callback || bucket.len == 0) {
+        return RIACK_ERROR_INVALID_INPUT;
+    }
+    pb_allocator = riack_pb_allocator(&client->allocator);
 	result = RIACK_ERROR_COMMUNICATION;
 	rpb_list_keys_req__init(&list_req);
 	list_req.bucket.len = bucket.len;
@@ -589,9 +537,9 @@ int riack_set_clientid(struct RIACK_CLIENT *client, RIACK_STRING clientid)
 int riack_get_clientid(struct RIACK_CLIENT *client, RIACK_STRING *clientid)
 {
 	int result;
+    ProtobufCAllocator pb_allocator;
 	struct RIACK_PB_MSG msg_req, *msg_resp;
 	RpbGetClientIdResp *id_resp;
-	ProtobufCAllocator pb_allocator;
 
 	pb_allocator = riack_pb_allocator(&client->allocator);
 	msg_req.msg = 0;
