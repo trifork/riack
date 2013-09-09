@@ -44,6 +44,8 @@
 
 /* Allacate memory using client allocator */
 #define RMALLOC(client, size) client->allocator.alloc(0, size)
+/* Allacate memory and fill it with zeroes, using client allocator */
+#define RCALLOC(client, size) memset(client->allocator.alloc(0, size), 0, size)
 /* Free allocated memory */
 #define RFREE(client, pointer) client->allocator.free(0, pointer)
 /* Allocate and copy memory */

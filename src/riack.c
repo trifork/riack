@@ -235,6 +235,58 @@ RpbCommitHook** riack_hooks_to_rpb_hooks(struct RIACK_CLIENT *client,
     return result;
 }
 
+// Frees all members of a RpbModFun, but not the RpbModFun* itself
+void riack_free_copied_rpb_mod_fun(struct RIACK_CLIENT *client, RpbModFun* rpb_modfun) {
+    if (rpb_modfun->function.len > 0 && rpb_modfun->function.data) {
+        RFREE(client, rpb_modfun->function.data);
+    }
+    if (rpb_modfun->module.len > 0 && rpb_modfun->module.data) {
+        RFREE(client, rpb_modfun->module.data);
+    }
+}
+
+// Frees a RpbCommitHook, but not the RpbCommitHook* itself
+void riack_free_copied_commit_hook(struct RIACK_CLIENT *client, RpbCommitHook* rpb_hook) {
+    if (rpb_hook->has_name && rpb_hook->name.len > 0) {
+        RFREE(client, rpb_hook->name.data);
+    }
+    if (rpb_hook->modfun) {
+        riack_free_copied_rpb_mod_fun(client, rpb_hook->modfun);
+        RFREE(client, rpb_hook->modfun);
+    }
+}
+
+// Frees all members of a RpbBucketProps, but not the RpbBucketProps* itself
+void riack_free_copied_rpb_bucket_props(struct RIACK_CLIENT *client, RpbBucketProps *rpb_props) {
+    if (rpb_props->has_backend && rpb_props->backend.len > 0) {
+        RFREE(client, rpb_props->backend.data);
+    }
+    if (rpb_props->chash_keyfun) {
+        riack_free_copied_rpb_mod_fun(client, rpb_props->chash_keyfun);
+        RFREE(client, rpb_props->chash_keyfun);
+    }
+    if (rpb_props->linkfun) {
+        riack_free_copied_rpb_mod_fun(client, rpb_props->linkfun);
+        RFREE(client, rpb_props->linkfun);
+    }
+    if (rpb_props->n_postcommit > 0) {
+        size_t i;
+        for (i=0; i<rpb_props->n_postcommit; ++i) {
+            riack_free_copied_commit_hook(client, rpb_props->postcommit[i]);
+            RFREE(client, rpb_props->postcommit[i]);
+        }
+        RFREE(client, rpb_props->postcommit);
+    }
+    if (rpb_props->n_precommit > 0) {
+        size_t i;
+        for (i=0; i<rpb_props->n_precommit; ++i) {
+            riack_free_copied_commit_hook(client, rpb_props->precommit[i]);
+            RFREE(client, rpb_props->precommit[i]);
+        }
+        RFREE(client, rpb_props->precommit);
+    }
+}
+
 void riack_set_rpb_bucket_props(struct RIACK_CLIENT *client, struct RIACK_BUCKET_PROPERTIES* props, RpbBucketProps *rpb_props)
 {
 #define COPY_PROPERTY_HAS_TO_USE(FROM, TO, PROP_NAME_FROM, PROP_NAME_TO) if (FROM->PROP_NAME_FROM##_use) { \
@@ -342,6 +394,7 @@ int riack_set_bucket_props_ext(struct RIACK_CLIENT *client, RIACK_STRING bucket,
     set_request.props = &bck_props;
     set_request.bucket.len = bucket.len;
     set_request.bucket.data = (uint8_t*)bucket.value;
+
     return riack_set_bucket_props_base(client, &set_request);
 }
 
@@ -362,6 +415,65 @@ int riack_set_bucket_props(struct RIACK_CLIENT *client, RIACK_STRING bucket, uin
     return riack_set_bucket_props_base(client, &set_request);
 }
 
+struct RIACK_COMMIT_HOOK* riack_rpb_hooks_to_hooks(struct RIACK_CLIENT *client, RpbCommitHook ** rpb_hooks, size_t hook_count)
+{
+    size_t i;
+    if (hook_count == 0) return 0;
+
+    struct RIACK_COMMIT_HOOK* result = RCALLOC(client, sizeof(struct RIACK_COMMIT_HOOK*) * hook_count);
+    for (i=0; i<hook_count; ++i) {
+        if (rpb_hooks[i]->has_name) {
+            RMALLOCCOPY(client, result[i].name.value, result[i].name.len, rpb_hooks[i]->name.data, rpb_hooks[i]->name.len);
+        }
+        // TODO MODFUN
+    }
+    return result;
+}
+
+
+struct RIACK_BUCKET_PROPERTIES* riack_riack_bucket_props_from_rpb(struct RIACK_CLIENT *client, RpbBucketProps* rpb_props) {
+#define COPY_PROPERTY_USE_TO_HAS(FROM, TO, PROP_NAME_FROM, PROP_NAME_TO) if (FROM->has_##PROP_NAME_FROM) { \
+                                                                            TO->PROP_NAME_TO##_use = 1; \
+                                                                            TO->PROP_NAME_TO = FROM->PROP_NAME_FROM;}
+    struct RIACK_BUCKET_PROPERTIES* result = NULL;
+    result = RMALLOC(client, sizeof(struct RIACK_BUCKET_PROPERTIES));
+    if (result) {
+        memset(result, 1, sizeof(struct RIACK_BUCKET_PROPERTIES));
+        COPY_PROPERTY_USE_TO_HAS(rpb_props, result, allow_mult, allow_mult);
+        COPY_PROPERTY_USE_TO_HAS(rpb_props, result, basic_quorum, basic_quorum);
+        COPY_PROPERTY_USE_TO_HAS(rpb_props, result, big_vclock, big_vclock);
+        COPY_PROPERTY_USE_TO_HAS(rpb_props, result, dw, dw);
+        COPY_PROPERTY_USE_TO_HAS(rpb_props, result, last_write_wins, last_write_wins);
+        COPY_PROPERTY_USE_TO_HAS(rpb_props, result, notfound_ok, notfound_ok);
+        COPY_PROPERTY_USE_TO_HAS(rpb_props, result, notfound_ok, notfound_ok);
+        COPY_PROPERTY_USE_TO_HAS(rpb_props, result, n_val, n_val);
+        COPY_PROPERTY_USE_TO_HAS(rpb_props, result, old_vclock, old_vclock);
+        COPY_PROPERTY_USE_TO_HAS(rpb_props, result, pr, pr);
+        COPY_PROPERTY_USE_TO_HAS(rpb_props, result, pw, pw);
+        COPY_PROPERTY_USE_TO_HAS(rpb_props, result, r, r);
+        COPY_PROPERTY_USE_TO_HAS(rpb_props, result, rw, rw);
+        COPY_PROPERTY_USE_TO_HAS(rpb_props, result, search, search);
+        COPY_PROPERTY_USE_TO_HAS(rpb_props, result, small_vclock, small_vclock);
+        COPY_PROPERTY_USE_TO_HAS(rpb_props, result, w, w);
+        COPY_PROPERTY_USE_TO_HAS(rpb_props, result, young_vclock, young_vclock);
+        if (rpb_props->has_backend) {
+            RMALLOCCOPY(client, result->backend.value, result->backend.len, rpb_props->backend.data, rpb_props->backend.len);
+        }
+        if (rpb_props->has_has_postcommit) {
+            result->has_postcommit_hooks = 1;
+            result->postcommit_hook_count = rpb_props->n_postcommit;
+            if (rpb_props->n_postcommit > 0) {
+                result->postcommit_hooks = riack_rpb_hooks_to_hooks(client, rpb_props->postcommit, rpb_props->n_postcommit);
+            }
+        }
+        //rpb_props->has_has_postcommit
+        //rpb_props->has_has_precommit
+        //rpb_props->has_postcommit
+        //rpb_props->has_precommit
+        //rpb_props->has_repl
+    }
+    return result;
+}
 
 int riack_get_bucket_base(struct RIACK_CLIENT *client, RIACK_STRING bucket, RpbGetBucketResp **response) {
     int result;
@@ -413,8 +525,9 @@ int riack_get_bucket_props_ext(struct RIACK_CLIENT *client, RIACK_STRING bucket,
     }
     pb_allocator = riack_pb_allocator(&client->allocator);
     result = riack_get_bucket_base(client, bucket, &response);
+    *properties = NULL;
     if (result == RIACK_SUCCESS) {
-        // TODO
+        *properties = riack_riack_bucket_props_from_rpb(client, response->props);
         rpb_get_bucket_resp__free_unpacked(response, &pb_allocator);
     }
     return result;
