@@ -194,6 +194,18 @@ int riack_reset_bucket_props(struct RIACK_CLIENT *client, RIACK_STRING bucket)
     return result;
 }
 
+enum RIACK_REPLICATION_MODE riack_replication_mode_from_replmode(RpbBucketProps__RpbReplMode rpb_repl_mode) {
+    switch (rpb_repl_mode) {
+    case RPB_BUCKET_PROPS__RPB_REPL_MODE__TRUE:
+        return REALTIME_AND_FULLSYNC;
+    case RPB_BUCKET_PROPS__RPB_REPL_MODE__REALTIME:
+        return REALTIME;
+    case RPB_BUCKET_PROPS__RPB_REPL_MODE__FULLSYNC:
+        return FULLSYNC;
+    }
+    return DISABLED;
+}
+
 RpbBucketProps__RpbReplMode replmode_from_riack_replication_mode(enum RIACK_REPLICATION_MODE replication_mode) {
     switch (replication_mode) {
     case REALTIME_AND_FULLSYNC:
@@ -284,6 +296,35 @@ void riack_free_copied_rpb_bucket_props(struct RIACK_CLIENT *client, RpbBucketPr
             RFREE(client, rpb_props->precommit[i]);
         }
         RFREE(client, rpb_props->precommit);
+    }
+}
+
+void riack_free_commit_hooks(struct RIACK_CLIENT *client, struct RIACK_COMMIT_HOOK* hooks, size_t hook_count) {
+    size_t i;
+    for (i=0; i<hook_count; ++i) {
+        RSTR_SAFE_FREE(client, hooks[i].name);
+        RSTR_SAFE_FREE(client, hooks[i].modfun.function);
+        RSTR_SAFE_FREE(client, hooks[i].modfun.module);
+    }
+    RFREE(client, hooks);
+}
+
+void riack_free_bucket_properties(struct RIACK_CLIENT *client, struct RIACK_BUCKET_PROPERTIES** properties) {
+    if (*properties) {
+        if (RSTR_HAS_CONTENT((*properties)->backend)) {
+            RFREE(client, (*properties)->backend.value);
+        }
+        riack_free_commit_hooks(client, (*properties)->precommit_hooks, (*properties)->precommit_hook_count);
+        riack_free_commit_hooks(client, (*properties)->postcommit_hooks, (*properties)->postcommit_hook_count);
+        if ((*properties)->crash_keyfun_use) {
+            RSTR_SAFE_FREE(client, (*properties)->crash_keyfun.function);
+            RSTR_SAFE_FREE(client, (*properties)->crash_keyfun.module);
+        }
+        if ((*properties)->linkfun_use) {
+            RSTR_SAFE_FREE(client, (*properties)->linkfun.function);
+            RSTR_SAFE_FREE(client, (*properties)->linkfun.module);
+        }
+        RFREE(client, *properties);
     }
 }
 
@@ -415,6 +456,18 @@ int riack_set_bucket_props(struct RIACK_CLIENT *client, RIACK_STRING bucket, uin
     return riack_set_bucket_props_base(client, &set_request);
 }
 
+struct RIACK_MODULE_FUNCTION riack_rpb_modfun_to_modfun(struct RIACK_CLIENT *client, RpbModFun *rpb_modfun) {
+    struct RIACK_MODULE_FUNCTION result;
+    memset(&result, 0, sizeof(struct RIACK_MODULE_FUNCTION));
+    if (rpb_modfun && rpb_modfun->function.len > 0) {
+        RMALLOCCOPY(client, result.function.value, result.function.len, rpb_modfun->function.data, rpb_modfun->function.len);
+    }
+    if (rpb_modfun && rpb_modfun->module.len > 0) {
+        RMALLOCCOPY(client, result.module.value, result.module.len, rpb_modfun->module.data, rpb_modfun->module.len);
+    }
+    return result;
+}
+
 struct RIACK_COMMIT_HOOK* riack_rpb_hooks_to_hooks(struct RIACK_CLIENT *client, RpbCommitHook ** rpb_hooks, size_t hook_count)
 {
     size_t i;
@@ -425,11 +478,10 @@ struct RIACK_COMMIT_HOOK* riack_rpb_hooks_to_hooks(struct RIACK_CLIENT *client, 
         if (rpb_hooks[i]->has_name) {
             RMALLOCCOPY(client, result[i].name.value, result[i].name.len, rpb_hooks[i]->name.data, rpb_hooks[i]->name.len);
         }
-        // TODO MODFUN
+        result[i].modfun = riack_rpb_modfun_to_modfun(client, rpb_hooks[i]->modfun);
     }
     return result;
 }
-
 
 struct RIACK_BUCKET_PROPERTIES* riack_riack_bucket_props_from_rpb(struct RIACK_CLIENT *client, RpbBucketProps* rpb_props) {
 #define COPY_PROPERTY_USE_TO_HAS(FROM, TO, PROP_NAME_FROM, PROP_NAME_TO) if (FROM->has_##PROP_NAME_FROM) { \
@@ -466,11 +518,25 @@ struct RIACK_BUCKET_PROPERTIES* riack_riack_bucket_props_from_rpb(struct RIACK_C
                 result->postcommit_hooks = riack_rpb_hooks_to_hooks(client, rpb_props->postcommit, rpb_props->n_postcommit);
             }
         }
-        //rpb_props->has_has_postcommit
-        //rpb_props->has_has_precommit
-        //rpb_props->has_postcommit
-        //rpb_props->has_precommit
-        //rpb_props->has_repl
+        if (rpb_props->has_has_precommit) {
+            result->has_precommit_hooks = 1;
+            result->precommit_hook_count = rpb_props->n_precommit;
+            if (rpb_props->n_precommit > 0) {
+                result->precommit_hooks = riack_rpb_hooks_to_hooks(client, rpb_props->precommit, rpb_props->n_precommit);
+            }
+        }
+        if (rpb_props->chash_keyfun) {
+            result->crash_keyfun_use = 1;
+            result->crash_keyfun = riack_rpb_modfun_to_modfun(client, rpb_props->chash_keyfun);
+        }
+        if (rpb_props->linkfun) {
+            result->linkfun_use = 1;
+            result->linkfun = riack_rpb_modfun_to_modfun(client, rpb_props->linkfun);
+        }
+        if (rpb_props->has_repl) {
+            result->replication_mode_use = 1;
+            result->replication_mode = riack_replication_mode_from_replmode(rpb_props->repl);
+        }
     }
     return result;
 }

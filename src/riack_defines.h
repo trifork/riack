@@ -53,6 +53,8 @@
 
 #define RSTR_HAS_CONTENT(s) (s.len > 0 && s.value)
 
+#define RSTR_SAFE_FREE(client, str) if (RSTR_HAS_CONTENT(str)) { RFREE(client, str.value); str.len = 0; str.value=0; }
+
 struct RIACK_ALLOCATOR
 {
 	void *(*alloc)(void *optional_data, size_t size);

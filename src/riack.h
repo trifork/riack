@@ -164,6 +164,8 @@ RIACK_EXPORT void riack_free_string_list(struct RIACK_CLIENT* client, RIACK_STRI
 
 RIACK_EXPORT void riack_free_string_linked_list(struct RIACK_CLIENT* client, struct RIACK_STRING_LINKED_LIST** strings);
 
+RIACK_EXPORT void riack_free_bucket_properties(struct RIACK_CLIENT *client, struct RIACK_BUCKET_PROPERTIES** properties);
+
 /// For testing purpose make a recv without sending anything
 RIACK_EXPORT void riack_timeout_test(struct RIACK_CLIENT* client);
 
