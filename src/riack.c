@@ -365,29 +365,19 @@ void riack_set_rpb_bucket_props(struct RIACK_CLIENT *client, struct RIACK_BUCKET
         rpb_props->backend.data = (uint8_t*)RMALLOC(client, props->backend.len);
         memcpy(rpb_props->backend.data, props->backend.value, props->backend.len);
     }
-    rpb_props->chash_keyfun = (RpbModFun*)RMALLOC(client, sizeof(RpbModFun));
     if (props->crash_keyfun_use) {
+        rpb_props->chash_keyfun = (RpbModFun*)RMALLOC(client, sizeof(RpbModFun));
         RMALLOCCOPY(client, rpb_props->chash_keyfun->function.data, rpb_props->chash_keyfun->function.len,
                     props->crash_keyfun.function.value, props->crash_keyfun.function.len);
         RMALLOCCOPY(client, rpb_props->chash_keyfun->module.data, rpb_props->chash_keyfun->module.len,
                     props->crash_keyfun.module.value, props->crash_keyfun.module.len);
-    } else {
-        rpb_props->chash_keyfun->function.len = 0;
-        rpb_props->chash_keyfun->function.data = 0;
-        rpb_props->chash_keyfun->module.len = 0;
-        rpb_props->chash_keyfun->module.data = 0;
     }
-    rpb_props->linkfun = (RpbModFun*)RMALLOC(client, sizeof(RpbModFun));
     if (props->linkfun_use) {
+        rpb_props->linkfun = (RpbModFun*)RMALLOC(client, sizeof(RpbModFun));
         RMALLOCCOPY(client, rpb_props->linkfun->function.data, rpb_props->linkfun->function.len,
                     props->linkfun.function.value, props->linkfun.function.len);
         RMALLOCCOPY(client, rpb_props->linkfun->module.data, rpb_props->linkfun->module.len,
                     props->linkfun.module.value, props->linkfun.module.len);
-    } else {
-        rpb_props->linkfun->function.len = 0;
-        rpb_props->linkfun->function.data = 0;
-        rpb_props->linkfun->module.len = 0;
-        rpb_props->linkfun->module.data = 0;
     }
     if (props->replication_mode_use) {
         rpb_props->has_repl = 1;
@@ -490,7 +480,7 @@ struct RIACK_BUCKET_PROPERTIES* riack_riack_bucket_props_from_rpb(struct RIACK_C
     struct RIACK_BUCKET_PROPERTIES* result = NULL;
     result = RMALLOC(client, sizeof(struct RIACK_BUCKET_PROPERTIES));
     if (result) {
-        memset(result, 1, sizeof(struct RIACK_BUCKET_PROPERTIES));
+        memset(result, 0, sizeof(struct RIACK_BUCKET_PROPERTIES));
         COPY_PROPERTY_USE_TO_HAS(rpb_props, result, allow_mult, allow_mult);
         COPY_PROPERTY_USE_TO_HAS(rpb_props, result, basic_quorum, basic_quorum);
         COPY_PROPERTY_USE_TO_HAS(rpb_props, result, big_vclock, big_vclock);
@@ -548,7 +538,6 @@ int riack_get_bucket_base(struct RIACK_CLIENT *client, RIACK_STRING bucket, RpbG
     size_t packed_size;
     uint8_t *request_buffer;
     RpbGetBucketReq get_request = RPB_GET_BUCKET_REQ__INIT;
-
     pb_allocator = riack_pb_allocator(&client->allocator);
     result = RIACK_ERROR_COMMUNICATION;
     get_request.bucket.len = bucket.len;
