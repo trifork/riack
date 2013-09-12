@@ -11,10 +11,23 @@ PROTOBUF_C_BEGIN_DECLS
 typedef struct _RpbErrorResp RpbErrorResp;
 typedef struct _RpbGetServerInfoResp RpbGetServerInfoResp;
 typedef struct _RpbPair RpbPair;
+typedef struct _RpbGetBucketReq RpbGetBucketReq;
+typedef struct _RpbGetBucketResp RpbGetBucketResp;
+typedef struct _RpbSetBucketReq RpbSetBucketReq;
+typedef struct _RpbResetBucketReq RpbResetBucketReq;
+typedef struct _RpbModFun RpbModFun;
+typedef struct _RpbCommitHook RpbCommitHook;
+typedef struct _RpbBucketProps RpbBucketProps;
 
 
 /* --- enums --- */
 
+typedef enum _RpbBucketProps__RpbReplMode {
+  RPB_BUCKET_PROPS__RPB_REPL_MODE__FALSE = 0,
+  RPB_BUCKET_PROPS__RPB_REPL_MODE__REALTIME = 1,
+  RPB_BUCKET_PROPS__RPB_REPL_MODE__FULLSYNC = 2,
+  RPB_BUCKET_PROPS__RPB_REPL_MODE__TRUE = 3
+} RpbBucketProps__RpbReplMode;
 
 /* --- messages --- */
 
@@ -52,6 +65,125 @@ struct  _RpbPair
 #define RPB_PAIR__INIT \
  { PROTOBUF_C_MESSAGE_INIT (&rpb_pair__descriptor) \
     , {0,NULL}, 0,{0,NULL} }
+
+
+struct  _RpbGetBucketReq
+{
+  ProtobufCMessage base;
+  ProtobufCBinaryData bucket;
+};
+#define RPB_GET_BUCKET_REQ__INIT \
+ { PROTOBUF_C_MESSAGE_INIT (&rpb_get_bucket_req__descriptor) \
+    , {0,NULL} }
+
+
+struct  _RpbGetBucketResp
+{
+  ProtobufCMessage base;
+  RpbBucketProps *props;
+};
+#define RPB_GET_BUCKET_RESP__INIT \
+ { PROTOBUF_C_MESSAGE_INIT (&rpb_get_bucket_resp__descriptor) \
+    , NULL }
+
+
+struct  _RpbSetBucketReq
+{
+  ProtobufCMessage base;
+  ProtobufCBinaryData bucket;
+  RpbBucketProps *props;
+};
+#define RPB_SET_BUCKET_REQ__INIT \
+ { PROTOBUF_C_MESSAGE_INIT (&rpb_set_bucket_req__descriptor) \
+    , {0,NULL}, NULL }
+
+
+struct  _RpbResetBucketReq
+{
+  ProtobufCMessage base;
+  ProtobufCBinaryData bucket;
+};
+#define RPB_RESET_BUCKET_REQ__INIT \
+ { PROTOBUF_C_MESSAGE_INIT (&rpb_reset_bucket_req__descriptor) \
+    , {0,NULL} }
+
+
+struct  _RpbModFun
+{
+  ProtobufCMessage base;
+  ProtobufCBinaryData module;
+  ProtobufCBinaryData function;
+};
+#define RPB_MOD_FUN__INIT \
+ { PROTOBUF_C_MESSAGE_INIT (&rpb_mod_fun__descriptor) \
+    , {0,NULL}, {0,NULL} }
+
+
+struct  _RpbCommitHook
+{
+  ProtobufCMessage base;
+  RpbModFun *modfun;
+  protobuf_c_boolean has_name;
+  ProtobufCBinaryData name;
+};
+#define RPB_COMMIT_HOOK__INIT \
+ { PROTOBUF_C_MESSAGE_INIT (&rpb_commit_hook__descriptor) \
+    , NULL, 0,{0,NULL} }
+
+
+struct  _RpbBucketProps
+{
+  ProtobufCMessage base;
+  protobuf_c_boolean has_n_val;
+  uint32_t n_val;
+  protobuf_c_boolean has_allow_mult;
+  protobuf_c_boolean allow_mult;
+  protobuf_c_boolean has_last_write_wins;
+  protobuf_c_boolean last_write_wins;
+  size_t n_precommit;
+  RpbCommitHook **precommit;
+  protobuf_c_boolean has_has_precommit;
+  protobuf_c_boolean has_precommit;
+  size_t n_postcommit;
+  RpbCommitHook **postcommit;
+  protobuf_c_boolean has_has_postcommit;
+  protobuf_c_boolean has_postcommit;
+  RpbModFun *chash_keyfun;
+  RpbModFun *linkfun;
+  protobuf_c_boolean has_old_vclock;
+  uint32_t old_vclock;
+  protobuf_c_boolean has_young_vclock;
+  uint32_t young_vclock;
+  protobuf_c_boolean has_big_vclock;
+  uint32_t big_vclock;
+  protobuf_c_boolean has_small_vclock;
+  uint32_t small_vclock;
+  protobuf_c_boolean has_pr;
+  uint32_t pr;
+  protobuf_c_boolean has_r;
+  uint32_t r;
+  protobuf_c_boolean has_w;
+  uint32_t w;
+  protobuf_c_boolean has_pw;
+  uint32_t pw;
+  protobuf_c_boolean has_dw;
+  uint32_t dw;
+  protobuf_c_boolean has_rw;
+  uint32_t rw;
+  protobuf_c_boolean has_basic_quorum;
+  protobuf_c_boolean basic_quorum;
+  protobuf_c_boolean has_notfound_ok;
+  protobuf_c_boolean notfound_ok;
+  protobuf_c_boolean has_backend;
+  ProtobufCBinaryData backend;
+  protobuf_c_boolean has_search;
+  protobuf_c_boolean search;
+  protobuf_c_boolean has_repl;
+  RpbBucketProps__RpbReplMode repl;
+};
+#define RPB_BUCKET_PROPS__INIT \
+ { PROTOBUF_C_MESSAGE_INIT (&rpb_bucket_props__descriptor) \
+    , 0,0, 0,0, 0,0, 0,NULL, 0,0, 0,NULL, 0,0, NULL, NULL, 0,0, 0,0, 0,0, 0,0, 0,0, 0,0, 0,0, 0,0, 0,0, 0,0, 0,0, 0,0, 0,{0,NULL}, 0,0, 0,0 }
 
 
 /* RpbErrorResp methods */
@@ -111,6 +243,139 @@ RpbPair *
 void   rpb_pair__free_unpacked
                      (RpbPair *message,
                       ProtobufCAllocator *allocator);
+/* RpbGetBucketReq methods */
+void   rpb_get_bucket_req__init
+                     (RpbGetBucketReq         *message);
+size_t rpb_get_bucket_req__get_packed_size
+                     (const RpbGetBucketReq   *message);
+size_t rpb_get_bucket_req__pack
+                     (const RpbGetBucketReq   *message,
+                      uint8_t             *out);
+size_t rpb_get_bucket_req__pack_to_buffer
+                     (const RpbGetBucketReq   *message,
+                      ProtobufCBuffer     *buffer);
+RpbGetBucketReq *
+       rpb_get_bucket_req__unpack
+                     (ProtobufCAllocator  *allocator,
+                      size_t               len,
+                      const uint8_t       *data);
+void   rpb_get_bucket_req__free_unpacked
+                     (RpbGetBucketReq *message,
+                      ProtobufCAllocator *allocator);
+/* RpbGetBucketResp methods */
+void   rpb_get_bucket_resp__init
+                     (RpbGetBucketResp         *message);
+size_t rpb_get_bucket_resp__get_packed_size
+                     (const RpbGetBucketResp   *message);
+size_t rpb_get_bucket_resp__pack
+                     (const RpbGetBucketResp   *message,
+                      uint8_t             *out);
+size_t rpb_get_bucket_resp__pack_to_buffer
+                     (const RpbGetBucketResp   *message,
+                      ProtobufCBuffer     *buffer);
+RpbGetBucketResp *
+       rpb_get_bucket_resp__unpack
+                     (ProtobufCAllocator  *allocator,
+                      size_t               len,
+                      const uint8_t       *data);
+void   rpb_get_bucket_resp__free_unpacked
+                     (RpbGetBucketResp *message,
+                      ProtobufCAllocator *allocator);
+/* RpbSetBucketReq methods */
+void   rpb_set_bucket_req__init
+                     (RpbSetBucketReq         *message);
+size_t rpb_set_bucket_req__get_packed_size
+                     (const RpbSetBucketReq   *message);
+size_t rpb_set_bucket_req__pack
+                     (const RpbSetBucketReq   *message,
+                      uint8_t             *out);
+size_t rpb_set_bucket_req__pack_to_buffer
+                     (const RpbSetBucketReq   *message,
+                      ProtobufCBuffer     *buffer);
+RpbSetBucketReq *
+       rpb_set_bucket_req__unpack
+                     (ProtobufCAllocator  *allocator,
+                      size_t               len,
+                      const uint8_t       *data);
+void   rpb_set_bucket_req__free_unpacked
+                     (RpbSetBucketReq *message,
+                      ProtobufCAllocator *allocator);
+/* RpbResetBucketReq methods */
+void   rpb_reset_bucket_req__init
+                     (RpbResetBucketReq         *message);
+size_t rpb_reset_bucket_req__get_packed_size
+                     (const RpbResetBucketReq   *message);
+size_t rpb_reset_bucket_req__pack
+                     (const RpbResetBucketReq   *message,
+                      uint8_t             *out);
+size_t rpb_reset_bucket_req__pack_to_buffer
+                     (const RpbResetBucketReq   *message,
+                      ProtobufCBuffer     *buffer);
+RpbResetBucketReq *
+       rpb_reset_bucket_req__unpack
+                     (ProtobufCAllocator  *allocator,
+                      size_t               len,
+                      const uint8_t       *data);
+void   rpb_reset_bucket_req__free_unpacked
+                     (RpbResetBucketReq *message,
+                      ProtobufCAllocator *allocator);
+/* RpbModFun methods */
+void   rpb_mod_fun__init
+                     (RpbModFun         *message);
+size_t rpb_mod_fun__get_packed_size
+                     (const RpbModFun   *message);
+size_t rpb_mod_fun__pack
+                     (const RpbModFun   *message,
+                      uint8_t             *out);
+size_t rpb_mod_fun__pack_to_buffer
+                     (const RpbModFun   *message,
+                      ProtobufCBuffer     *buffer);
+RpbModFun *
+       rpb_mod_fun__unpack
+                     (ProtobufCAllocator  *allocator,
+                      size_t               len,
+                      const uint8_t       *data);
+void   rpb_mod_fun__free_unpacked
+                     (RpbModFun *message,
+                      ProtobufCAllocator *allocator);
+/* RpbCommitHook methods */
+void   rpb_commit_hook__init
+                     (RpbCommitHook         *message);
+size_t rpb_commit_hook__get_packed_size
+                     (const RpbCommitHook   *message);
+size_t rpb_commit_hook__pack
+                     (const RpbCommitHook   *message,
+                      uint8_t             *out);
+size_t rpb_commit_hook__pack_to_buffer
+                     (const RpbCommitHook   *message,
+                      ProtobufCBuffer     *buffer);
+RpbCommitHook *
+       rpb_commit_hook__unpack
+                     (ProtobufCAllocator  *allocator,
+                      size_t               len,
+                      const uint8_t       *data);
+void   rpb_commit_hook__free_unpacked
+                     (RpbCommitHook *message,
+                      ProtobufCAllocator *allocator);
+/* RpbBucketProps methods */
+void   rpb_bucket_props__init
+                     (RpbBucketProps         *message);
+size_t rpb_bucket_props__get_packed_size
+                     (const RpbBucketProps   *message);
+size_t rpb_bucket_props__pack
+                     (const RpbBucketProps   *message,
+                      uint8_t             *out);
+size_t rpb_bucket_props__pack_to_buffer
+                     (const RpbBucketProps   *message,
+                      ProtobufCBuffer     *buffer);
+RpbBucketProps *
+       rpb_bucket_props__unpack
+                     (ProtobufCAllocator  *allocator,
+                      size_t               len,
+                      const uint8_t       *data);
+void   rpb_bucket_props__free_unpacked
+                     (RpbBucketProps *message,
+                      ProtobufCAllocator *allocator);
 /* --- per-message closures --- */
 
 typedef void (*RpbErrorResp_Closure)
@@ -122,6 +387,27 @@ typedef void (*RpbGetServerInfoResp_Closure)
 typedef void (*RpbPair_Closure)
                  (const RpbPair *message,
                   void *closure_data);
+typedef void (*RpbGetBucketReq_Closure)
+                 (const RpbGetBucketReq *message,
+                  void *closure_data);
+typedef void (*RpbGetBucketResp_Closure)
+                 (const RpbGetBucketResp *message,
+                  void *closure_data);
+typedef void (*RpbSetBucketReq_Closure)
+                 (const RpbSetBucketReq *message,
+                  void *closure_data);
+typedef void (*RpbResetBucketReq_Closure)
+                 (const RpbResetBucketReq *message,
+                  void *closure_data);
+typedef void (*RpbModFun_Closure)
+                 (const RpbModFun *message,
+                  void *closure_data);
+typedef void (*RpbCommitHook_Closure)
+                 (const RpbCommitHook *message,
+                  void *closure_data);
+typedef void (*RpbBucketProps_Closure)
+                 (const RpbBucketProps *message,
+                  void *closure_data);
 
 /* --- services --- */
 
@@ -131,6 +417,14 @@ typedef void (*RpbPair_Closure)
 extern const ProtobufCMessageDescriptor rpb_error_resp__descriptor;
 extern const ProtobufCMessageDescriptor rpb_get_server_info_resp__descriptor;
 extern const ProtobufCMessageDescriptor rpb_pair__descriptor;
+extern const ProtobufCMessageDescriptor rpb_get_bucket_req__descriptor;
+extern const ProtobufCMessageDescriptor rpb_get_bucket_resp__descriptor;
+extern const ProtobufCMessageDescriptor rpb_set_bucket_req__descriptor;
+extern const ProtobufCMessageDescriptor rpb_reset_bucket_req__descriptor;
+extern const ProtobufCMessageDescriptor rpb_mod_fun__descriptor;
+extern const ProtobufCMessageDescriptor rpb_commit_hook__descriptor;
+extern const ProtobufCMessageDescriptor rpb_bucket_props__descriptor;
+extern const ProtobufCEnumDescriptor    rpb_bucket_props__rpb_repl_mode__descriptor;
 
 PROTOBUF_C_END_DECLS
 

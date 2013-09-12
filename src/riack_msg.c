@@ -33,15 +33,12 @@
 void dbg_print_message(struct RIACK_PB_MSG* pmsg)
 {
 	char buff_print[100];
-	if (pmsg != 0)
-	{
+    if (pmsg != 0) {
 		printf("***********************\n");
 		riak_get_msg_description(pmsg->msg_code, buff_print, sizeof(buff_print));
 		printf("* %s\n", buff_print);
 		printf("***********************\n");
-	}
-	else
-	{
+    } else {
 		printf("pmsg = 0\n");
 	}
 }
@@ -49,10 +46,8 @@ void dbg_print_message(struct RIACK_PB_MSG* pmsg)
 void riack_message_free(struct RIACK_CLIENT *client, struct RIACK_PB_MSG** ppMsg)
 {
 	struct RIACK_PB_MSG* pMsg = *ppMsg;
-	if (pMsg != 0)
-	{
-		if (pMsg->msg_len > 0 && pMsg->msg != 0)
-		{
+    if (pMsg != 0) {
+        if (pMsg->msg_len > 0 && pMsg->msg != 0) {
 			RFREE(client, pMsg->msg);
 		}
 		RFREE(client, pMsg);
@@ -72,24 +67,18 @@ int riack_receive_message(struct RIACK_CLIENT *client, struct RIACK_PB_MSG** msg
 	recvMsg->msg_len = 0;
 	recvMsg->msg = 0;
 	rcvBytes = sock_recv(client->sockfd, (uint8_t*)&msgLenN, 4);
-	if (rcvBytes == 4)
-	{
+    if (rcvBytes == 4) {
 		rcvBytes = sock_recv(client->sockfd, &recvMsg->msg_code, 1);
-		if (rcvBytes == 1)
-		{
+        if (rcvBytes == 1) {
 			recvMsg->msg_len = ntohl(msgLenN)-1;
-			if (recvMsg->msg_len > 0)
-			{
+            if (recvMsg->msg_len > 0) {
 				recvMsg->msg = (uint8_t*)RMALLOC(client, recvMsg->msg_len);
 				rcvBytes = sock_recv(client->sockfd, recvMsg->msg, recvMsg->msg_len);
-				if (rcvBytes == recvMsg->msg_len)
-				{
+                if (rcvBytes == recvMsg->msg_len) {
 					*msg = recvMsg;
 					return recvMsg->msg_len + 5;
 				}
-			}
-			else
-			{
+            } else {
 				*msg = recvMsg;
 				return 5;
 			}
@@ -109,13 +98,11 @@ int riack_send_message(struct RIACK_CLIENT *client, struct RIACK_PB_MSG* msg)
 	netlen = htonl(msg->msg_len+1);
 	memcpy(buf, &netlen, 4);
 	buf[4] = msg->msg_code;
-	if (msg->msg_len > 0)
-	{
+    if (msg->msg_len > 0) {
 		memcpy(buf+5, msg->msg, (int)msg->msg_len);
 	}
 	// first send header
-	if (sock_send(client->sockfd, buf, sendlen) != sendlen)
-	{
+    if (sock_send(client->sockfd, buf, sendlen) != sendlen) {
 		printf("sock_send failed to send correct number of bytes\n");
 		// Error failed to send bytes most have lost connection
 		RFREE(client, buf);
