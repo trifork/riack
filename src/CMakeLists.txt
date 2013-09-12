@@ -64,6 +64,7 @@ SET(TESTS_MAIN_SRC	tests/test.h
 					tests/test_misc.c
                                         tests/test_load.c
                                         tests/test_search.c
+                                        tests/test_ext_props.c
 					tests/test_clientid.c)
 
 add_library (riack ${LIB_TYPE} ${RIACK_SRC})
@@ -98,6 +99,7 @@ ADD_TEST(test-last-error  ${CMAKE_CURRENT_BINARY_DIR}/tests misc error ${RIAK_TE
 ADD_TEST(test-largeobject ${CMAKE_CURRENT_BINARY_DIR}/tests misc large ${RIAK_TEST_SERVER_IP} ${RIAK_TEST_SERVER_PB_PORT})
 ADD_TEST(test-clientid 	  ${CMAKE_CURRENT_BINARY_DIR}/tests clientid basic ${RIAK_TEST_SERVER_IP} ${RIAK_TEST_SERVER_PB_PORT})
 ADD_TEST(test-bucket-props ${CMAKE_CURRENT_BINARY_DIR}/tests bucket props ${RIAK_TEST_SERVER_IP} ${RIAK_TEST_SERVER_PB_PORT})
+ADD_TEST(test-ext_props ${CMAKE_CURRENT_BINARY_DIR}/tests ext_props test ${RIAK_TEST_SERVER_IP} ${RIAK_TEST_SERVER_PB_PORT})
 ADD_TEST(test-bucket-list ${CMAKE_CURRENT_BINARY_DIR}/tests bucket list ${RIAK_TEST_SERVER_IP} ${RIAK_TEST_SERVER_PB_PORT})
 ADD_TEST(test-delete      ${CMAKE_CURRENT_BINARY_DIR}/tests delete basic ${RIAK_TEST_SERVER_IP} ${RIAK_TEST_SERVER_PB_PORT})
 ADD_TEST(test-put1		  ${CMAKE_CURRENT_BINARY_DIR}/tests get_put put1 ${RIAK_TEST_SERVER_IP} ${RIAK_TEST_SERVER_PB_PORT})

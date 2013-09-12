@@ -31,6 +31,12 @@
 #define mc_RpbIndexResp 26
 #define mc_RpbSearchQueryReq 27
 #define mc_RbpSearchQueryResp 28
+#define mc_RpbResetBucketReq 29
+#define mc_RpbResetBucketResp 30
+#define mc_RpbCounterUpdateReq 50
+#define mc_RpbCounterUpdateResp 51
+#define mc_RpbCounterGetReq 52
+#define mc_RpbCounterGetResp 53
 
 int riak_get_msg_description(unsigned char msg_code, char* outbuff, int maxlen);
 

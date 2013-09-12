@@ -40,7 +40,9 @@ int main(int argc, char *argv[])
             result = test_search(test);
         } else if (strcmp(module, "load") == 0) {
 			result = test_load(test);
-		} else if (strcmp(module, "misc") == 0) {
+        } else if (strcmp(module, "ext_props") == 0) {
+            result = test_ext_props(test);
+        } else if (strcmp(module, "misc") == 0) {
 			result = test_misc(test);
 		}
 		test_teardown();
