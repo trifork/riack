@@ -461,9 +461,10 @@ struct RIACK_MODULE_FUNCTION riack_rpb_modfun_to_modfun(struct RIACK_CLIENT *cli
 struct RIACK_COMMIT_HOOK* riack_rpb_hooks_to_hooks(struct RIACK_CLIENT *client, RpbCommitHook ** rpb_hooks, size_t hook_count)
 {
     size_t i;
+    struct RIACK_COMMIT_HOOK* result;
     if (hook_count == 0) return 0;
 
-    struct RIACK_COMMIT_HOOK* result = RCALLOC(client, sizeof(struct RIACK_COMMIT_HOOK*) * hook_count);
+    result = RCALLOC(client, sizeof(struct RIACK_COMMIT_HOOK*) * hook_count);
     for (i=0; i<hook_count; ++i) {
         if (rpb_hooks[i]->has_name) {
             RMALLOCCOPY(client, result[i].name.value, result[i].name.len, rpb_hooks[i]->name.data, rpb_hooks[i]->name.len);

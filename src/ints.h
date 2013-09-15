@@ -5,7 +5,7 @@
 #include "riack-config.h"
 #endif
 
-#if defined(HAVE_STDINT_H)
+#if defined(HAVE_STDINT_H) && !defined(_WIN32)
 #include <stdint.h>
 #else
 #define int32_t      signed __int32
