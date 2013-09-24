@@ -187,8 +187,8 @@ struct RIACK_BUCKET_PROPERTIES {
 
     uint8_t linkfun_use;
     struct RIACK_MODULE_FUNCTION linkfun;
-    uint8_t crash_keyfun_use;
-    struct RIACK_MODULE_FUNCTION crash_keyfun;
+    uint8_t chash_keyfun_use;
+    struct RIACK_MODULE_FUNCTION chash_keyfun;
 
     uint8_t old_vclock_use;
     uint32_t old_vclock;
