@@ -316,9 +316,9 @@ void riack_free_bucket_properties(struct RIACK_CLIENT *client, struct RIACK_BUCK
         }
         riack_free_commit_hooks(client, (*properties)->precommit_hooks, (*properties)->precommit_hook_count);
         riack_free_commit_hooks(client, (*properties)->postcommit_hooks, (*properties)->postcommit_hook_count);
-        if ((*properties)->crash_keyfun_use) {
-            RSTR_SAFE_FREE(client, (*properties)->crash_keyfun.function);
-            RSTR_SAFE_FREE(client, (*properties)->crash_keyfun.module);
+        if ((*properties)->chash_keyfun_use) {
+            RSTR_SAFE_FREE(client, (*properties)->chash_keyfun.function);
+            RSTR_SAFE_FREE(client, (*properties)->chash_keyfun.module);
         }
         if ((*properties)->linkfun_use) {
             RSTR_SAFE_FREE(client, (*properties)->linkfun.function);
@@ -365,15 +365,17 @@ void riack_set_rpb_bucket_props(struct RIACK_CLIENT *client, struct RIACK_BUCKET
         rpb_props->backend.data = (uint8_t*)RMALLOC(client, props->backend.len);
         memcpy(rpb_props->backend.data, props->backend.value, props->backend.len);
     }
-    if (props->crash_keyfun_use) {
+    if (props->chash_keyfun_use) {
         rpb_props->chash_keyfun = (RpbModFun*)RMALLOC(client, sizeof(RpbModFun));
+        rpb_mod_fun__init(rpb_props->chash_keyfun);
         RMALLOCCOPY(client, rpb_props->chash_keyfun->function.data, rpb_props->chash_keyfun->function.len,
-                    props->crash_keyfun.function.value, props->crash_keyfun.function.len);
+                    props->chash_keyfun.function.value, props->chash_keyfun.function.len);
         RMALLOCCOPY(client, rpb_props->chash_keyfun->module.data, rpb_props->chash_keyfun->module.len,
-                    props->crash_keyfun.module.value, props->crash_keyfun.module.len);
+                    props->chash_keyfun.module.value, props->chash_keyfun.module.len);
     }
     if (props->linkfun_use) {
         rpb_props->linkfun = (RpbModFun*)RMALLOC(client, sizeof(RpbModFun));
+        rpb_mod_fun__init(rpb_props->linkfun);
         RMALLOCCOPY(client, rpb_props->linkfun->function.data, rpb_props->linkfun->function.len,
                     props->linkfun.function.value, props->linkfun.function.len);
         RMALLOCCOPY(client, rpb_props->linkfun->module.data, rpb_props->linkfun->module.len,
@@ -517,8 +519,8 @@ struct RIACK_BUCKET_PROPERTIES* riack_riack_bucket_props_from_rpb(struct RIACK_C
             }
         }
         if (rpb_props->chash_keyfun) {
-            result->crash_keyfun_use = 1;
-            result->crash_keyfun = riack_rpb_modfun_to_modfun(client, rpb_props->chash_keyfun);
+            result->chash_keyfun_use = 1;
+            result->chash_keyfun = riack_rpb_modfun_to_modfun(client, rpb_props->chash_keyfun);
         }
         if (rpb_props->linkfun) {
             result->linkfun_use = 1;
