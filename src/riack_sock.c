@@ -74,9 +74,8 @@ int sock_open(const char* host, int port)
     struct addrinfo hints;
     struct addrinfo *servinfo, *p;
     /* we should use constants and track error types: HOSTNAME_RESOLUTION_FAILED, SOCKET_ERROR, etc */
-    int last_error = 0;
-    int sockfd = -1;
-    int one = 1;
+    int last_error, sockfd, one;
+    one = 1;
 
     sprintf(szPort, "%d", port);
     memset(&hints, 0, sizeof(struct addrinfo));
@@ -84,61 +83,33 @@ int sock_open(const char* host, int port)
     hints.ai_family = AF_UNSPEC;
     hints.ai_socktype = SOCK_STREAM;
     hints.ai_protocol = IPPROTO_TCP;
-
     last_error = getaddrinfo(host, szPort, &hints, &servinfo);
-
     if (last_error != 0) {
         printf("getaddrinfo failed: %d\n", last_error);
-
         return -1;
     }
 
     for (p = servinfo; p; p = p->ai_next) {
+        sockfd = socket(p->ai_family, p->ai_socktype, p->ai_protocol);
+        // Return if failed to create socket
+        if (sockfd == -1) {
+            continue;
+        }
+        // This is a recommended socket option for Riak, but not necessary
+        // so we ignore the return value in any case
+        setsockopt(sockfd, IPPROTO_TCP, TCP_NODELAY, &one, sizeof(one));
+        // Attempt to connect
+        if (connect(sockfd, p->ai_addr, p->ai_addrlen) == 0) {
+            // We succeded no need to try any more interfaces
+            break;
+        }
         // Close possible pre-exisiting socket connection
         if (sockfd != -1) {
             sock_close(sockfd);
-
             sockfd = -1;
         }
-
-        sockfd = socket(p->ai_family, p->ai_socktype, p->ai_protocol);
-
-        // Return if failed to create socket
-        if (sockfd == -1) {
-            last_error = -1;
-
-            continue;
-        }
-
-        // Define no delay option
-        if (setsockopt(sockfd, IPPROTO_TCP, TCP_NODELAY, &one, sizeof(one)) != 0) {
-            last_error = -1;
-
-            continue;
-        }
-
-        // Attempt to connect
-        if (connect(sockfd, p->ai_addr, p->ai_addrlen) != 0) {
-            last_error = -1;
-
-            continue;
-        }
-
-        last_error = 0;
-
-        break;
     }
-
     freeaddrinfo(servinfo);
-
-    if (last_error != 0) {
-        if (sockfd != -1) {
-            sock_close(sockfd);
-        }
-
-        return last_error;
-    }
-
     return sockfd;
 }
 
