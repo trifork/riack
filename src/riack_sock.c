@@ -70,38 +70,76 @@ void sock_close(int sockfd)
 
 int sock_open(const char* host, int port)
 {
-	char szPort[10];
-	struct addrinfo hints;
-	struct addrinfo *servinfo, *p;
-	int rv, sockfd = -1;
+    char szPort[10];
+    struct addrinfo hints;
+    struct addrinfo *servinfo, *p;
+    /* we should use constants and track error types: HOSTNAME_RESOLUTION_FAILED, SOCKET_ERROR, etc */
+    int last_error = 0;
+    int sockfd = -1;
+    int one = 1;
 
-	sprintf(szPort, "%d", port);
-	memset( &hints, 0, sizeof(struct addrinfo));
-	hints.ai_family = AF_UNSPEC;
-	hints.ai_socktype = SOCK_STREAM;
-	hints.ai_protocol = IPPROTO_TCP;
+    sprintf(szPort, "%d", port);
+    memset(&hints, 0, sizeof(struct addrinfo));
 
-	rv = getaddrinfo(host, szPort, &hints, &servinfo);
-	if (rv != 0) {
-		printf("getaddrinfo failed: %d\n", rv);
-		return -1;
-	}
+    hints.ai_family = AF_UNSPEC;
+    hints.ai_socktype = SOCK_STREAM;
+    hints.ai_protocol = IPPROTO_TCP;
 
-	for (p = servinfo; p !=NULL; p = p->ai_next) {
-		if ((sockfd = socket(p->ai_family, p->ai_socktype, p->ai_protocol)) != -1) {
-			if (connect(sockfd, p->ai_addr, p->ai_addrlen) == 0) {
-                int flag = 1;
-                setsockopt(sockfd, IPPROTO_TCP, TCP_NODELAY, (void*)&flag, sizeof(int));
-				break;
-			} else {
-				sock_close(sockfd);
-				sockfd = -1;
-			}
-		}
-	}
-	freeaddrinfo(servinfo);
+    last_error = getaddrinfo(host, szPort, &hints, &servinfo);
 
-	return sockfd;
+    if (last_error != 0) {
+        printf("getaddrinfo failed: %d\n", last_error);
+
+        return -1;
+    }
+
+    for (p = servinfo; p; p = p->ai_next) {
+        // Close possible pre-exisiting socket connection
+        if (sockfd != -1) {
+            sock_close(sockfd);
+
+            sockfd = -1;
+        }
+
+        sockfd = socket(p->ai_family, p->ai_socktype, p->ai_protocol);
+
+        // Return if failed to create socket
+        if (sockfd == -1) {
+            last_error = -1;
+
+            continue;
+        }
+
+        // Define no delay option
+        if (setsockopt(sockfd, IPPROTO_TCP, TCP_NODELAY, &one, sizeof(one)) != 0) {
+            last_error = -1;
+
+            continue;
+        }
+
+        // Attempt to connect
+        if (connect(sockfd, p->ai_addr, p->ai_addrlen) != 0) {
+            last_error = -1;
+
+            continue;
+        }
+
+        last_error = 0;
+
+        break;
+    }
+
+    freeaddrinfo(servinfo);
+
+    if (last_error != 0) {
+        if (sockfd != -1) {
+            sock_close(sockfd);
+        }
+
+        return last_error;
+    }
+
+    return sockfd;
 }
 
 #ifndef WIN32
