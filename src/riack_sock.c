@@ -76,6 +76,7 @@ int sock_open(const char* host, int port)
     /* we should use constants and track error types: HOSTNAME_RESOLUTION_FAILED, SOCKET_ERROR, etc */
     int last_error, sockfd, one;
     one = 1;
+    sockfd = -1;
 
     sprintf(szPort, "%d", port);
     memset(&hints, 0, sizeof(struct addrinfo));
