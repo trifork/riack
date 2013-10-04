@@ -378,6 +378,7 @@ void riack_set_rpb_bucket_props(struct RIACK_CLIENT *client, struct RIACK_BUCKET
     }
     if (props->chash_keyfun_use) {
         rpb_props->chash_keyfun = (RpbModFun*)RMALLOC(client, sizeof(RpbModFun));
+        rpb_mod_fun__init(rpb_props->chash_keyfun);
         RMALLOCCOPY(client, rpb_props->chash_keyfun->function.data, rpb_props->chash_keyfun->function.len,
                     props->chash_keyfun.function.value, props->chash_keyfun.function.len);
         RMALLOCCOPY(client, rpb_props->chash_keyfun->module.data, rpb_props->chash_keyfun->module.len,
@@ -385,6 +386,7 @@ void riack_set_rpb_bucket_props(struct RIACK_CLIENT *client, struct RIACK_BUCKET
     }
     if (props->linkfun_use) {
         rpb_props->linkfun = (RpbModFun*)RMALLOC(client, sizeof(RpbModFun));
+        rpb_mod_fun__init(rpb_props->linkfun);
         RMALLOCCOPY(client, rpb_props->linkfun->function.data, rpb_props->linkfun->function.len,
                     props->linkfun.function.value, props->linkfun.function.len);
         RMALLOCCOPY(client, rpb_props->linkfun->module.data, rpb_props->linkfun->module.len,
