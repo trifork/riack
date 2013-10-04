@@ -118,17 +118,13 @@ struct timeval timeval_from_ms(uint32_t ms)
 }
 #endif
 
-int sock_set_keep_alive(int sockfd, uint32_t keep_alive_time_s, uint32_t keep_alive_intervals_s)
+int sock_set_keep_alive(int sockfd)
 {
-    int one, keep_alive_;
+    int one;
     one = 1;
-
     if (setsockopt(sockfd, SOL_SOCKET, SO_KEEPALIVE, (void*)&one, sizeof(one)) < 0) {
         return 0;
     }
-#ifdef WIN32
-#else
-#endif
     return 1;
 }
 

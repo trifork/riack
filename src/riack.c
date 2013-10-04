@@ -29,6 +29,9 @@
 #include "protocol/riak_msg_codes.h"
 #include "protocol/riak_kv.pb-c.h"
 
+#define FAILED_TO_SET_SOCKET_OPTION_KEEPALIVE "Failed to set keep-alive socket option"
+#define FAILED_TO_SET_SOCKET_TIMEOUTS "Failed to timeout options on socket"
+
 ProtobufCAllocator riack_pb_allocator(struct RIACK_ALLOCATOR *allocator);
 
 struct RIACK_CLIENT* riack_new_client(struct RIACK_ALLOCATOR *allocator)
@@ -48,9 +51,7 @@ struct RIACK_CLIENT* riack_new_client(struct RIACK_ALLOCATOR *allocator)
 	result->port = 0;
 	result->options.recv_timeout_ms = 0;
 	result->options.send_timeout_ms = 0;
-    result->options.keep_alive = 0;
-    result->options.keep_alive_intervals_s = 0;
-    result->options.keep_alive_time_s = 0;
+    result->options.keep_alive_enabled = 0;
 	return result;
 }
 
@@ -93,17 +94,23 @@ int riack_connect(struct RIACK_CLIENT *client, const char* host, int port,
 		client->port = port;
 		if (options) {
 			client->options = *options;
-			if (!sock_set_timeouts(client->sockfd, options->recv_timeout_ms, options->send_timeout_ms)) {
+            if (!sock_set_timeouts(client->sockfd, options->recv_timeout_ms, options->send_timeout_ms)) {
 				sock_close(client->sockfd);
 				client->sockfd = -1;
-				// TODO set last error
+                client->last_error_code = 0;
+                client->last_error = RMALLOC(client, sizeof(FAILED_TO_SET_SOCKET_TIMEOUTS));
+                strcpy(client->last_error, FAILED_TO_SET_SOCKET_TIMEOUTS);
+                return RIACK_ERROR_COMMUNICATION;
 			}
-            if (client->sockfd > -1 && client->options.keep_alive) {
-                if (!sock_set_keep_alive(client->sockfd, options->keep_alive_time_s, options->keep_alive_intervals_s)) {
+            if (client->options.keep_alive_enabled) {
+                if (!sock_set_keep_alive(client->sockfd)) {
                     sock_close(client->sockfd);
                     client->sockfd = -1;
-                    // TODO set last error
+                    client->last_error_code = 0;
+                    client->last_error = RMALLOC(client, sizeof(FAILED_TO_SET_SOCKET_OPTION_KEEPALIVE));
+                    strcpy(client->last_error, FAILED_TO_SET_SOCKET_OPTION_KEEPALIVE);
                 }
+                return RIACK_ERROR_COMMUNICATION;
             }
 		}
 		return RIACK_SUCCESS;
