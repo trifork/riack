@@ -33,6 +33,7 @@
 #include <unistd.h>
 #include <netdb.h>
 #include <netinet/tcp.h>
+#include <sys/protosw.h>
 #endif
 
 int sock_init(void)
@@ -127,6 +128,16 @@ struct timeval timeval_from_ms(uint32_t ms)
 }
 #endif
 
+int sock_set_keep_alive(int sockfd)
+{
+    int one;
+    one = 1;
+    if (setsockopt(sockfd, SOL_SOCKET, SO_KEEPALIVE, (void*)&one, sizeof(one)) < 0) {
+        return 0;
+    }
+    return 1;
+}
+
 int sock_set_timeouts(int sockfd, uint32_t recv_timeout, uint32_t send_timeout)
 {
 #ifdef WIN32
@@ -146,6 +157,7 @@ int sock_set_timeouts(int sockfd, uint32_t recv_timeout, uint32_t send_timeout)
 	}
 	return 1;
 }
+
 int sock_recv(int sockfd, uint8_t* buff, int len)
 {
 	int recieved;

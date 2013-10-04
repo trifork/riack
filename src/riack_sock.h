@@ -26,6 +26,7 @@ int sock_open(const char* host, int port);
 void sock_close(int sockfd);
 
 int sock_set_timeouts(int sockfd, uint32_t recv_timeout, uint32_t send_timeout);
+int sock_set_keep_alive(int sockfd);
 
 int sock_send(int sockfd, uint8_t* data, int len);
 int sock_recv(int sockfd, uint8_t* buff, int len);
