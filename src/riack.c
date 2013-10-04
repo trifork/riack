@@ -102,15 +102,15 @@ int riack_connect(struct RIACK_CLIENT *client, const char* host, int port,
                 strcpy(client->last_error, FAILED_TO_SET_SOCKET_TIMEOUTS);
                 return RIACK_ERROR_COMMUNICATION;
 			}
-            if (client->options.keep_alive_enabled) {
+            if (client->options.keep_alive_enabled == 1) {
                 if (!sock_set_keep_alive(client->sockfd)) {
                     sock_close(client->sockfd);
                     client->sockfd = -1;
                     client->last_error_code = 0;
                     client->last_error = RMALLOC(client, sizeof(FAILED_TO_SET_SOCKET_OPTION_KEEPALIVE));
                     strcpy(client->last_error, FAILED_TO_SET_SOCKET_OPTION_KEEPALIVE);
+                    return RIACK_ERROR_COMMUNICATION;
                 }
-                return RIACK_ERROR_COMMUNICATION;
             }
 		}
 		return RIACK_SUCCESS;
