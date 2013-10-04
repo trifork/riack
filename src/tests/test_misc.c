@@ -29,6 +29,7 @@ int test_reconnect()
 	client = riack_new_client(0);
 	options.recv_timeout_ms = 1500;
 	options.send_timeout_ms = 1500;
+    options.keep_alive_enabled = 1;
 	if (riack_connect(client, test_host, test_port, &options) == RIACK_SUCCESS) {
 		riack_timeout_test(client);
 		if (riack_reconnect(client) == RIACK_SUCCESS) {
