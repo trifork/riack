@@ -213,7 +213,7 @@ void riack_free_string_list(struct RIACK_CLIENT* client, RIACK_STRING_LIST* stri
 	for (i=0; i<strings->string_count; ++i) {
 		riack_free_string(client, &(strings->strings[i]));
 	}
-	free(strings->strings);
+	RFREE(client, strings->strings);
 }
 
 void riack_free_string_linked_list(struct RIACK_CLIENT* client, struct RIACK_STRING_LINKED_LIST** strings)

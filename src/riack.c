@@ -484,7 +484,7 @@ struct RIACK_COMMIT_HOOK* riack_rpb_hooks_to_hooks(struct RIACK_CLIENT *client, 
     struct RIACK_COMMIT_HOOK* result;
     if (hook_count == 0) return 0;
 
-    result = RCALLOC(client, sizeof(struct RIACK_COMMIT_HOOK*) * hook_count);
+    result = RCALLOC(client, sizeof(struct RIACK_COMMIT_HOOK) * hook_count);
     for (i=0; i<hook_count; ++i) {
         if (rpb_hooks[i]->has_name) {
             RMALLOCCOPY(client, result[i].name.value, result[i].name.len, rpb_hooks[i]->name.data, rpb_hooks[i]->name.len);
