@@ -4,4 +4,4 @@
 
 #define HAVE_STDINT_H 1
 
-#define RIACK_SHARED
+/* #undef RIACK_SHARED */

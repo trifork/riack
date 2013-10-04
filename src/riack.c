@@ -48,6 +48,9 @@ struct RIACK_CLIENT* riack_new_client(struct RIACK_ALLOCATOR *allocator)
 	result->port = 0;
 	result->options.recv_timeout_ms = 0;
 	result->options.send_timeout_ms = 0;
+    result->options.keep_alive = 0;
+    result->options.keep_alive_intervals_s = 0;
+    result->options.keep_alive_time_s = 0;
 	return result;
 }
 
@@ -95,6 +98,13 @@ int riack_connect(struct RIACK_CLIENT *client, const char* host, int port,
 				client->sockfd = -1;
 				// TODO set last error
 			}
+            if (client->sockfd > -1 && client->options.keep_alive) {
+                if (!sock_set_keep_alive(client->sockfd, options->keep_alive_time_s, options->keep_alive_intervals_s)) {
+                    sock_close(client->sockfd);
+                    client->sockfd = -1;
+                    // TODO set last error
+                }
+            }
 		}
 		return RIACK_SUCCESS;
 	}
@@ -202,8 +212,9 @@ enum RIACK_REPLICATION_MODE riack_replication_mode_from_replmode(RpbBucketProps_
         return REALTIME;
     case RPB_BUCKET_PROPS__RPB_REPL_MODE__FULLSYNC:
         return FULLSYNC;
+    default:
+        return DISABLED;
     }
-    return DISABLED;
 }
 
 RpbBucketProps__RpbReplMode replmode_from_riack_replication_mode(enum RIACK_REPLICATION_MODE replication_mode) {

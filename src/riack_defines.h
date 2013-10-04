@@ -66,6 +66,9 @@ struct RIACK_ALLOCATOR
 struct RIACK_CONNECTION_OPTIONS {
 	uint32_t recv_timeout_ms;
 	uint32_t send_timeout_ms;
+    uint8_t keep_alive;
+    uint32_t keep_alive_intervals_s;
+    uint32_t keep_alive_time_s;
 };
 
 /* Riack's base string type */
