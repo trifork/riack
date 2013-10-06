@@ -245,25 +245,24 @@ RpbCommitHook** riack_hooks_to_rpb_hooks(struct RIACK_CLIENT *client,
     if (hook_count == 0) {
         return NULL;
     }
-    result = RMALLOC(client, sizeof(RpbCommitHook *) * hook_count);
+    result = (RpbCommitHook **)RMALLOC(client, sizeof(RpbCommitHook *) * hook_count);
     for (i=0; i<hook_count; ++i) {
         result[i] = (RpbCommitHook *)RCALLOC(client, sizeof(RpbCommitHook));
         rpb_commit_hook__init(result[i]);
         if (RSTR_HAS_CONTENT(hooks[i].name)) {
+            // Js function
             result[i]->has_name = 1;
             RMALLOCCOPY(client, result[i]->name.data, result[i]->name.len,
                         hooks[i].name.value, hooks[i].name.len);
         } else {
-            result[i]->has_name = 0;
-            result[i]->name.data = 0;
-            result[i]->name.len = 0;
+            // Erlang function
+            result[i]->modfun = (RpbModFun*)RCALLOC(client, sizeof(RpbModFun));
+            rpb_mod_fun__init(result[i]->modfun);
+            RMALLOCCOPY(client, result[i]->modfun->function.data, result[i]->modfun->function.len,
+                        hooks[i].modfun.function.value, hooks[i].modfun.function.len);
+            RMALLOCCOPY(client, result[i]->modfun->module.data, result[i]->modfun->module.len,
+                        hooks[i].modfun.module.value, hooks[i].modfun.module.len);
         }
-        result[i]->modfun = (RpbModFun*)RMALLOC(client, sizeof(RpbModFun));
-        rpb_mod_fun__init(result[i]->modfun);
-        RMALLOCCOPY(client, result[i]->modfun->function.data, result[i]->modfun->function.len,
-                    hooks[i].modfun.function.value, hooks[i].modfun.function.len);
-        RMALLOCCOPY(client, result[i]->modfun->module.data, result[i]->modfun->module.len,
-                    hooks[i].modfun.module.value, hooks[i].modfun.module.len);
     }
     return result;
 }
@@ -373,10 +372,12 @@ void riack_set_rpb_bucket_props(struct RIACK_CLIENT *client, struct RIACK_BUCKET
     COPY_PROPERTY_HAS_TO_USE(props, rpb_props, notfound_ok, notfound_ok);
     COPY_PROPERTY_HAS_TO_USE(props, rpb_props, search, search);
     if (props->has_postcommit_hooks) {
+        rpb_props->has_postcommit = rpb_props->has_has_postcommit = 1;
         rpb_props->n_postcommit = props->postcommit_hook_count;
         rpb_props->postcommit = riack_hooks_to_rpb_hooks(client, props->postcommit_hooks, props->postcommit_hook_count);
     }
     if (props->has_precommit_hooks) {
+        rpb_props->has_precommit = rpb_props->has_has_precommit = 1;
         rpb_props->precommit = riack_hooks_to_rpb_hooks(client, props->precommit_hooks, props->precommit_hook_count);
         rpb_props->n_precommit = props->precommit_hook_count;
     }
