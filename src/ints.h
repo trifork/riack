@@ -8,19 +8,39 @@
 #if defined(HAVE_STDINT_H) && !defined(_WIN32)
 #include <stdint.h>
 #else
-#define int32_t      signed __int32
-#define INT32_MIN    _I32_MIN
-#define INT32_MAX    _I32_MAX
-#define uint32_t     unsigned __int32
-#define UINT32_MIN   _UI32_MIN
-#define UINT32_MAX   _UI32_MAX
-#define int64_t      signed __int64
-#define INT64_MIN    _I64_MIN
-#define INT64_MAX    _I64_MAX
-#define uint64_t     unsigned __int64
-#define UINT64_MIN   _UI64_MIN
-#define UINT64_MAX   _UI64_MAX
-#define uint8_t      unsigned char
+
+#ifndef int32_t
+typedef signed __int32 int32_t;
+#endif
+
+#ifndef uint32_t
+typedef unsigned __int32 uint32_t;
+#endif
+
+#ifndef int64_t
+typedef signed __int64 int64_t;
+#endif
+
+#ifndef uint64_t
+typedef unsigned __int64 uint64_t;
+#endif
+
+#ifndef uint8_t
+typedef unsigned char uint8_t;
+#endif
+
+#define INT32_MIN _I32_MIN
+#define INT32_MAX _I32_MAX
+
+#define UINT32_MIN _UI32_MIN
+#define UINT32_MAX _UI32_MAX
+
+#define INT64_MIN _I64_MIN
+#define INT64_MAX _I64_MAX
+
+#define UINT64_MIN _UI64_MIN
+#define UINT64_MAX _UI64_MAX
+
 #endif
 
 #endif //__INTS__H___
