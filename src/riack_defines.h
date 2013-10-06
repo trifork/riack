@@ -47,7 +47,7 @@
 /* Allacate memory and fill it with zeroes, using client allocator */
 #define RCALLOC(client, size) memset(client->allocator.alloc(0, size), 0, size)
 /* Free allocated memory */
-#define RFREE(client, pointer) client->allocator.free(0, pointer)
+#define RFREE(client, pointer) if (pointer) { client->allocator.free(0, pointer); }
 /* Allocate and copy memory */
 #define RMALLOCCOPY(client, target, target_len, source, len) target = (void*)RMALLOC(client, len); memcpy(target, source, len); target_len=len
 

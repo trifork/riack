@@ -247,6 +247,8 @@ RpbCommitHook** riack_hooks_to_rpb_hooks(struct RIACK_CLIENT *client,
     }
     result = RMALLOC(client, sizeof(RpbCommitHook *) * hook_count);
     for (i=0; i<hook_count; ++i) {
+        result[i] = (RpbCommitHook *)RCALLOC(client, sizeof(RpbCommitHook));
+        rpb_commit_hook__init(result[i]);
         if (RSTR_HAS_CONTENT(hooks[i].name)) {
             result[i]->has_name = 1;
             RMALLOCCOPY(client, result[i]->name.data, result[i]->name.len,
@@ -257,6 +259,7 @@ RpbCommitHook** riack_hooks_to_rpb_hooks(struct RIACK_CLIENT *client,
             result[i]->name.len = 0;
         }
         result[i]->modfun = (RpbModFun*)RMALLOC(client, sizeof(RpbModFun));
+        rpb_mod_fun__init(result[i]->modfun);
         RMALLOCCOPY(client, result[i]->modfun->function.data, result[i]->modfun->function.len,
                     hooks[i].modfun.function.value, hooks[i].modfun.function.len);
         RMALLOCCOPY(client, result[i]->modfun->module.data, result[i]->modfun->module.len,
