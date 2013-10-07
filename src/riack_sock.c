@@ -33,7 +33,6 @@
 #include <unistd.h>
 #include <netdb.h>
 #include <netinet/tcp.h>
-#include <sys/protosw.h>
 #endif
 
 int sock_init(void)
