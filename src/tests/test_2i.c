@@ -19,6 +19,8 @@ int test_2i(char* testcase)
 		return test_2i_range();
 	} else if (strcmp(testcase, "cleanup") == 0) {
 		return test_2i_cleanup();
+    } else if (strcmp(testcase, "pagination") == 0) {
+        return test_2i_pagination();
 	} else {
 		return -1;
 	}
@@ -79,6 +81,30 @@ int test_2i_load()
 	return 0;
 }
 
+int test_2i_pagination() {
+    char min_buff[10], max_buff[10];
+    struct RIACK_2I_QUERY_REQ req;
+    int result;
+    RIACK_STRING_LIST keys;
+    RIACK_STRING continuation;
+    result = 0;
+    req.bucket.len = strlen(TEST_2i_BUCKET);
+    req.bucket.value = TEST_2i_BUCKET;
+    req.index.len = strlen(TETS_2i_INDEX1);
+    req.index.value = TETS_2i_INDEX1;
+    req.max_results = 5;
+    sprintf(min_buff, "%d", 5);
+    sprintf(max_buff, "%d", 13);
+    req.search_min.len = strlen(min_buff);
+    req.search_min.value = min_buff;
+    req.search_max.len = strlen(max_buff);
+    req.search_max.value = max_buff;
+    if (riack_2i_query_ext(test_client, &req, &keys, &continuation) != RIACK_SUCCESS) {
+        result = 1;
+    }
+    return result;
+}
+
 int test_2i_cleanup()
 {
 	return !test_load_cleanup_bucket(TEST_2i_BUCKET);
@@ -86,10 +112,10 @@ int test_2i_cleanup()
 
 int test_2i_range()
 {
-	char min_buff[10], max_buff[10], expected_key[100];
+    char min_buff[10], max_buff[10];
 	RIACK_STRING index1, index2, min_key, max_key, bucket;
 	RIACK_STRING_LIST keys;
-	int i, result, expected_i;
+    int i, result;
 	index1.len = strlen(TETS_2i_INDEX1);
 	index1.value = TETS_2i_INDEX1;
 	index2.len = strlen(TETS_2i_INDEX2);

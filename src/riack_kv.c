@@ -663,7 +663,7 @@ int riack_map_reduce_stream(struct RIACK_CLIENT *client,
 	return result;
 }
 
-int riack_2i_query(struct RIACK_CLIENT *client, RpbIndexReq* request, RIACK_STRING_LIST* result_keys)
+int riack_2i_query(struct RIACK_CLIENT *client, RpbIndexReq* request, RIACK_STRING_LIST* result_keys, RIACK_STRING* continuation_token)
 {
 	struct RIACK_PB_MSG msg_req, *msg_resp;
 	ProtobufCAllocator pb_allocator;
@@ -692,6 +692,13 @@ int riack_2i_query(struct RIACK_CLIENT *client, RpbIndexReq* request, RIACK_STRI
 						RMALLOCCOPY(client, result_keys->strings[i].value, result_keys->strings[i].len,
 								index_resp->keys[i].data, index_resp->keys[i].len);
 					}
+                    if (continuation_token && index_resp->has_continuation) {
+                        RMALLOCCOPY(client, continuation_token->value, continuation_token->len,
+                                index_resp->continuation.data, index_resp->continuation.len);
+                    } else if (continuation_token) {
+                        continuation_token->len = 0;
+                        continuation_token->value = 0;
+                    }
 					rpb_index_resp__free_unpacked(index_resp, &pb_allocator);
 					result = RIACK_SUCCESS;
 				} else {
@@ -722,7 +729,7 @@ int riack_2i_query_exact(struct RIACK_CLIENT *client, RIACK_STRING bucket,
 	req.index.len = index.len;
 	req.index.data = (uint8_t*)index.value;
 	req.qtype = RPB_INDEX_REQ__INDEX_QUERY_TYPE__eq;
-	result = riack_2i_query(client, &req, result_keys);
+    result = riack_2i_query(client, &req, result_keys, NULL);
 	return result;
 }
 
@@ -744,6 +751,60 @@ int riack_2i_query_range(struct RIACK_CLIENT *client, RIACK_STRING bucket,
 	req.index.len = index.len;
 	req.index.data = (uint8_t*)index.value;
 	req.qtype = RPB_INDEX_REQ__INDEX_QUERY_TYPE__range;
-	result = riack_2i_query(client, &req, result_keys);
+    result = riack_2i_query(client, &req, result_keys, NULL);
 	return result;
+}
+
+void riack_set_index_req_from_riack_req(struct RIACK_2I_QUERY_REQ *req, RpbIndexReq *pbreq)
+{
+    pbreq->bucket.len = req->bucket.len;
+    pbreq->bucket.data = (uint8_t*)req->bucket.value;
+    pbreq->index.len = req->index.len;
+    pbreq->index.data = (uint8_t*)req->index.value;
+    if (RSTR_HAS_CONTENT(req->search_exact)) {
+        // Exact query
+        pbreq->has_key = 1;
+        pbreq->key.data = (uint8_t*)req->search_exact.value;
+        pbreq->key.len = req->search_exact.len;
+        pbreq->qtype = RPB_INDEX_REQ__INDEX_QUERY_TYPE__eq;
+    } else {
+        // Ranged query
+        pbreq->has_range_min = 1;
+        pbreq->range_min.data = (uint8_t*)req->search_min.value;
+        pbreq->range_min.len = req->search_min.len;
+        pbreq->has_range_max = 1;
+        pbreq->range_max.data = (uint8_t*)req->search_max.value;
+        pbreq->range_max.len = req->search_max.len;
+        pbreq->qtype = RPB_INDEX_REQ__INDEX_QUERY_TYPE__range;
+    }
+    pbreq->has_max_results = req->max_result_use;
+    pbreq->max_results = req->max_results;
+    if (RSTR_HAS_CONTENT(req->continuation_token)) {
+        pbreq->has_continuation = 1;
+        pbreq->continuation.data = (uint8_t*)req->continuation_token.value;
+        pbreq->continuation.len = req->continuation_token.len;
+    }
+}
+
+RIACK_EXPORT int riack_2i_query_ext(struct RIACK_CLIENT *client,
+                                    struct RIACK_2I_QUERY_REQ *req,
+                                    RIACK_STRING_LIST *result_keys,
+                                    RIACK_STRING *continuation_token_out)
+{
+    int result;
+    RpbIndexReq pbreq;
+    rpb_index_req__init(&pbreq);
+    riack_set_index_req_from_riack_req(req, &pbreq);
+    result = riack_2i_query(client, &pbreq, result_keys, continuation_token_out);
+    return result;
+}
+
+RIACK_EXPORT int riack_2i_query_stream_ext(struct RIACK_CLIENT *client,
+                                           struct RIACK_2I_QUERY_REQ *req,
+                                           RIACK_STRING *continuation_token_out,
+                                           void(*callback)(struct RIACK_CLIENT*, void*, RIACK_STRING *key),
+                                           void *callback_arg)
+{
+    // TODO
+    return 0;
 }

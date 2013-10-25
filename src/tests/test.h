@@ -59,6 +59,7 @@ int test_2i_load();
 int test_2i_cleanup();
 int test_2i_range();
 int test_2i_exact();
+int test_2i_pagination();
 int test_meta_links_load();
 int test_meta_links_cleanup();
 int test_meta_links_metas();

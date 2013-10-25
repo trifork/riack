@@ -324,9 +324,23 @@ struct RIACK_DEL_PROPERTIES
 	struct RIACK_VECTOR_CLOCK vclock;
 };
 
-/*
-  RIAK SEARCH
-*/
+//************************
+// Secondary Indexes
+//************************
+struct RIACK_2I_QUERY_REQ {
+    RIACK_STRING bucket;
+    RIACK_STRING index;
+    RIACK_STRING search_exact;
+    RIACK_STRING search_min;
+    RIACK_STRING search_max;
+    uint8_t max_result_use;
+    uint32_t max_results;
+    RIACK_STRING continuation_token;
+};
+
+//************************
+// Search
+//************************
 
 /* Optional search parameters */
 struct RIACK_SEARCH_OPTIONAL_PARAMETERS {
