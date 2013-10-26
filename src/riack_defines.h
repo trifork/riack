@@ -333,7 +333,6 @@ struct RIACK_2I_QUERY_REQ {
     RIACK_STRING search_exact;
     RIACK_STRING search_min;
     RIACK_STRING search_max;
-    uint8_t max_result_use;
     uint32_t max_results;
     RIACK_STRING continuation_token;
 };

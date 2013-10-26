@@ -21,7 +21,9 @@ int test_2i(char* testcase)
 		return test_2i_cleanup();
     } else if (strcmp(testcase, "pagination") == 0) {
         return test_2i_pagination();
-	} else {
+    } else if (strcmp(testcase, "stream_pag") == 0) {
+        return test_2i_pagination_stream();
+    } else {
 		return -1;
 	}
 }
@@ -73,12 +75,54 @@ int test_2i_load()
 		indexes[0].value = (uint8_t*)buffer1;
 		indexes[1].value_len = strlen(buffer2);
 		indexes[1].value = (uint8_t*)buffer2;
-		if (!put_object_with_index(TEST_2i_BUCKET, keybuffer, TEST_DUMMY_VALUE, indexes, 2)) {
+        if (!put_object_with_index(TEST_2i_BUCKET, keybuffer, TEST_DUMMY_VALUE, indexes, 2)) {
 			return 1;
 		}
 	}
 	free(indexes);
 	return 0;
+}
+
+void test_2i_pagination_stream_cb(struct RIACK_CLIENT* c, void* arg, RIACK_STRING *key) {
+    int *cnt = (int*)arg;
+    (*cnt)++;
+}
+
+int test_2i_pagination_stream() {
+    char min_buff[10], max_buff[10];
+    struct RIACK_2I_QUERY_REQ req;
+    RIACK_STRING continuation;
+    int result, cnt;
+    memset(&req, 0, sizeof(req));
+    result = 1;
+    cnt = 0;
+    req.bucket.len = strlen(TEST_2i_BUCKET);
+    req.bucket.value = TEST_2i_BUCKET;
+    req.index.len = strlen(TETS_2i_INDEX1);
+    req.index.value = TETS_2i_INDEX1;
+    req.max_results = 25;
+    // from 5 to 50 inc. => 46 keys
+    sprintf(min_buff, "%d", 5);
+    sprintf(max_buff, "%d", 50);
+    req.search_min.len = strlen(min_buff);
+    req.search_min.value = min_buff;
+    req.search_max.len = strlen(max_buff);
+    req.search_max.value = max_buff;
+    if (riack_2i_query_stream_ext(test_client, &req, &continuation, &test_2i_pagination_stream_cb, &cnt) == RIACK_SUCCESS) {
+        if (cnt == 25 && continuation.len > 0) {
+            result = 0;
+            // We got the first five starting from 5-9 now get the rest which should be 8
+            req.continuation_token = continuation;
+            req.max_results = 100;
+            if (riack_2i_query_stream_ext(test_client, &req, &continuation, &test_2i_pagination_stream_cb, &cnt) == RIACK_SUCCESS) {
+                // Expect 4 keys since we got 5 for and need 9 in total
+                if (cnt == 46 && continuation.len == 0) {
+                    result = 0;
+                }
+            }
+        }
+    }
+    return result;
 }
 
 int test_2i_pagination() {
@@ -87,20 +131,36 @@ int test_2i_pagination() {
     int result;
     RIACK_STRING_LIST keys;
     RIACK_STRING continuation;
-    result = 0;
+    memset(&keys, 0, sizeof(keys));
+    memset(&req, 0, sizeof(req));
+    result = 1;
     req.bucket.len = strlen(TEST_2i_BUCKET);
     req.bucket.value = TEST_2i_BUCKET;
     req.index.len = strlen(TETS_2i_INDEX1);
     req.index.value = TETS_2i_INDEX1;
     req.max_results = 5;
+    // from 5 to 13 inc. => 9 keys
     sprintf(min_buff, "%d", 5);
     sprintf(max_buff, "%d", 13);
     req.search_min.len = strlen(min_buff);
     req.search_min.value = min_buff;
     req.search_max.len = strlen(max_buff);
     req.search_max.value = max_buff;
-    if (riack_2i_query_ext(test_client, &req, &keys, &continuation) != RIACK_SUCCESS) {
-        result = 1;
+    if (riack_2i_query_ext(test_client, &req, &keys, &continuation) == RIACK_SUCCESS) {
+        if (keys.string_count == 5 && continuation.len > 0) {
+            result = 0;
+            // We got the first five starting from 5-9 now get the rest which should be 8
+            req.continuation_token = continuation;
+            req.max_results = 100;
+            riack_free_string_list(test_client, &keys);
+            if (riack_2i_query_ext(test_client, &req, &keys, &continuation) == RIACK_SUCCESS) {
+                // Expect 4 keys since we got 5 for and need 9 in total
+                if (keys.string_count == 4 && continuation.len == 0) {
+                    result = 0;
+                    riack_free_string_list(test_client, &keys);
+                }
+            }
+        }
     }
     return result;
 }

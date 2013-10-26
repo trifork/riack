@@ -663,14 +663,15 @@ int riack_map_reduce_stream(struct RIACK_CLIENT *client,
 	return result;
 }
 
-int riack_2i_query(struct RIACK_CLIENT *client, RpbIndexReq* request, RIACK_STRING_LIST* result_keys, RIACK_STRING* continuation_token)
+int riack_2i_query(struct RIACK_CLIENT *client, RpbIndexReq* request, RIACK_STRING_LIST* result_keys, RIACK_STRING* continuation_token,
+                   void(*callback)(struct RIACK_CLIENT*, void*, RIACK_STRING *key), void *callback_arg)
 {
 	struct RIACK_PB_MSG msg_req, *msg_resp;
 	ProtobufCAllocator pb_allocator;
 	RpbIndexResp *index_resp;
 	int result;
 	size_t packed_size, keys, i;
-	uint8_t *request_buffer;
+    uint8_t *request_buffer, last_message;
 	result = RIACK_ERROR_COMMUNICATION;
 	pb_allocator = riack_pb_allocator(&client->allocator);
 	packed_size = rpb_index_req__get_packed_size(request);
@@ -680,35 +681,59 @@ int riack_2i_query(struct RIACK_CLIENT *client, RpbIndexReq* request, RIACK_STRI
 		msg_req.msg = request_buffer;
 		msg_req.msg_code = mc_RpbIndexReq;
 		msg_req.msg_len = packed_size;
-		if ((riack_send_message(client, &msg_req) > 0) &&
-			(riack_receive_message(client, &msg_resp) > 0)) {
-			if (msg_resp->msg_code == mc_RpbIndexResp) {
-				index_resp = rpb_index_resp__unpack(&pb_allocator, msg_resp->msg_len, msg_resp->msg);
-				if (index_resp) {
-					keys = index_resp->n_keys;
-					result_keys->string_count = keys;
-					result_keys->strings = RMALLOC(client, sizeof(RIACK_STRING) * keys);
-					for (i=0; i<keys; ++i) {
-						RMALLOCCOPY(client, result_keys->strings[i].value, result_keys->strings[i].len,
-								index_resp->keys[i].data, index_resp->keys[i].len);
-					}
-                    if (continuation_token && index_resp->has_continuation) {
-                        RMALLOCCOPY(client, continuation_token->value, continuation_token->len,
-                                index_resp->continuation.data, index_resp->continuation.len);
-                    } else if (continuation_token) {
-                        continuation_token->len = 0;
-                        continuation_token->value = 0;
+        if (riack_send_message(client, &msg_req) > 0)
+        {
+            last_message = 0;
+            while ((last_message == 0) && (riack_receive_message(client, &msg_resp) > 0)) {
+                if (msg_resp->msg_code == mc_RpbIndexResp) {
+                    index_resp = rpb_index_resp__unpack(&pb_allocator, msg_resp->msg_len, msg_resp->msg);
+                    if (index_resp) {
+                        keys = index_resp->n_keys;
+                        // If we have result keys then we are not streaming
+                        if (result_keys) {
+                            result_keys->string_count = keys;
+                            result_keys->strings = RMALLOC(client, sizeof(RIACK_STRING) * keys);
+                            for (i=0; i<keys; ++i) {
+                                RMALLOCCOPY(client, result_keys->strings[i].value, result_keys->strings[i].len,
+                                        index_resp->keys[i].data, index_resp->keys[i].len);
+                            }
+                            last_message = 1;
+                        }
+                        // If streaming
+                        if (callback) {
+                            for (i=0; i<keys; ++i) {
+                                RIACK_STRING key;
+                                key.len = index_resp->keys[i].len;
+                                key.value = (char*)index_resp->keys[i].data;
+                                callback(client, callback_arg, &key);
+                            }
+                            if (index_resp->has_done && index_resp->done) {
+                                result = RIACK_SUCCESS;
+                                last_message = 1;
+                            }
+                        }
+                        if (continuation_token && index_resp->has_continuation) {
+                            // FREE Old token if it is set already
+                            RSTR_SAFE_FREE(client, (*continuation_token));
+                            RMALLOCCOPY(client, continuation_token->value, continuation_token->len,
+                                    index_resp->continuation.data, index_resp->continuation.len);
+                        } else if (continuation_token) {
+                            continuation_token->len = 0;
+                            continuation_token->value = 0;
+                        }
+                        rpb_index_resp__free_unpacked(index_resp, &pb_allocator);
+                        result = RIACK_SUCCESS;
+                    } else {
+                        last_message = 1;
+                        result = RIACK_FAILED_PB_UNPACK;
                     }
-					rpb_index_resp__free_unpacked(index_resp, &pb_allocator);
-					result = RIACK_SUCCESS;
-				} else {
-					result = RIACK_FAILED_PB_UNPACK;
-				}
-			} else {
-				riack_got_error_response(client, msg_resp);
-				result = RIACK_ERROR_RESPONSE;
-			}
-			riack_message_free(client, &msg_resp);
+                } else {
+                    last_message = 1;
+                    riack_got_error_response(client, msg_resp);
+                    result = RIACK_ERROR_RESPONSE;
+                }
+                riack_message_free(client, &msg_resp);
+            }
 		}
 		RFREE(client, request_buffer);
 	}
@@ -729,7 +754,7 @@ int riack_2i_query_exact(struct RIACK_CLIENT *client, RIACK_STRING bucket,
 	req.index.len = index.len;
 	req.index.data = (uint8_t*)index.value;
 	req.qtype = RPB_INDEX_REQ__INDEX_QUERY_TYPE__eq;
-    result = riack_2i_query(client, &req, result_keys, NULL);
+    result = riack_2i_query(client, &req, result_keys, 0, 0, 0);
 	return result;
 }
 
@@ -751,7 +776,7 @@ int riack_2i_query_range(struct RIACK_CLIENT *client, RIACK_STRING bucket,
 	req.index.len = index.len;
 	req.index.data = (uint8_t*)index.value;
 	req.qtype = RPB_INDEX_REQ__INDEX_QUERY_TYPE__range;
-    result = riack_2i_query(client, &req, result_keys, NULL);
+    result = riack_2i_query(client, &req, result_keys, 0, 0, 0);
 	return result;
 }
 
@@ -777,8 +802,10 @@ void riack_set_index_req_from_riack_req(struct RIACK_2I_QUERY_REQ *req, RpbIndex
         pbreq->range_max.len = req->search_max.len;
         pbreq->qtype = RPB_INDEX_REQ__INDEX_QUERY_TYPE__range;
     }
-    pbreq->has_max_results = req->max_result_use;
-    pbreq->max_results = req->max_results;
+    if (req->max_results > 0) {
+        pbreq->has_max_results = 1;
+        pbreq->max_results = req->max_results;
+    }
     if (RSTR_HAS_CONTENT(req->continuation_token)) {
         pbreq->has_continuation = 1;
         pbreq->continuation.data = (uint8_t*)req->continuation_token.value;
@@ -786,25 +813,30 @@ void riack_set_index_req_from_riack_req(struct RIACK_2I_QUERY_REQ *req, RpbIndex
     }
 }
 
-RIACK_EXPORT int riack_2i_query_ext(struct RIACK_CLIENT *client,
-                                    struct RIACK_2I_QUERY_REQ *req,
-                                    RIACK_STRING_LIST *result_keys,
-                                    RIACK_STRING *continuation_token_out)
+int riack_2i_query_ext(struct RIACK_CLIENT *client,
+                       struct RIACK_2I_QUERY_REQ *req,
+                       RIACK_STRING_LIST *result_keys,
+                       RIACK_STRING *continuation_token_out)
 {
     int result;
     RpbIndexReq pbreq;
     rpb_index_req__init(&pbreq);
     riack_set_index_req_from_riack_req(req, &pbreq);
-    result = riack_2i_query(client, &pbreq, result_keys, continuation_token_out);
+    result = riack_2i_query(client, &pbreq, result_keys, continuation_token_out, 0, 0);
     return result;
 }
 
-RIACK_EXPORT int riack_2i_query_stream_ext(struct RIACK_CLIENT *client,
-                                           struct RIACK_2I_QUERY_REQ *req,
-                                           RIACK_STRING *continuation_token_out,
-                                           void(*callback)(struct RIACK_CLIENT*, void*, RIACK_STRING *key),
-                                           void *callback_arg)
+int riack_2i_query_stream_ext(struct RIACK_CLIENT *client,
+                              struct RIACK_2I_QUERY_REQ *req,
+                              RIACK_STRING *continuation_token_out,
+                              void(*callback)(struct RIACK_CLIENT*, void*, RIACK_STRING *key),
+                              void *callback_arg)
 {
-    // TODO
-    return 0;
+    int result;
+    RpbIndexReq pbreq;
+    rpb_index_req__init(&pbreq);
+    riack_set_index_req_from_riack_req(req, &pbreq);
+    pbreq.stream = pbreq.has_stream = 1;
+    result = riack_2i_query(client, &pbreq, 0, continuation_token_out, callback, callback_arg);
+    return result;
 }
