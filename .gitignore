@@ -1,4 +1,8 @@
 /tests
+*.config
+*.creator
+*.files
+*.includes
 .settings/
 .cproject
 .project

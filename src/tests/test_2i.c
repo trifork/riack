@@ -130,7 +130,7 @@ int test_2i_pagination() {
     struct RIACK_2I_QUERY_REQ req;
     int result;
     RIACK_STRING_LIST keys;
-    RIACK_STRING continuation;
+    RIACK_STRING continuation_out;
     memset(&keys, 0, sizeof(keys));
     memset(&req, 0, sizeof(req));
     result = 1;
@@ -146,20 +146,21 @@ int test_2i_pagination() {
     req.search_min.value = min_buff;
     req.search_max.len = strlen(max_buff);
     req.search_max.value = max_buff;
-    if (riack_2i_query_ext(test_client, &req, &keys, &continuation) == RIACK_SUCCESS) {
-        if (keys.string_count == 5 && continuation.len > 0) {
+    if (riack_2i_query_ext(test_client, &req, &keys, &continuation_out) == RIACK_SUCCESS) {
+        if (keys.string_count == 5 && continuation_out.len > 0) {
             result = 0;
-            // We got the first five starting from 5-9 now get the rest which should be 8
-            req.continuation_token = continuation;
             req.max_results = 100;
+            // Copy continuation token from out to in.
+            req.continuation_token = continuation_out;
             riack_free_string_list(test_client, &keys);
-            if (riack_2i_query_ext(test_client, &req, &keys, &continuation) == RIACK_SUCCESS) {
+            if (riack_2i_query_ext(test_client, &req, &keys, &continuation_out) == RIACK_SUCCESS) {
                 // Expect 4 keys since we got 5 for and need 9 in total
-                if (keys.string_count == 4 && continuation.len == 0) {
+                if (keys.string_count == 4 && continuation_out.len == 0) {
                     result = 0;
                     riack_free_string_list(test_client, &keys);
                 }
             }
+            RSTR_SAFE_FREE(test_client, req.continuation_token);
         }
     }
     return result;

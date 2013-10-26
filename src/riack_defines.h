@@ -55,6 +55,13 @@
 
 #define RSTR_SAFE_FREE(client, str) if (RSTR_HAS_CONTENT(str)) { RFREE(client, str.value); str.len = 0; str.value=0; }
 
+#define RSTR_COPY(client, target, source) target.len = source.len; \
+                                          if (source.len > 0) {  \
+                                              target.value = RMALLOC(client, source.len); \
+                                              memcpy(target.value, source.value, source.len); \
+                                          } else { \
+                                              target.value = 0; }
+
 struct RIACK_ALLOCATOR
 {
 	void *(*alloc)(void *optional_data, size_t size);

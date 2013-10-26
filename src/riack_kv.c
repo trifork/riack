@@ -713,8 +713,6 @@ int riack_2i_query(struct RIACK_CLIENT *client, RpbIndexReq* request, RIACK_STRI
                             }
                         }
                         if (continuation_token && index_resp->has_continuation) {
-                            // FREE Old token if it is set already
-                            RSTR_SAFE_FREE(client, (*continuation_token));
                             RMALLOCCOPY(client, continuation_token->value, continuation_token->len,
                                     index_resp->continuation.data, index_resp->continuation.len);
                         } else if (continuation_token) {
