@@ -31,7 +31,7 @@
                          struct RIACK_PB_MSG msg_req, *msg_resp; \
                          uint8_t *request_buffer; \
                          ProtobufCAllocator pb_allocator; \
-                         size_t packed_size; \
+                         size_t packed_size \
 
 void riack_got_error_response(struct RIACK_CLIENT *client, struct RIACK_PB_MSG *msg);
 ProtobufCAllocator riack_pb_allocator(struct RIACK_ALLOCATOR *allocator);
