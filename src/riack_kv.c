@@ -27,6 +27,12 @@
 #include <string.h>
 #include <stdio.h>
 
+#define RIACK_REQ_LOCALS int retval; \
+                         struct RIACK_PB_MSG msg_req, *msg_resp; \
+                         uint8_t *request_buffer; \
+                         ProtobufCAllocator pb_allocator; \
+                         size_t packed_size; \
+
 void riack_got_error_response(struct RIACK_CLIENT *client, struct RIACK_PB_MSG *msg);
 ProtobufCAllocator riack_pb_allocator(struct RIACK_ALLOCATOR *allocator);
 
@@ -216,13 +222,9 @@ int riack_get(struct RIACK_CLIENT *client,
 			 struct RIACK_GET_PROPERTIES* props,
 			 struct RIACK_GET_OBJECT* result_object)
 {
-	int result;
-	size_t packed_size;
-	struct RIACK_PB_MSG msg_req, *msg_resp;
-	ProtobufCAllocator pb_allocator;
+    RIACK_REQ_LOCALS;
 	RpbGetReq get_req;
-	RpbGetResp *get_resp;
-	uint8_t *request_buffer;
+    RpbGetResp *get_resp;
 
 	if (!bucket.value || !key.value || key.len == 0 || bucket.len == 0 || !client) {
 		return RIACK_ERROR_INVALID_INPUT;
@@ -230,7 +232,7 @@ int riack_get(struct RIACK_CLIENT *client,
 
 	pb_allocator = riack_pb_allocator(&client->allocator);
 
-	result = RIACK_ERROR_COMMUNICATION;
+    retval = RIACK_ERROR_COMMUNICATION;
 	rpb_get_req__init(&get_req);
 	get_req.key.data = (uint8_t *) key.value;
 	get_req.key.len = key.len;
@@ -253,19 +255,19 @@ int riack_get(struct RIACK_CLIENT *client,
 				if (get_resp) {
 					riak_set_object_response_values_get(client, result_object, get_resp);
 					rpb_get_resp__free_unpacked(get_resp, &pb_allocator);
-					result = RIACK_SUCCESS;
+                    retval = RIACK_SUCCESS;
 				} else {
-					result = RIACK_FAILED_PB_UNPACK;
+                    retval = RIACK_FAILED_PB_UNPACK;
 				}
 			} else {
 				riack_got_error_response(client, msg_resp);
-				result = RIACK_ERROR_RESPONSE;
+                retval = RIACK_ERROR_RESPONSE;
 			}
 			riack_message_free(client, &msg_resp);
 		}
 		RFREE(client, request_buffer);
 	}
-	return result;
+    return retval;
 }
 
 int riack_put(struct RIACK_CLIENT *client,
@@ -273,20 +275,16 @@ int riack_put(struct RIACK_CLIENT *client,
 			struct RIACK_OBJECT* preturned_object,
 			struct RIACK_PUT_PROPERTIES* properties)
 {
-	int result;
-	size_t packed_size;
-	struct RIACK_PB_MSG msg_req, *msg_resp;
-	ProtobufCAllocator pb_allocator;
+    RIACK_REQ_LOCALS;
 	RpbPutReq put_req;
-	RpbPutResp *put_resp;
-	uint8_t *request_buffer;
+    RpbPutResp *put_resp;
 
     if (!client || !object.bucket.value) {
 		return RIACK_ERROR_INVALID_INPUT;
 	}
 
 	pb_allocator = riack_pb_allocator(&client->allocator);
-	result = RIACK_ERROR_COMMUNICATION;
+    retval = RIACK_ERROR_COMMUNICATION;
 	rpb_put_req__init(&put_req);
 	riack_copy_object_to_rpbputreq(client, &object, &put_req);
     riack_set_object_properties(properties, &put_req);
@@ -302,26 +300,26 @@ int riack_put(struct RIACK_CLIENT *client,
 			(riack_receive_message(client, &msg_resp) > 0))
 		{
 			if (msg_resp->msg_code == mc_RpbPutResp) {
-				result = RIACK_SUCCESS;
+                retval = RIACK_SUCCESS;
 				if (preturned_object) {
 					put_resp = rpb_put_resp__unpack(&pb_allocator, msg_resp->msg_len, msg_resp->msg);
 					if (put_resp) {
 						riak_set_object_response_values(client, preturned_object, put_resp);
 						rpb_put_resp__free_unpacked(put_resp, &pb_allocator);
 					} else {
-						result = RIACK_FAILED_PB_UNPACK;
+                        retval = RIACK_FAILED_PB_UNPACK;
 					}
 				}
 			} else {
 				riack_got_error_response(client, msg_resp);
-				result = RIACK_ERROR_RESPONSE;
+                retval = RIACK_ERROR_RESPONSE;
 			}
 			riack_message_free(client, &msg_resp);
 		}
 		RFREE(client, request_buffer);
 	}
     riack_free_copied_rpb_put_req(client, &put_req);
-	return result;
+    return retval;
 }
 
 int riack_delete(struct RIACK_CLIENT *client, RIACK_STRING bucket, RIACK_STRING key, struct RIACK_DEL_PROPERTIES *props)
@@ -330,7 +328,7 @@ int riack_delete(struct RIACK_CLIENT *client, RIACK_STRING bucket, RIACK_STRING 
 	size_t packed_size;
 	struct RIACK_PB_MSG msg_req, *msg_resp;
 	RpbDelReq del_req;
-	uint8_t *request_buffer;
+    uint8_t *request_buffer;
 
 	if (!client || !bucket.value || !key.value || key.len == 0 || bucket.len == 0) {
 		return RIACK_ERROR_INVALID_INPUT;
@@ -391,21 +389,18 @@ int riack_list_keys(struct RIACK_CLIENT *client, RIACK_STRING bucket, struct RIA
 int riack_stream_keys(struct RIACK_CLIENT *client, RIACK_STRING bucket,
 					  void(*callback)(struct RIACK_CLIENT*, void*, RIACK_STRING), void *callback_arg)
 {
-	int result;
-	struct RIACK_PB_MSG msg_req;
-	struct RIACK_PB_MSG *msg_resp;
+    RIACK_REQ_LOCALS;
 	RpbListKeysReq list_req;
 	RpbListKeysResp *list_resp;
 	RIACK_STRING current_string;
-	ProtobufCAllocator pb_allocator;
-	size_t packed_size, num_keys, i;
-	uint8_t *request_buffer, recvdone;
+    size_t num_keys, i;
+    uint8_t recvdone;
 
     if (!client || !callback || bucket.len == 0) {
         return RIACK_ERROR_INVALID_INPUT;
     }
     pb_allocator = riack_pb_allocator(&client->allocator);
-	result = RIACK_ERROR_COMMUNICATION;
+    retval = RIACK_ERROR_COMMUNICATION;
 	rpb_list_keys_req__init(&list_req);
 	list_req.bucket.len = bucket.len;
     list_req.bucket.data = (uint8_t*)bucket.value;
@@ -426,7 +421,7 @@ int riack_stream_keys(struct RIACK_CLIENT *client, RIACK_STRING bucket,
 						if (list_resp) {
 							if (list_resp->has_done && list_resp->done) {
 								recvdone = 1;
-								result = RIACK_SUCCESS;
+                                retval = RIACK_SUCCESS;
 							}
 							num_keys = list_resp->n_keys;
 							for (i=0; i<num_keys; ++i) {
@@ -436,7 +431,7 @@ int riack_stream_keys(struct RIACK_CLIENT *client, RIACK_STRING bucket,
 							}
 							rpb_list_keys_resp__free_unpacked(list_resp, &pb_allocator);
 						} else {
-							result = RIACK_FAILED_PB_UNPACK;
+                            retval = RIACK_FAILED_PB_UNPACK;
 						}
 					} else {
 						riack_got_error_response(client, msg_resp);
@@ -448,7 +443,7 @@ int riack_stream_keys(struct RIACK_CLIENT *client, RIACK_STRING bucket,
 		}
 		RFREE(client, request_buffer);
 	}
-	return result;
+    return retval;
 }
 
 int riack_list_buckets(struct RIACK_CLIENT *client, RIACK_STRING_LIST* bucket_list)
@@ -501,11 +496,8 @@ int riack_list_buckets(struct RIACK_CLIENT *client, RIACK_STRING_LIST* bucket_li
 
 int riack_set_clientid(struct RIACK_CLIENT *client, RIACK_STRING clientid)
 {
-	int result;
-	struct RIACK_PB_MSG msg_req, *msg_resp;
-	RpbSetClientIdReq req;
-	size_t packed_size;
-	uint8_t *request_buffer;
+    RIACK_REQ_LOCALS;
+    RpbSetClientIdReq req;
 
 	rpb_set_client_id_req__init(&req);
 	req.client_id.len = clientid.len;
@@ -513,7 +505,7 @@ int riack_set_clientid(struct RIACK_CLIENT *client, RIACK_STRING clientid)
 
 	packed_size = rpb_set_client_id_req__get_packed_size(&req);
 	request_buffer = (uint8_t*)RMALLOC(client, packed_size);
-	result = RIACK_ERROR_COMMUNICATION;
+    retval = RIACK_ERROR_COMMUNICATION;
 	if (request_buffer) {
 		rpb_set_client_id_req__pack(&req, request_buffer);
 		msg_req.msg_len = packed_size;
@@ -522,30 +514,30 @@ int riack_set_clientid(struct RIACK_CLIENT *client, RIACK_STRING clientid)
 		if ((riack_send_message(client, &msg_req) > 0)&&
 			(riack_receive_message(client, &msg_resp) > 0)) {
 			if (msg_resp->msg_code == mc_RpbSetClientIdResp) {
-				result = RIACK_SUCCESS;
+                retval = RIACK_SUCCESS;
 			} else {
 				riack_got_error_response(client, msg_resp);
-				result = RIACK_ERROR_RESPONSE;
+                retval = RIACK_ERROR_RESPONSE;
 			}
 			riack_message_free(client, &msg_resp);
 		}
 		RFREE(client, request_buffer);
 	}
-	return result;
+    return retval;
 }
 
 int riack_get_clientid(struct RIACK_CLIENT *client, RIACK_STRING *clientid)
 {
-	int result;
+    int retval;
     ProtobufCAllocator pb_allocator;
-	struct RIACK_PB_MSG msg_req, *msg_resp;
+    struct RIACK_PB_MSG msg_req, *msg_resp;
 	RpbGetClientIdResp *id_resp;
 
 	pb_allocator = riack_pb_allocator(&client->allocator);
 	msg_req.msg = 0;
 	msg_req.msg_len = 0;
 	msg_req.msg_code = mc_RpbGetClientIdReq;
-	result = RIACK_ERROR_COMMUNICATION;
+    retval = RIACK_ERROR_COMMUNICATION;
 	if ((riack_send_message(client, &msg_req) > 0) &&
 		(riack_receive_message(client, &msg_resp) > 0)) {
 		if (msg_resp->msg_code == mc_RpbGetClientIdResp) {
@@ -553,18 +545,22 @@ int riack_get_clientid(struct RIACK_CLIENT *client, RIACK_STRING *clientid)
 			if (id_resp) {
 				RMALLOCCOPY(client, clientid->value, clientid->len, id_resp->client_id.data, id_resp->client_id.len);
 				rpb_get_client_id_resp__free_unpacked(id_resp, &pb_allocator);
-				result = RIACK_SUCCESS;
+                retval = RIACK_SUCCESS;
 			} else {
-				result = RIACK_FAILED_PB_UNPACK;
+                retval = RIACK_FAILED_PB_UNPACK;
 			}
 		} else {
 			riack_got_error_response(client, msg_resp);
-			result = RIACK_ERROR_RESPONSE;
+            retval = RIACK_ERROR_RESPONSE;
 		}
 		riack_message_free(client, &msg_resp);
 	}
-	return result;
+    return retval;
 }
+
+/***************************
+* Map reduce
+***************************/
 
 static void _map_reduce_stream_callback(struct RIACK_CLIENT *client, void *args_raw, struct RIACK_MAPRED_RESPONSE *result)
 {
@@ -594,14 +590,10 @@ int riack_map_reduce_stream(struct RIACK_CLIENT *client,
                                          void(*callback)(struct RIACK_CLIENT*, void*, struct RIACK_MAPRED_RESPONSE*),
 										 void* callback_arg)
 {
+    RIACK_REQ_LOCALS;
     struct RIACK_MAPRED_RESPONSE mapred_result_current;
-	int result;
-	size_t packed_size;
-	struct RIACK_PB_MSG msg_req, *msg_resp;
 	RpbMapRedReq mr_req;
-	RpbMapRedResp *mr_resp;
-	ProtobufCAllocator pb_allocator;
-	uint8_t *request_buffer;
+    RpbMapRedResp *mr_resp;
 	char* content_type_sz;
 	uint8_t last_message;
 
@@ -612,7 +604,7 @@ int riack_map_reduce_stream(struct RIACK_CLIENT *client,
 	}
 
 	pb_allocator = riack_pb_allocator(&client->allocator);
-	result = RIACK_ERROR_COMMUNICATION;
+    retval = RIACK_ERROR_COMMUNICATION;
 
 	rpb_map_red_req__init(&mr_req);
 	if (content_type == APPLICATION_JSON) {
@@ -642,16 +634,16 @@ int riack_map_reduce_stream(struct RIACK_CLIENT *client,
 						riack_link_strmapred_with_rpbmapred(client, mr_resp, &mapred_result_current);
 						callback(client, callback_arg, &mapred_result_current);
 						if (mr_resp->has_done && mr_resp->done) {
-							result = RIACK_SUCCESS;
+                            retval = RIACK_SUCCESS;
 							last_message = 1;
 						}
 						rpb_map_red_resp__free_unpacked(mr_resp, &pb_allocator);
 					} else {
-						result = RIACK_FAILED_PB_UNPACK;
+                        retval = RIACK_FAILED_PB_UNPACK;
 					}
 				} else {
 					riack_got_error_response(client, msg_resp);
-					result = RIACK_ERROR_RESPONSE;
+                    retval = RIACK_ERROR_RESPONSE;
 					last_message = 1;
 				}
 				riack_message_free(client, &msg_resp);
@@ -660,19 +652,21 @@ int riack_map_reduce_stream(struct RIACK_CLIENT *client,
 		RFREE(client, request_buffer);
 	}
 
-	return result;
+    return retval;
 }
+
+/***************************
+* Secondary indexes
+***************************/
 
 int riack_2i_query(struct RIACK_CLIENT *client, RpbIndexReq* request, RIACK_STRING_LIST* result_keys, RIACK_STRING* continuation_token,
                    void(*callback)(struct RIACK_CLIENT*, void*, RIACK_STRING *key), void *callback_arg)
 {
-	struct RIACK_PB_MSG msg_req, *msg_resp;
-	ProtobufCAllocator pb_allocator;
-	RpbIndexResp *index_resp;
-	int result;
-	size_t packed_size, keys, i;
-    uint8_t *request_buffer, last_message;
-	result = RIACK_ERROR_COMMUNICATION;
+    RIACK_REQ_LOCALS;
+    RpbIndexResp *index_resp;
+    size_t keys, i;
+    uint8_t last_message;
+    retval = RIACK_ERROR_COMMUNICATION;
 	pb_allocator = riack_pb_allocator(&client->allocator);
 	packed_size = rpb_index_req__get_packed_size(request);
 	request_buffer = (uint8_t*)RMALLOC(client, packed_size);
@@ -681,8 +675,7 @@ int riack_2i_query(struct RIACK_CLIENT *client, RpbIndexReq* request, RIACK_STRI
 		msg_req.msg = request_buffer;
 		msg_req.msg_code = mc_RpbIndexReq;
 		msg_req.msg_len = packed_size;
-        if (riack_send_message(client, &msg_req) > 0)
-        {
+        if (riack_send_message(client, &msg_req) > 0) {
             last_message = 0;
             while ((last_message == 0) && (riack_receive_message(client, &msg_resp) > 0)) {
                 if (msg_resp->msg_code == mc_RpbIndexResp) {
@@ -708,7 +701,7 @@ int riack_2i_query(struct RIACK_CLIENT *client, RpbIndexReq* request, RIACK_STRI
                                 callback(client, callback_arg, &key);
                             }
                             if (index_resp->has_done && index_resp->done) {
-                                result = RIACK_SUCCESS;
+                                retval = RIACK_SUCCESS;
                                 last_message = 1;
                             }
                         }
@@ -720,22 +713,22 @@ int riack_2i_query(struct RIACK_CLIENT *client, RpbIndexReq* request, RIACK_STRI
                             continuation_token->value = 0;
                         }
                         rpb_index_resp__free_unpacked(index_resp, &pb_allocator);
-                        result = RIACK_SUCCESS;
+                        retval = RIACK_SUCCESS;
                     } else {
                         last_message = 1;
-                        result = RIACK_FAILED_PB_UNPACK;
+                        retval = RIACK_FAILED_PB_UNPACK;
                     }
                 } else {
                     last_message = 1;
                     riack_got_error_response(client, msg_resp);
-                    result = RIACK_ERROR_RESPONSE;
+                    retval = RIACK_ERROR_RESPONSE;
                 }
                 riack_message_free(client, &msg_resp);
             }
 		}
 		RFREE(client, request_buffer);
 	}
-	return result;
+    return retval;
 }
 
 int riack_2i_query_exact(struct RIACK_CLIENT *client, RIACK_STRING bucket,
@@ -818,6 +811,9 @@ int riack_2i_query_ext(struct RIACK_CLIENT *client,
 {
     int result;
     RpbIndexReq pbreq;
+    if (!client || !req || !result_keys) {
+        return RIACK_ERROR_INVALID_INPUT;
+    }
     rpb_index_req__init(&pbreq);
     riack_set_index_req_from_riack_req(req, &pbreq);
     result = riack_2i_query(client, &pbreq, result_keys, continuation_token_out, 0, 0);
@@ -832,9 +828,144 @@ int riack_2i_query_stream_ext(struct RIACK_CLIENT *client,
 {
     int result;
     RpbIndexReq pbreq;
+    if (!client || !req) {
+        return RIACK_ERROR_INVALID_INPUT;
+    }
     rpb_index_req__init(&pbreq);
     riack_set_index_req_from_riack_req(req, &pbreq);
     pbreq.stream = pbreq.has_stream = 1;
     result = riack_2i_query(client, &pbreq, 0, continuation_token_out, callback, callback_arg);
     return result;
+}
+
+/***************************
+* CRDTs
+***************************/
+
+int riack_counter_get(struct RIACK_CLIENT *client, RIACK_STRING bucket, RIACK_STRING key,
+                      struct RIACK_COUNTER_GET_PROPERTIES *props, int64_t *result)
+{
+    RIACK_REQ_LOCALS;
+    RpbCounterGetReq pbreq;
+    RpbCounterGetResp *pbresp;
+
+    if (!client || !RSTR_HAS_CONTENT(bucket) || !RSTR_HAS_CONTENT(key)) {
+        return RIACK_ERROR_INVALID_INPUT;
+    }
+    retval = RIACK_ERROR_COMMUNICATION;
+    rpb_counter_get_req__init(&pbreq);
+
+    pbreq.bucket.data = (uint8_t*)bucket.value;
+    pbreq.bucket.len = bucket.len;
+    pbreq.key.data = (uint8_t*)key.value;
+    pbreq.key.len = key.len;
+    if (props) {
+        pbreq.has_basic_quorum = props->basic_quorum_use;
+        pbreq.basic_quorum = props->basic_quorum;
+        pbreq.has_notfound_ok = props->notfound_ok_use;
+        pbreq.notfound_ok = props->notfound_ok;
+        pbreq.has_pr = props->pr_use;
+        pbreq.pr = props->pr;
+        pbreq.has_r = props->r_use;
+        pbreq.r = props->r;
+    }
+
+    pb_allocator = riack_pb_allocator(&client->allocator);
+    packed_size = rpb_counter_get_req__get_packed_size(&pbreq);
+    request_buffer = (uint8_t*)RMALLOC(client, packed_size);
+    if (request_buffer) {
+        rpb_counter_get_req__pack(&pbreq, request_buffer);
+        msg_req.msg = request_buffer;
+        msg_req.msg_code = mc_RpbCounterGetReq;
+        msg_req.msg_len = packed_size;
+        if ((riack_send_message(client, &msg_req) > 0) &&
+            (riack_receive_message(client, &msg_resp) > 0)) {
+            if (msg_resp->msg_code == mc_RpbCounterGetResp) {
+                pbresp = rpb_counter_get_resp__unpack(&pb_allocator, msg_resp->msg_len, msg_resp->msg);
+                if (pbresp) {
+                    if (pbresp->has_value && result) {
+                        *result = pbresp->value;
+                    } else if (result) {
+                        *result = 0;
+                    }
+                    retval = RIACK_SUCCESS;
+                    rpb_counter_get_resp__free_unpacked(pbresp, &pb_allocator);
+                } else {
+                    retval = RIACK_FAILED_PB_UNPACK;
+                }
+            } else {
+                riack_got_error_response(client, msg_resp);
+                retval = RIACK_ERROR_RESPONSE;
+            }
+            riack_message_free(client, &msg_resp);
+        }
+        RFREE(client, request_buffer);
+    }
+
+    return retval;
+}
+
+int riack_counter_increment(struct RIACK_CLIENT *client, RIACK_STRING bucket, RIACK_STRING key,
+                            int64_t amount, struct RIACK_COUNTER_UPDATE_PROPERTIES *props, int64_t *returned_value)
+{
+    RIACK_REQ_LOCALS;
+    RpbCounterUpdateReq pbreq;
+    RpbCounterUpdateResp *pbresp;
+
+    if (!client || !RSTR_HAS_CONTENT(bucket) || !RSTR_HAS_CONTENT(key)) {
+        return RIACK_ERROR_INVALID_INPUT;
+    }
+    retval = RIACK_ERROR_COMMUNICATION;
+    rpb_counter_update_req__init(&pbreq);
+
+    pbreq.bucket.data = (uint8_t*)bucket.value;
+    pbreq.bucket.len = bucket.len;
+    pbreq.key.data = (uint8_t*)key.value;
+    pbreq.key.len = key.len;
+    pbreq.amount = amount;
+    pbreq.has_returnvalue = 1;
+    if (returned_value) {
+        pbreq.returnvalue = 1;
+    } else {
+        pbreq.returnvalue = 0;
+    }
+    if (props) {
+        pbreq.has_dw = props->dw_use;
+        pbreq.dw = props->dw;
+        pbreq.has_pw = props->pw_use;
+        pbreq.pw = props->pw;
+        pbreq.has_w = props->w_use;
+        pbreq.w = props->w;
+    }
+    pb_allocator = riack_pb_allocator(&client->allocator);
+    packed_size = rpb_counter_update_req__get_packed_size(&pbreq);
+    request_buffer = (uint8_t*)RMALLOC(client, packed_size);
+    if (request_buffer) {
+        rpb_counter_update_req__pack(&pbreq, request_buffer);
+        msg_req.msg = request_buffer;
+        msg_req.msg_code = mc_RpbCounterUpdateReq;
+        msg_req.msg_len = packed_size;
+        if ((riack_send_message(client, &msg_req) > 0) &&
+            (riack_receive_message(client, &msg_resp) > 0)) {
+            if (msg_resp->msg_code == mc_RpbCounterUpdateResp) {
+                pbresp = rpb_counter_update_resp__unpack(&pb_allocator, msg_resp->msg_len, msg_resp->msg);
+                if (pbresp) {
+                    if (returned_value && pbresp->has_value) {
+                        *returned_value = pbresp->value;
+                    } else if (returned_value) {
+                        *returned_value = 0;
+                    }
+                    retval = RIACK_SUCCESS;
+                    rpb_counter_update_resp__free_unpacked(pbresp, &pb_allocator);
+                } else {
+                    retval = RIACK_FAILED_PB_UNPACK;
+                }
+            } else {
+                riack_got_error_response(client, msg_resp);
+                retval = RIACK_ERROR_RESPONSE;
+            }
+        }
+        RFREE(client, request_buffer);
+    }
+    return retval;
 }

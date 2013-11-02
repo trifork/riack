@@ -44,7 +44,9 @@ int main(int argc, char *argv[])
             result = test_ext_props(test);
         } else if (strcmp(module, "misc") == 0) {
 			result = test_misc(test);
-		}
+        } else if (strcmp(module, "crdt") == 0) {
+            result = test_crdt(test);
+        }
 		test_teardown();
 	}
 	return result;

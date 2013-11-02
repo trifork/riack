@@ -65,6 +65,7 @@ SET(TESTS_MAIN_SRC	tests/test.h
                                         tests/test_load.c
                                         tests/test_search.c
                                         tests/test_ext_props.c
+                                        tests/test_crdt.c
 					tests/test_clientid.c)
 
 add_library (riack ${LIB_TYPE} ${RIACK_SRC})
@@ -114,6 +115,7 @@ ADD_TEST(test-2i-range    ${CMAKE_CURRENT_BINARY_DIR}/tests 2i range ${RIAK_TEST
 ADD_TEST(test-2i-pagination ${CMAKE_CURRENT_BINARY_DIR}/tests 2i pagination ${RIAK_TEST_SERVER_IP} ${RIAK_TEST_SERVER_PB_PORT})
 ADD_TEST(test-2i-pagination-stream ${CMAKE_CURRENT_BINARY_DIR}/tests 2i stream_pag ${RIAK_TEST_SERVER_IP} ${RIAK_TEST_SERVER_PB_PORT})
 ADD_TEST(test-2i-cleanup  ${CMAKE_CURRENT_BINARY_DIR}/tests 2i cleanup ${RIAK_TEST_SERVER_IP} ${RIAK_TEST_SERVER_PB_PORT})
+ADD_TEST(test-crdt-counter ${CMAKE_CURRENT_BINARY_DIR}/tests crdt counter ${RIAK_TEST_SERVER_IP} ${RIAK_TEST_SERVER_PB_PORT})
 ADD_TEST(test-ml-load	  ${CMAKE_CURRENT_BINARY_DIR}/tests meta-links load ${RIAK_TEST_SERVER_IP} ${RIAK_TEST_SERVER_PB_PORT})
 ADD_TEST(test-ml-links    ${CMAKE_CURRENT_BINARY_DIR}/tests meta-links links ${RIAK_TEST_SERVER_IP} ${RIAK_TEST_SERVER_PB_PORT})
 ADD_TEST(test-ml-metas    ${CMAKE_CURRENT_BINARY_DIR}/tests meta-links metas ${RIAK_TEST_SERVER_IP} ${RIAK_TEST_SERVER_PB_PORT})

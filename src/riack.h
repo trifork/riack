@@ -96,6 +96,22 @@ RIACK_EXPORT int riack_delete(struct RIACK_CLIENT *client,
 				RIACK_STRING key,
 				struct RIACK_DEL_PROPERTIES *props);
 
+/// Get the value of a CRDT counter, requires riak 1.4+
+RIACK_EXPORT int riack_counter_get(struct RIACK_CLIENT *client,
+                                   RIACK_STRING bucket,
+                                   RIACK_STRING key,
+                                   struct RIACK_COUNTER_GET_PROPERTIES *props,
+                                   int64_t *result);
+
+/// Increment a CRDT counter, requires riak 1.4+
+/// if returned_value is parsed along the updated value will be returned.
+RIACK_EXPORT int riack_counter_increment(struct RIACK_CLIENT *client,
+                                         RIACK_STRING bucket,
+                                         RIACK_STRING key,
+                                         int64_t amount,
+                                         struct RIACK_COUNTER_UPDATE_PROPERTIES *props,
+                                         int64_t *returned_value);
+
 /// Run a map reduce query on server
 RIACK_EXPORT int riack_map_reduce(struct RIACK_CLIENT *client,
 								 size_t data_len,

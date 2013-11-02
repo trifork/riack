@@ -384,4 +384,28 @@ struct RIACK_SEARCH_RESULT {
     uint32_t num_found;
 };
 
+//************************
+// CRDTs
+//************************
+
+struct RIACK_COUNTER_UPDATE_PROPERTIES {
+    uint8_t w_use;
+    uint32_t w;
+    uint8_t dw_use;
+    uint32_t dw;
+    uint8_t pw_use;
+    uint32_t pw;
+};
+
+struct RIACK_COUNTER_GET_PROPERTIES {
+    uint8_t r_use;
+    uint32_t r;
+    uint8_t pr_use;
+    uint32_t pr;
+    uint8_t basic_quorum_use;
+    uint8_t basic_quorum;
+    uint8_t notfound_ok_use;
+    uint8_t notfound_ok;
+};
+
 #endif // __RIACK__DEFINES__H__
