@@ -103,7 +103,7 @@ int riack_send_message(struct RIACK_CLIENT *client, struct RIACK_PB_MSG* msg)
 	}
 	// first send header
     if (sock_send(client->sockfd, buf, sendlen) != sendlen) {
-		printf("sock_send failed to send correct number of bytes\n");
+        // printf("sock_send failed to send correct number of bytes\n");
 		// Error failed to send bytes most have lost connection
 		RFREE(client, buf);
 		return -1;
