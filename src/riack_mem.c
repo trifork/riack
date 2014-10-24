@@ -34,8 +34,6 @@ ProtobufCAllocator riack_pb_allocator(struct RIACK_ALLOCATOR *allocator)
 	ProtobufCAllocator result;
 	result.alloc = allocator->alloc;
 	result.free = allocator->free;
-	result.max_alloca = 8048;
-	result.tmp_alloc = NULL;
 	result.allocator_data = allocator->allocator_optional_data;
 	return result;
 }
