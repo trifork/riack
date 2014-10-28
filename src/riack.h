@@ -47,6 +47,42 @@ RIACK_EXPORT int riack_reconnect(struct RIACK_CLIENT *client);
 /// Check if the Riak server is responding
 RIACK_EXPORT int riack_ping(struct RIACK_CLIENT *client);
 
+////////////////////////////////////////////////////////////////////////
+// Riak 2.0+ only
+
+
+
+////////////////////////////////////////////////////////////////////////
+// Riak 1.4+ only
+
+/// Set extended bucket properties Riak 1.4+ required
+RIACK_EXPORT int riack_set_bucket_props_ext(struct RIACK_CLIENT *client, RIACK_STRING bucket, struct RIACK_BUCKET_PROPERTIES* properties);
+
+RIACK_EXPORT int riack_get_bucket_props_ext(struct RIACK_CLIENT *client, RIACK_STRING bucket, struct RIACK_BUCKET_PROPERTIES** properties);
+
+/// Reset bucket properties to default Riak 1.4+ required
+RIACK_EXPORT int riack_reset_bucket_props(struct RIACK_CLIENT *client, RIACK_STRING bucket);
+
+/// Get the value of a CRDT counter, requires riak 1.4+
+RIACK_EXPORT int riack_counter_get(struct RIACK_CLIENT *client,
+        RIACK_STRING bucket,
+        RIACK_STRING key,
+        struct RIACK_COUNTER_GET_PROPERTIES *props,
+        int64_t *result);
+
+/// Increment a CRDT counter, requires riak 1.4+
+/// if returned_value is parsed along the updated value will be returned.
+RIACK_EXPORT int riack_counter_increment(struct RIACK_CLIENT *client,
+        RIACK_STRING bucket,
+        RIACK_STRING key,
+        int64_t amount,
+        struct RIACK_COUNTER_UPDATE_PROPERTIES *props,
+        int64_t *returned_value);
+
+
+////////////////////////////////////////////////////////////////////////
+// Riak 1.2
+
 /// List all buckets on the server (should not be used in production)
 RIACK_EXPORT int riack_list_buckets(struct RIACK_CLIENT *client, RIACK_STRING_LIST* bucket_list);
 
@@ -59,14 +95,6 @@ RIACK_EXPORT int riack_stream_keys(struct RIACK_CLIENT *client, RIACK_STRING buc
 
 /// Set bucket properties
 RIACK_EXPORT int riack_set_bucket_props(struct RIACK_CLIENT *client, RIACK_STRING bucket, uint32_t n_val, uint8_t allow_mult);
-
-/// Set extended bucket properties Riak 1.4+ required
-RIACK_EXPORT int riack_set_bucket_props_ext(struct RIACK_CLIENT *client, RIACK_STRING bucket, struct RIACK_BUCKET_PROPERTIES* properties);
-
-RIACK_EXPORT int riack_get_bucket_props_ext(struct RIACK_CLIENT *client, RIACK_STRING bucket, struct RIACK_BUCKET_PROPERTIES** properties);
-
-/// Reste bucket properties to default Riak 1.4+ required
-RIACK_EXPORT int riack_reset_bucket_props(struct RIACK_CLIENT *client, RIACK_STRING bucket);
 
 /// Get bucket properties
 /// Note if the server chooses not to respond with n_val or allow_mult it will not be set
@@ -95,22 +123,6 @@ RIACK_EXPORT int riack_delete(struct RIACK_CLIENT *client,
 				RIACK_STRING bucket,
 				RIACK_STRING key,
 				struct RIACK_DEL_PROPERTIES *props);
-
-/// Get the value of a CRDT counter, requires riak 1.4+
-RIACK_EXPORT int riack_counter_get(struct RIACK_CLIENT *client,
-                                   RIACK_STRING bucket,
-                                   RIACK_STRING key,
-                                   struct RIACK_COUNTER_GET_PROPERTIES *props,
-                                   int64_t *result);
-
-/// Increment a CRDT counter, requires riak 1.4+
-/// if returned_value is parsed along the updated value will be returned.
-RIACK_EXPORT int riack_counter_increment(struct RIACK_CLIENT *client,
-                                         RIACK_STRING bucket,
-                                         RIACK_STRING key,
-                                         int64_t amount,
-                                         struct RIACK_COUNTER_UPDATE_PROPERTIES *props,
-                                         int64_t *returned_value);
 
 /// Run a map reduce query on server
 RIACK_EXPORT int riack_map_reduce(struct RIACK_CLIENT *client,

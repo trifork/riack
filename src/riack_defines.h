@@ -276,6 +276,11 @@ struct RIACK_GET_OBJECT {
 	uint8_t unchanged;
 };
 
+struct RIACK_BUCKET_TYPE_OPTIONAL {
+    uint8_t bucket_type_present;
+    RIACK_STRING *bucket_type;
+};
+
 struct RIACK_GET_PROPERTIES
 {
 	uint8_t r_use;
@@ -294,6 +299,7 @@ struct RIACK_GET_PROPERTIES
 
 	uint8_t if_modified_use;
 	struct RIACK_VECTOR_CLOCK if_modified;
+    struct RIACK_BUCKET_TYPE_OPTIONAL bucket_type;
 };
 
 struct RIACK_PUT_PROPERTIES
@@ -312,6 +318,8 @@ struct RIACK_PUT_PROPERTIES
 	uint8_t return_body;
 	uint8_t return_head_use;
     uint8_t return_head;
+
+    struct RIACK_BUCKET_TYPE_OPTIONAL bucket_type;
 };
 
 struct RIACK_DEL_PROPERTIES
@@ -329,6 +337,7 @@ struct RIACK_DEL_PROPERTIES
 	uint8_t dw_use;
 	uint32_t dw;
 	struct RIACK_VECTOR_CLOCK vclock;
+    struct RIACK_BUCKET_TYPE_OPTIONAL bucket_type;
 };
 
 //************************
