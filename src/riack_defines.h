@@ -278,7 +278,7 @@ struct RIACK_GET_OBJECT {
 
 struct RIACK_BUCKET_TYPE_OPTIONAL {
     uint8_t bucket_type_present;
-    RIACK_STRING *bucket_type;
+    RIACK_STRING bucket_type;
 };
 
 struct RIACK_GET_PROPERTIES

@@ -18,7 +18,7 @@ int test_load(char* testcase)
 int test_testdata_directory(char* directoryName)
 {
     FILE* dir;
-    dir = fopen("testdata", "r");
+    dir = fopen(directoryName, "r");
     if (dir != NULL) {
         fclose(dir);
         return 1;
@@ -112,9 +112,7 @@ int test_load_cleanup()
 
 int test_load_init()
 {
-    char *datadir;
 	test_load_putcount = 0;
-
 	// Assumes we are in riack root folder
 	if (process_file("c_friendly/answers.json.out", RIAK_TEST_BUCKET_ANSWERS) &&
 		process_file("c_friendly/comments.json.out", RIAK_TEST_BUCKET_COMMENTS) &&

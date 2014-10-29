@@ -50,15 +50,32 @@ RIACK_EXPORT int riack_ping(struct RIACK_CLIENT *client);
 ////////////////////////////////////////////////////////////////////////
 // Riak 2.0+ only
 
+/// List all buckets on the server (should not be used in production)
+RIACK_EXPORT int riack_list_buckets_ext(struct RIACK_CLIENT *client, struct RIACK_BUCKET_TYPE_OPTIONAL bucket_type,
+        RIACK_STRING_LIST* bucket_list, uint32_t timeout);
 
+RIACK_EXPORT int riack_list_keys_ext(struct RIACK_CLIENT *client,
+        RIACK_STRING bucket,
+        struct RIACK_BUCKET_TYPE_OPTIONAL bucket_type,
+        struct RIACK_STRING_LINKED_LIST** keys, uint32_t timeout);
+
+/// Return all keys through the callback.
+/// This function shall be used instead of riack_list_keys(..) if your Bucket contains considerably large amount of keys.
+RIACK_EXPORT int riack_stream_keys_ext(struct RIACK_CLIENT *client, RIACK_STRING bucket,
+        struct RIACK_BUCKET_TYPE_OPTIONAL bucket_type,
+        void(*callback)(struct RIACK_CLIENT*, void*, RIACK_STRING),
+        void* callback_arg,
+        uint32_t timeout);
 
 ////////////////////////////////////////////////////////////////////////
 // Riak 1.4+ only
 
 /// Set extended bucket properties Riak 1.4+ required
-RIACK_EXPORT int riack_set_bucket_props_ext(struct RIACK_CLIENT *client, RIACK_STRING bucket, struct RIACK_BUCKET_PROPERTIES* properties);
+RIACK_EXPORT int riack_set_bucket_props_ext(struct RIACK_CLIENT *client,
+        RIACK_STRING bucket, struct RIACK_BUCKET_PROPERTIES* properties);
 
-RIACK_EXPORT int riack_get_bucket_props_ext(struct RIACK_CLIENT *client, RIACK_STRING bucket, struct RIACK_BUCKET_PROPERTIES** properties);
+RIACK_EXPORT int riack_get_bucket_props_ext(struct RIACK_CLIENT *client,
+        RIACK_STRING bucket, struct RIACK_BUCKET_PROPERTIES** properties);
 
 /// Reset bucket properties to default Riak 1.4+ required
 RIACK_EXPORT int riack_reset_bucket_props(struct RIACK_CLIENT *client, RIACK_STRING bucket);
