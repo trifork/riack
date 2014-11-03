@@ -13,8 +13,8 @@
 #define RIAK_TEST_BUCKET_USERS    "riack_test_users"
 #define RIAK_TEST_BUCKET_ANSWERS  "riack_test_answers"
 
-extern struct RIACK_CLIENT *test_client;
-extern struct RIACK_ALLOCATOR test_allocator;
+extern RIACK_CLIENT *test_client;
+extern RIACK_ALLOCATOR test_allocator;
 
 extern int test_port;
 extern char* test_host;

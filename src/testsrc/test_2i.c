@@ -28,10 +28,10 @@ int test_2i(char* testcase)
 	}
 }
 
-int put_object_with_index(char* bucket, char* key, char*value, struct RIACK_PAIR *indexes, size_t index_count)
+int put_object_with_index(char* bucket, char* key, char*value, RIACK_PAIR *indexes, size_t index_count)
 {
-	struct RIACK_CONTENT content;
-	struct RIACK_OBJECT object;
+	RIACK_CONTENT content;
+	RIACK_OBJECT object;
 	
 	memset(&content, 0, sizeof(content));
 	memset(&object, 0, sizeof(object));
@@ -57,9 +57,9 @@ int put_object_with_index(char* bucket, char* key, char*value, struct RIACK_PAIR
 int test_2i_load()
 {
 	char buffer1[10], buffer2[10], keybuffer[16];
-	struct RIACK_PAIR *indexes;
+	RIACK_PAIR *indexes;
 	int i;
-	indexes = malloc(sizeof(struct RIACK_PAIR)*2);
+	indexes = malloc(sizeof(RIACK_PAIR)*2);
 	indexes[0].key.value = TETS_2i_INDEX1;
 	indexes[0].key.len = strlen(indexes[0].key.value);
 	indexes[0].value_present = 1;
@@ -83,14 +83,14 @@ int test_2i_load()
 	return 0;
 }
 
-void test_2i_pagination_stream_cb(struct RIACK_CLIENT* c, void* arg, RIACK_STRING *key) {
+void test_2i_pagination_stream_cb(RIACK_CLIENT* c, void* arg, RIACK_STRING *key) {
     int *cnt = (int*)arg;
     (*cnt)++;
 }
 
 int test_2i_pagination_stream() {
     char min_buff[10], max_buff[10];
-    struct RIACK_2I_QUERY_REQ req;
+    RIACK_2I_QUERY_REQ req;
     RIACK_STRING continuation;
     int result, cnt;
     memset(&req, 0, sizeof(req));
@@ -127,11 +127,10 @@ int test_2i_pagination_stream() {
 
 int test_2i_pagination() {
     char min_buff[10], max_buff[10];
-    struct RIACK_2I_QUERY_REQ req;
+    RIACK_2I_QUERY_REQ req;
     int result;
-    RIACK_STRING_LIST keys;
+    RIACK_STRING_LIST *keys;
     RIACK_STRING continuation_out;
-    memset(&keys, 0, sizeof(keys));
     memset(&req, 0, sizeof(req));
     result = 1;
     req.bucket.len = strlen(TEST_2i_BUCKET);
@@ -147,7 +146,7 @@ int test_2i_pagination() {
     req.search_max.len = strlen(max_buff);
     req.search_max.value = max_buff;
     if (riack_2i_query_ext(test_client, &req, &keys, &continuation_out) == RIACK_SUCCESS) {
-        if (keys.string_count == 5 && continuation_out.len > 0) {
+        if (keys->string_count == 5 && continuation_out.len > 0) {
             result = 0;
             req.max_results = 100;
             // Copy continuation token from out to in.
@@ -155,7 +154,7 @@ int test_2i_pagination() {
             riack_free_string_list(test_client, &keys);
             if (riack_2i_query_ext(test_client, &req, &keys, &continuation_out) == RIACK_SUCCESS) {
                 // Expect 4 keys since we got 5 for and need 9 in total
-                if (keys.string_count == 4 && continuation_out.len == 0) {
+                if (keys->string_count == 4 && continuation_out.len == 0) {
                     result = 0;
                     riack_free_string_list(test_client, &keys);
                 }
@@ -175,7 +174,7 @@ int test_2i_range()
 {
     char min_buff[10], max_buff[10];
 	RIACK_STRING index1, index2, min_key, max_key, bucket;
-	RIACK_STRING_LIST keys;
+	RIACK_STRING_LIST *keys;
     int i, result;
 	index1.len = strlen(TETS_2i_INDEX1);
 	index1.value = TETS_2i_INDEX1;
@@ -195,7 +194,7 @@ int test_2i_range()
 			result = 1;
 			break;
 		}
-		if (keys.string_count != 5) {
+		if (keys->string_count != 5) {
 			result = 2;
 			break;
 		}
@@ -209,7 +208,7 @@ int test_2i_exact()
 {
 	char buffer[10], expected_key[100];
 	RIACK_STRING index1, index2, search_key, bucket;
-	RIACK_STRING_LIST keys;
+	RIACK_STRING_LIST *keys;
 	int i, result;
 	index1.len = strlen(TETS_2i_INDEX1);
 	index1.value = TETS_2i_INDEX1;
@@ -228,7 +227,7 @@ int test_2i_exact()
 			result = 1;
 			break;
 		}
-		if (keys.string_count != 1 || memcmp(keys.strings[0].value, expected_key, strlen(expected_key)) != 0) {
+		if (keys->string_count != 1 || memcmp(keys->strings[0].value, expected_key, strlen(expected_key)) != 0) {
 			result = 2;
 			break;
 		}
@@ -245,7 +244,7 @@ int test_2i_exact()
 			result = 3;
 			break;
 		}
-		if (keys.string_count != TEST_2i_ENTRIES_X10) {
+		if (keys->string_count != TEST_2i_ENTRIES_X10) {
 			result = 4;
 			break;
 		}

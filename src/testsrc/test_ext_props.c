@@ -9,14 +9,14 @@ int test_ext_props(char* testcase)
 int test_ext_bucket_props()
 {
     RIACK_STRING bucket;
-    struct RIACK_BUCKET_PROPERTIES props, *old_props, *read_props;
+    RIACK_BUCKET_PROPERTIES props, *old_props, *read_props;
 
-    memset(&props, 0, sizeof(struct RIACK_BUCKET_PROPERTIES));
+    memset(&props, 0, sizeof(RIACK_BUCKET_PROPERTIES));
     bucket.len = strlen(RIAK_TEST_BUCKET);
     bucket.value = RIAK_TEST_BUCKET;
 
     // Read properties so we can se them back afterwards.
-    if (riack_get_bucket_props_ext(test_client, bucket, &old_props) != RIACK_SUCCESS) {
+    if (riack_get_bucket_props_ext(test_client, &bucket, &old_props) != RIACK_SUCCESS) {
         return -1;
     }
     props.allow_mult_use = props.allow_mult = 1;
@@ -29,10 +29,10 @@ int test_ext_bucket_props()
     props.n_val = 1;
     props.search_use = props.search = 1;
 
-    if (riack_set_bucket_props_ext(test_client, bucket, &props) != RIACK_SUCCESS) {
+    if (riack_set_bucket_props(test_client, &bucket, &props) != RIACK_SUCCESS) {
         return -2;
     }
-    if (riack_get_bucket_props_ext(test_client, bucket, &read_props) != RIACK_SUCCESS) {
+    if (riack_get_bucket_props_ext(test_client, &bucket, &read_props) != RIACK_SUCCESS) {
         return -1;
     }
     if (!read_props->allow_mult_use ||  read_props->allow_mult != props.allow_mult) {

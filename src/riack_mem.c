@@ -23,13 +23,13 @@
 void *riack_pb_alloc(void *allocator_data, size_t size);
 void riack_pb_free (void *allocator_data, void *data);
 
-struct RIACK_ALLOCATOR riack_default_allocator =
+RIACK_ALLOCATOR riack_default_allocator =
 {
 	riack_pb_alloc,
 	riack_pb_free,
 };
 
-ProtobufCAllocator riack_pb_allocator(struct RIACK_ALLOCATOR *allocator)
+ProtobufCAllocator riack_pb_allocator(RIACK_ALLOCATOR *allocator)
 {
 	ProtobufCAllocator result;
 	result.alloc = allocator->alloc;

@@ -14,8 +14,8 @@ int test_crdt(char* testcase)
 
 int test_counter()
 {
-    struct RIACK_COUNTER_UPDATE_PROPERTIES update_props;
-    struct RIACK_COUNTER_GET_PROPERTIES get_props;
+    RIACK_COUNTER_UPDATE_PROPERTIES update_props;
+    RIACK_COUNTER_GET_PROPERTIES get_props;
     RIACK_STRING key, bucket;
     int64_t value;
     int res;

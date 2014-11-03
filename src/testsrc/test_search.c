@@ -16,12 +16,12 @@ int test_search1()
 {
     int result;
     RIACK_STRING test_query, index;
-    struct RIACK_SEARCH_OPTIONAL_PARAMETERS params;
-    struct RIACK_SEARCH_RESULT search_result;
+    RIACK_SEARCH_OPTIONAL_PARAMETERS params;
+    RIACK_SEARCH_RESULT search_result;
     result = -2;
     // Load a lot of test data to search in
     process_file("testdata/c_friendly/comments.json.out", SEARCH_BUCKET1);
-    memset(&params, 0, sizeof(struct RIACK_SEARCH_OPTIONAL_PARAMETERS));
+    memset(&params, 0, sizeof(RIACK_SEARCH_OPTIONAL_PARAMETERS));
 
     params.default_field_present = 1;
     params.default_field.value = "Body";

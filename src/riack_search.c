@@ -27,10 +27,10 @@
 #include <string.h>
 #include <stdio.h>
 
-void riack_got_error_response(struct RIACK_CLIENT *client, struct RIACK_PB_MSG *msg);
-ProtobufCAllocator riack_pb_allocator(struct RIACK_ALLOCATOR *allocator);
+void riack_got_error_response(RIACK_CLIENT *client, RIACK_PB_MSG *msg);
+ProtobufCAllocator riack_pb_allocator(RIACK_ALLOCATOR *allocator);
 
-void riack_free_copied_rpb_search_req(struct RIACK_CLIENT *client,
+void riack_free_copied_rpb_search_req(RIACK_CLIENT *client,
                                       RpbSearchQueryReq* search_req)
 {
     if (search_req->has_df) {
@@ -58,9 +58,8 @@ void riack_free_copied_rpb_search_req(struct RIACK_CLIENT *client,
 }
 
 /// Copies all optional search parameters to the protobuffers request.
-void riack_set_optional_search_properties_on_req(struct RIACK_CLIENT *client,
-                                                 struct RIACK_SEARCH_OPTIONAL_PARAMETERS* props,
-                                                 RpbSearchQueryReq* search_req)
+void riack_set_optional_search_properties_on_req(RIACK_CLIENT *client, RIACK_SEARCH_OPTIONAL_PARAMETERS* props,
+        RpbSearchQueryReq* search_req)
 {
     size_t cnt;
     if (!props) {
@@ -117,26 +116,24 @@ void riack_set_optional_search_properties_on_req(struct RIACK_CLIENT *client,
     }
 }
 
-void riack_copy_rpbsearchdoc_to_searchdoc(struct RIACK_CLIENT *client,
-                                          RpbSearchDoc* rpbsearchdoc,
-                                          struct RIACK_SEARCH_DOCUMENT *searchdoc)
+void riack_copy_rpbsearchdoc_to_searchdoc(RIACK_CLIENT *client, RpbSearchDoc* rpbsearchdoc,
+        RIACK_SEARCH_DOCUMENT *searchdoc)
 {
     size_t cnt, i;
     cnt = rpbsearchdoc->n_fields;
     searchdoc->field_count = cnt;
     if (cnt > 0) {
-        searchdoc->fields = RMALLOC(client, sizeof(struct RIACK_PAIR)*cnt);
+        searchdoc->fields = RMALLOC(client, sizeof(RIACK_PAIR)*cnt);
         for (i=0; i<cnt; ++i) {
             riack_copy_rpbpair_to_pair(client, rpbsearchdoc->fields[i], &searchdoc->fields[i]);
         }
     }
 }
 
-void riack_set_search_result_from_response(struct RIACK_CLIENT *client,
-                                           RpbSearchQueryResp *response,
-                                           struct RIACK_SEARCH_RESULT* search_result)
+void riack_set_search_result_from_response(RIACK_CLIENT *client, RpbSearchQueryResp *response,
+        RIACK_SEARCH_RESULT* search_result)
 {
-    memset(search_result, 0, sizeof(struct RIACK_SEARCH_RESULT));
+    memset(search_result, 0, sizeof(RIACK_SEARCH_RESULT));
     if (response->has_max_score) {
         search_result->max_score_present = 1;
         search_result->max_score = response->max_score;
@@ -149,15 +146,14 @@ void riack_set_search_result_from_response(struct RIACK_CLIENT *client,
     if (response->n_docs > 0) {
         size_t cnt, i;
         cnt = response->n_docs;
-        search_result->documents = (struct RIACK_SEARCH_DOCUMENT*)RMALLOC(client, sizeof(struct RIACK_SEARCH_DOCUMENT) * cnt);
+        search_result->documents = (RIACK_SEARCH_DOCUMENT*)RMALLOC(client, sizeof(RIACK_SEARCH_DOCUMENT) * cnt);
         for (i=0; i<cnt; ++i) {
             riack_copy_rpbsearchdoc_to_searchdoc(client, response->docs[i], &search_result->documents[i]);
         }
     }
 }
 
-void riack_free_search_document(struct RIACK_CLIENT* client,
-                                struct RIACK_SEARCH_DOCUMENT* search_doc)
+void riack_free_search_document(RIACK_CLIENT* client, RIACK_SEARCH_DOCUMENT* search_doc)
 {
     size_t cnt = search_doc->field_count;
     if (cnt > 0) {
@@ -169,7 +165,7 @@ void riack_free_search_document(struct RIACK_CLIENT* client,
     }
 }
 
-void riack_free_search_result(struct RIACK_CLIENT* client, struct RIACK_SEARCH_RESULT* search_result)
+void riack_free_search_result(RIACK_CLIENT* client, RIACK_SEARCH_RESULT* search_result)
 {
     size_t cnt = search_result->document_count;
     if (cnt > 0) {
@@ -181,14 +177,11 @@ void riack_free_search_result(struct RIACK_CLIENT* client, struct RIACK_SEARCH_R
     }
 }
 
-int riack_search(struct RIACK_CLIENT *client,
-                 RIACK_STRING query,
-                 RIACK_STRING index,
-                 struct RIACK_SEARCH_OPTIONAL_PARAMETERS* optional_parameters,
-                 struct RIACK_SEARCH_RESULT* search_result)
+int riack_search(RIACK_CLIENT *client, RIACK_STRING query, RIACK_STRING index,
+        RIACK_SEARCH_OPTIONAL_PARAMETERS* optional_parameters, RIACK_SEARCH_RESULT* search_result)
 {
     int result;
-    struct RIACK_PB_MSG msg_req, *msg_resp;
+    RIACK_PB_MSG msg_req, *msg_resp;
     ProtobufCAllocator pb_allocator;
     size_t packed_size;
     uint8_t *request_buffer;
@@ -212,7 +205,7 @@ int riack_search(struct RIACK_CLIENT *client,
     if (request_buffer) {
         rpb_search_query_req__pack(&search_req, request_buffer);
         msg_req.msg_code = mc_RpbSearchQueryReq;
-        msg_req.msg_len = packed_size;
+        msg_req.msg_len = (uint32_t) packed_size;
         msg_req.msg = request_buffer;
         if ((riack_send_message(client, &msg_req) > 0)&&
             (riack_receive_message(client, &msg_resp) > 0))

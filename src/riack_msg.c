@@ -30,7 +30,7 @@
 #include <stdio.h>
 
 
-void dbg_print_message(struct RIACK_PB_MSG* pmsg)
+void dbg_print_message(RIACK_PB_MSG* pmsg)
 {
 	char buff_print[100];
     if (pmsg != 0) {
@@ -43,9 +43,9 @@ void dbg_print_message(struct RIACK_PB_MSG* pmsg)
 	}
 }
 
-void riack_message_free(struct RIACK_CLIENT *client, struct RIACK_PB_MSG** ppMsg)
+void riack_message_free(RIACK_CLIENT *client, RIACK_PB_MSG** ppMsg)
 {
-	struct RIACK_PB_MSG* pMsg = *ppMsg;
+	RIACK_PB_MSG* pMsg = *ppMsg;
     if (pMsg != 0) {
         if (pMsg->msg_len > 0 && pMsg->msg != 0) {
 			RFREE(client, pMsg->msg);
@@ -55,15 +55,15 @@ void riack_message_free(struct RIACK_CLIENT *client, struct RIACK_PB_MSG** ppMsg
 	*ppMsg = 0;
 }
 
-int riack_receive_message(struct RIACK_CLIENT *client, struct RIACK_PB_MSG** msg)
+int riack_receive_message(RIACK_CLIENT *client, RIACK_PB_MSG** msg)
 {
-	struct RIACK_PB_MSG* recvMsg;
+	RIACK_PB_MSG* recvMsg;
 	uint32_t msgLenN;
 	int rcvBytes = 0;
 	if (msg == 0)
 		return 0;
 	*msg = 0;
-	recvMsg = (struct RIACK_PB_MSG*)RMALLOC(client, sizeof(struct RIACK_PB_MSG));
+	recvMsg = (RIACK_PB_MSG*)RMALLOC(client, sizeof(RIACK_PB_MSG));
 	recvMsg->msg_len = 0;
 	recvMsg->msg = 0;
 	rcvBytes = sock_recv(client->sockfd, (uint8_t*)&msgLenN, 4);
@@ -88,7 +88,7 @@ int riack_receive_message(struct RIACK_CLIENT *client, struct RIACK_PB_MSG** msg
 	return -1;
 }
 
-int riack_send_message(struct RIACK_CLIENT *client, struct RIACK_PB_MSG* msg)
+int riack_send_message(RIACK_CLIENT *client, RIACK_PB_MSG* msg)
 {
 	uint8_t *buf;
 	uint32_t netlen, sendlen;

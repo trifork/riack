@@ -19,18 +19,17 @@
 
 #include "riack_defines.h"
 
-struct RIACK_PB_MSG
-{
+typedef struct {
 	uint8_t  msg_code;
 	uint32_t msg_len;
 	uint8_t* msg;
-};
+} RIACK_PB_MSG;
 
-void dbg_print_message(struct RIACK_PB_MSG* pmsg);
+void dbg_print_message(RIACK_PB_MSG* pmsg);
 
-int riack_send_message(struct RIACK_CLIENT *client, struct RIACK_PB_MSG* msg);
-int riack_receive_message(struct RIACK_CLIENT *client, struct RIACK_PB_MSG** msg);
+int riack_send_message(RIACK_CLIENT *client, RIACK_PB_MSG* msg);
+int riack_receive_message(RIACK_CLIENT *client, RIACK_PB_MSG** msg);
 
-void riack_message_free(struct RIACK_CLIENT *client, struct RIACK_PB_MSG** ppMsg);
+void riack_message_free(RIACK_CLIENT *client, RIACK_PB_MSG** ppMsg);
 
 #endif /* RIACK_MSG_H_ */

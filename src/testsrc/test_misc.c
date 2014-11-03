@@ -22,8 +22,8 @@ int test_misc(char* testcase)
 
 int test_reconnect()
 {
-	struct RIACK_CLIENT *client;
-	struct RIACK_CONNECTION_OPTIONS options;
+	RIACK_CLIENT *client;
+	RIACK_CONNECTION_OPTIONS options;
 	int result;
 	result = 1;
 	client = riack_new_client(0);
@@ -42,8 +42,8 @@ int test_reconnect()
 
 int test_connect_with_options()
 {
-	struct RIACK_CLIENT *client;
-	struct RIACK_CONNECTION_OPTIONS options;
+	RIACK_CLIENT *client;
+	RIACK_CONNECTION_OPTIONS options;
 	int result;
 	result = 1;
 	client = riack_new_client(0);
@@ -58,7 +58,7 @@ int test_connect_with_options()
 
 int test_large_object()
 {
-	struct RIACK_GET_OBJECT obj;
+	RIACK_GET_OBJECT obj;
 	RIACK_STRING key, bucket;
 	char* largeObject;
 	int result;
@@ -73,7 +73,7 @@ int test_large_object()
 	largeObject = malloc(64*1024);
 	memset(largeObject, '#', 64*1024);
 	if (put(key.value, largeObject) == RIACK_SUCCESS) {
-		if (riack_get(test_client, bucket, key, 0, &obj) == RIACK_SUCCESS) {
+		if (riack_get(test_client, &bucket, &key, 0, &obj) == RIACK_SUCCESS) {
 			// Validate the content we got back
 			if ((obj.object.content_count == 1) &&
 				(obj.object.content[0].data_len == 64*1024)) {
@@ -92,7 +92,7 @@ int test_large_object()
 int test_last_error()
 {
 	RIACK_STRING bucket, key;
-    struct RIACK_MAPRED_RESPONSE_LIST *result;
+    RIACK_MAPRED_RESPONSE_LIST *result;
 	bucket.len = strlen(RIAK_TEST_BUCKET);
 	bucket.value = RIAK_TEST_BUCKET;
 	key.len = strlen(TEST_NON_EXISTING_KEY);

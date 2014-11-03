@@ -26,7 +26,7 @@ int put(char* key, char* data)
 
 int test_put_no_key()
 {
-    struct RIACK_OBJECT obj, put_result;
+    RIACK_OBJECT obj, put_result;
     char* data;
     int result;
 
@@ -38,14 +38,14 @@ int test_put_no_key()
     obj.key.value = 0;
     obj.key.len = 0;
     obj.vclock.len = 0;
-    obj.content = (struct RIACK_CONTENT*)RMALLOC(test_client, sizeof(struct RIACK_CONTENT));
-    memset(obj.content, 0, sizeof(struct RIACK_CONTENT));
+    obj.content = (RIACK_CONTENT*)RMALLOC(test_client, sizeof(RIACK_CONTENT));
+    memset(obj.content, 0, sizeof(RIACK_CONTENT));
     obj.content[0].content_type.value = "application/json";
     obj.content[0].content_type.len = strlen(obj.content[0].content_type.value);
     obj.content[0].data = (uint8_t*)data;
     obj.content[0].data_len = strlen(data);
 
-    if (riack_put(test_client, obj, &put_result, (struct RIACK_PUT_PROPERTIES*)0) == RIACK_SUCCESS) {
+    if (riack_put(test_client, obj, &put_result, (RIACK_PUT_PROPERTIES*)0) == RIACK_SUCCESS) {
         if (put_result.key.len > 0) {
             result = 0;
         }
@@ -71,8 +71,8 @@ int test_put_return_header()
 	char* data;
 	size_t cnt, i;
 	int result;
-	struct RIACK_OBJECT obj, put_result;
-	struct RIACK_PUT_PROPERTIES put_props;
+	RIACK_OBJECT obj, put_result;
+	RIACK_PUT_PROPERTIES put_props;
 	result = 1;
 
 	memset(&put_props, 0, sizeof(put_props));
@@ -87,8 +87,8 @@ int test_put_return_header()
 	obj.key.len = strlen(obj.key.value);
 	obj.vclock.len = 0;
 	obj.content_count = 1;
-	obj.content = (struct RIACK_CONTENT*)malloc(sizeof(struct RIACK_CONTENT));
-	memset(obj.content, 0, sizeof(struct RIACK_CONTENT));
+	obj.content = (RIACK_CONTENT*)malloc(sizeof(RIACK_CONTENT));
+	memset(obj.content, 0, sizeof(RIACK_CONTENT));
 	obj.content[0].content_type.value = "application/json";
 	obj.content[0].content_type.len = strlen(obj.content[0].content_type.value);
     obj.content[0].data = (uint8_t*)data;
@@ -119,7 +119,7 @@ int test_put_return_header()
 
 int test_get1()
 {
-	struct RIACK_GET_OBJECT obj;
+	RIACK_GET_OBJECT obj;
 	RIACK_STRING key, bucket;
 	char *data;
 	size_t content_size;
@@ -132,7 +132,7 @@ int test_get1()
 	data = "test content 1234";
 
 	if (put(key.value, data) == RIACK_SUCCESS) {
-		if (riack_get(test_client, bucket, key, 0, &obj) == RIACK_SUCCESS) {
+		if (riack_get(test_client, &bucket, &key, 0, &obj) == RIACK_SUCCESS) {
 			// Validate the content we got back
 			if ((obj.object.content_count == 1) &&
 				(obj.object.content[0].data_len == strlen(data))) {
