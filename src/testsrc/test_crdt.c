@@ -41,17 +41,17 @@ int test_counter()
     update_props.pw = 1;
     update_props.w_use = 1;
     update_props.w = 1;
-    res = riack_counter_get(test_client, bucket, key, &get_props, &value);
+    res = riack_counter_get(test_client, &bucket, &key, &get_props, &value);
     if (res == RIACK_SUCCESS) {
         int64_t readden_value;
         // test increment with properties, no returned value
-        res = riack_counter_increment(test_client, bucket, key, 3, &update_props, 0);
+        res = riack_counter_increment(test_client, &bucket, &key, 3, &update_props, 0);
         if (res == RIACK_SUCCESS) {
             // Get without props
-            res = riack_counter_get(test_client, bucket, key, 0, &readden_value);
+            res = riack_counter_get(test_client, &bucket, &key, 0, &readden_value);
             if (res == RIACK_SUCCESS && readden_value == value + 3) {
                 // Increment no properties return value
-                res = riack_counter_increment(test_client, bucket, key, -5, 0, &readden_value);
+                res = riack_counter_increment(test_client, &bucket, &key, -5, 0, &readden_value);
                 if (res == RIACK_SUCCESS && readden_value == value - 2) {
                     return 0;
                 }

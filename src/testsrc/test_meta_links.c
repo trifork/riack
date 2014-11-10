@@ -93,7 +93,7 @@ RIACK_CONTENT *copy_content(RIACK_CONTENT *org) {
 int test_meta_links_load()
 {
 	RIACK_STRING bucket_posts, bucket_answers;
-	RIACK_GET_OBJECT get_post;
+	RIACK_GET_OBJECT *get_post;
 	RIACK_OBJECT put_post;
 	RIACK_STRING_LINKED_LIST *keys_posts, *current_post, *keys_answers, *current_answer;
 	bucket_posts.len = strlen(RIAK_TEST_BUCKET_POSTS);
@@ -107,22 +107,22 @@ int test_meta_links_load()
 		current_answer = keys_answers;
 		while (current_post && current_post->next) {
 			if (riack_get(test_client, &bucket_posts, &(current_post->string), 0, &get_post) == RIACK_SUCCESS) {
-				if (get_post.object.content_count == 1) {
+				if (get_post->object.content_count == 1) {
 					memset(&put_post, 0, sizeof(put_post));
 
 					put_post.bucket = copy_string(&bucket_posts);
 					put_post.key = copy_string(&current_post->string);
 
 					put_post.content_count = 1;
-					put_post.content = copy_content(get_post.object.content);
+					put_post.content = copy_content(get_post->object.content);
 
-					current_answer = test_make_links(current_answer, get_post.object.content);
-					if (riack_put(test_client, put_post, 0, 0) != RIACK_SUCCESS) {
+					current_answer = test_make_links(current_answer, get_post->object.content);
+					if (riack_put(test_client, &put_post, 0, 0) != RIACK_SUCCESS) {
 						return 1;
 					}
-					riack_free_object(test_client, &put_post);
+                    riack_free_object(test_client, &put_post);
 				}
-				riack_free_get_object(test_client, &get_post);
+                riack_free_get_object_p(test_client, &get_post);
 			}
 			current_post = current_post->next;
 		}

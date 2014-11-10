@@ -69,7 +69,7 @@ int test_delete_all_keys(RIACK_STRING bucket, RIACK_STRING_LINKED_LIST *list)
 	current = list;
 	result = 1;
 	while (current != 0) {
-		if (riack_delete(test_client, bucket, current->string, 0) != RIACK_SUCCESS) {
+		if (riack_delete(test_client, &bucket, &(current->string), 0) != RIACK_SUCCESS) {
 			result = 0;
 			break;
 		}
@@ -92,7 +92,7 @@ int test_load_cleanup_bucket(char* szbucket)
 		if (test_delete_all_keys(bucket, list) == 0) {
 			result = 0;
 		}
-		riack_free_string_linked_list(test_client, &list);
+        riack_free_string_linked_list_p(test_client, &list);
 	}
 	return result;
 }

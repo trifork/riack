@@ -26,7 +26,7 @@ int put(char* key, char* data)
 
 int test_put_no_key()
 {
-    RIACK_OBJECT obj, put_result;
+    RIACK_OBJECT obj, *put_result;
     char* data;
     int result;
 
@@ -45,11 +45,11 @@ int test_put_no_key()
     obj.content[0].data = (uint8_t*)data;
     obj.content[0].data_len = strlen(data);
 
-    if (riack_put(test_client, obj, &put_result, (RIACK_PUT_PROPERTIES*)0) == RIACK_SUCCESS) {
-        if (put_result.key.len > 0) {
+    if (riack_put(test_client, &obj, &put_result, (RIACK_PUT_PROPERTIES*)0) == RIACK_SUCCESS) {
+        if (put_result->key.len > 0) {
             result = 0;
         }
-        riack_free_object(test_client, &put_result);
+        riack_free_object_p(test_client, &put_result);
         RFREE(test_client, obj.content);
     }
     return result;
@@ -71,7 +71,7 @@ int test_put_return_header()
 	char* data;
 	size_t cnt, i;
 	int result;
-	RIACK_OBJECT obj, put_result;
+	RIACK_OBJECT obj, *put_result;
 	RIACK_PUT_PROPERTIES put_props;
 	result = 1;
 
@@ -94,23 +94,23 @@ int test_put_return_header()
     obj.content[0].data = (uint8_t*)data;
 	obj.content[0].data_len = strlen(data);
 
-	if (riack_put(test_client, obj, &put_result, &put_props) == RIACK_SUCCESS) {
-		cnt = put_result.content_count;
+	if (riack_put(test_client, &obj, &put_result, &put_props) == RIACK_SUCCESS) {
+		cnt = put_result->content_count;
 		if (cnt == 1) {
-			if (put_result.content[0].content_type.len == obj.content[0].content_type.len) {
+			if (put_result->content[0].content_type.len == obj.content[0].content_type.len) {
 				// Make sure content type is the same
-				if (memcmp( put_result.content[0].content_type.value,
+				if (memcmp( put_result->content[0].content_type.value,
 							obj.content[0].content_type.value,
 							obj.content[0].content_type.len) == 0) {
 					// Make sure the actual content is the same
-					i = put_result.content[0].data_len;
-					if (memcmp(data, put_result.content[0].data, i) == 0) {
+					i = put_result->content[0].data_len;
+					if (memcmp(data, put_result->content[0].data, i) == 0) {
 						result = 0;
 					}
 				}
 			}
 		}
-		riack_free_object(test_client, &put_result);
+        riack_free_object_p(test_client, &put_result);
 	}
 	free(obj.content);
 	delete("test_put2");
@@ -119,7 +119,7 @@ int test_put_return_header()
 
 int test_get1()
 {
-	RIACK_GET_OBJECT obj;
+	RIACK_GET_OBJECT *obj;
 	RIACK_STRING key, bucket;
 	char *data;
 	size_t content_size;
@@ -134,15 +134,15 @@ int test_get1()
 	if (put(key.value, data) == RIACK_SUCCESS) {
 		if (riack_get(test_client, &bucket, &key, 0, &obj) == RIACK_SUCCESS) {
 			// Validate the content we got back
-			if ((obj.object.content_count == 1) &&
-				(obj.object.content[0].data_len == strlen(data))) {
-				content_size = obj.object.content[0].data_len;
-				if (memcmp(obj.object.content[0].data, data, strlen(data)) == 0) {
+			if ((obj->object.content_count == 1) &&
+				(obj->object.content[0].data_len == strlen(data))) {
+				content_size = obj->object.content[0].data_len;
+				if (memcmp(obj->object.content[0].data, data, strlen(data)) == 0) {
 					result = 0;
 				}
 			}
 		}
-		riack_free_object(test_client, &obj.object);
+        riack_free_get_object_p(test_client, &obj);
 	}
 	delete(key.value);
 	return result;

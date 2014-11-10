@@ -39,9 +39,23 @@ void riack_dbg_print_mapred_result(RIACK_MAPRED_RESPONSE_LIST *mapred) {
 	}
 }
 
+RIACK_GET_OBJECT* riack_get_object_alloc(RIACK_CLIENT* client)
+{
+    return RCALLOC(client, sizeof(RIACK_GET_OBJECT));
+}
+
+RIACK_OBJECT* riack_object_alloc(RIACK_CLIENT* client)
+{
+    return RCALLOC(client, sizeof(RIACK_OBJECT));
+}
+
 RIACK_STRING_LIST* riack_string_list_alloc(RIACK_CLIENT* client)
 {
     return RCALLOC(client, sizeof(RIACK_STRING_LIST));
+}
+
+RIACK_STRING* riack_string_alloc(RIACK_CLIENT* client) {
+    return RCALLOC(client, sizeof(RIACK_STRING));
 }
 
 /**
@@ -167,28 +181,41 @@ void riack_free_content(RIACK_CLIENT* client, RIACK_CONTENT *pcontent)
 	}
 }
 
-void riack_free_object(RIACK_CLIENT* client, RIACK_OBJECT *pobject)
+void riack_free_object(RIACK_CLIENT *client, RIACK_OBJECT *object)
 {
-	size_t cnt, i;
-	if (pobject) {
-		RFREE(client, pobject->bucket.value);
-		RFREE(client, pobject->key.value);
-		if (pobject->vclock.len > 0) {
-			RFREE(client, pobject->vclock.clock);
-		}
-		cnt = pobject->content_count;
-		if (cnt > 0) {
-			for (i=0; i<cnt; ++i) {
-                riack_free_content(client, &pobject->content[i]);
-			}
-			RFREE(client,pobject->content);
-		}
+    size_t cnt, i;
+    if (object) {
+        RFREE(client, object->bucket.value);
+        RFREE(client, object->key.value);
+        if (object->vclock.len > 0) {
+            RFREE(client, object->vclock.clock);
+        }
+        cnt = object->content_count;
+        if (cnt > 0) {
+            for (i=0; i<cnt; ++i) {
+                riack_free_content(client, &object->content[i]);
+            }
+            RFREE(client,object->content);
+        }
+    }
+}
+
+void riack_free_object_p(RIACK_CLIENT *client, RIACK_OBJECT **object)
+{
+	if (object && *object) {
+        riack_free_object(client, *object);
+        RFREE(client, *object);
+        *object = 0;
 	}
 }
 
-void riack_free_get_object(RIACK_CLIENT* client, RIACK_GET_OBJECT *pobject)
+void riack_free_get_object_p(RIACK_CLIENT *client, RIACK_GET_OBJECT **object)
 {
-	riack_free_object(client, &pobject->object);
+    if (object && *object) {
+        riack_free_object(client, &(*object)->object);
+        RFREE(client, *object);
+        *object = 0;
+    }
 }
 
 void riack_free_mapred_result(RIACK_CLIENT* client, RIACK_MAPRED_RESPONSE_LIST *result)
@@ -206,13 +233,22 @@ void riack_free_mapred_result(RIACK_CLIENT* client, RIACK_MAPRED_RESPONSE_LIST *
 	}
 }
 
+void riack_free_string_p(RIACK_CLIENT* client, RIACK_STRING** string)
+{
+    if (string != 0 && *string != 0) {
+        riack_free_string(client, *string);
+        RFREE(client, *string);
+        *string = 0;
+    }
+}
+
 void riack_free_string(RIACK_CLIENT* client, RIACK_STRING* string)
 {
 	RFREE(client, string->value);
 	string->len = 0;
 }
 
-void riack_free_string_list(RIACK_CLIENT* client, RIACK_STRING_LIST** strings)
+void riack_free_string_list_p(RIACK_CLIENT *client, RIACK_STRING_LIST **strings)
 {
     size_t i;
     if (!strings) {
@@ -226,7 +262,7 @@ void riack_free_string_list(RIACK_CLIENT* client, RIACK_STRING_LIST** strings)
 }
 
 
-void riack_free_string_linked_list(RIACK_CLIENT* client, RIACK_STRING_LINKED_LIST** strings)
+void riack_free_string_linked_list_p(RIACK_CLIENT *client, RIACK_STRING_LINKED_LIST **strings)
 {
 	 RIACK_STRING_LINKED_LIST *current, *next;
 	 current = *strings;

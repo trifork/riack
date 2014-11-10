@@ -334,7 +334,7 @@ void riack_free_commit_hooks(RIACK_CLIENT *client, RIACK_COMMIT_HOOK* hooks, siz
     RFREE(client, hooks);
 }
 
-void riack_free_bucket_properties(RIACK_CLIENT *client, RIACK_BUCKET_PROPERTIES** properties) {
+void riack_free_bucket_properties_p(RIACK_CLIENT *client, RIACK_BUCKET_PROPERTIES **properties) {
     if (*properties) {
         if (RSTR_HAS_CONTENT((*properties)->backend)) {
             RFREE(client, (*properties)->backend.value);
@@ -662,7 +662,7 @@ int riack_get_bucket_props(RIACK_CLIENT *client, RIACK_STRING *bucket, uint32_t 
     return result;
 }
 
-int riack_server_info(RIACK_CLIENT *client, RIACK_STRING *node, RIACK_STRING* version)
+int riack_server_info(RIACK_CLIENT *client, RIACK_STRING **node, RIACK_STRING** version)
 {
 	int result;
 	RIACK_PB_MSG msg_req, *msg_resp;
@@ -671,6 +671,7 @@ int riack_server_info(RIACK_CLIENT *client, RIACK_STRING *node, RIACK_STRING* ve
 	msg_req.msg_code = mc_RpbGetServerInfoReq;
 	msg_req.msg_len = 0;
 
+    // TODO Validate input
 	pb_allocator = riack_pb_allocator(&client->allocator);
 	result = RIACK_ERROR_COMMUNICATION;
 	if ((riack_send_message(client, &msg_req) > 0) &&
@@ -679,17 +680,17 @@ int riack_server_info(RIACK_CLIENT *client, RIACK_STRING *node, RIACK_STRING* ve
 			response = rpb_get_server_info_resp__unpack(&pb_allocator, msg_req.msg_len, msg_req.msg);
 			if (response) {
 				if (response->has_node) {
-					RMALLOCCOPY(client, node->value, node->len, response->node.data, response->node.len);
+                    *node = riack_string_alloc(client);
+					RMALLOCCOPY(client, (*node)->value, (*node)->len, response->node.data, response->node.len);
 				} else {
-					node->len = 0;
-					node->value = 0;
+                    *node = 0;
 				}
 				if (response->has_server_version) {
-					RMALLOCCOPY(client, version->value, version->len,
+                    *version = riack_string_alloc(client);
+					RMALLOCCOPY(client, (*version)->value, (*version)->len,
 							response->server_version.data, response->server_version.len);
 				} else {
-					version->len = 0;
-					version->value = 0;
+					*version = 0;
 				}
 				// Copy responses
 				rpb_get_server_info_resp__free_unpacked(response, &pb_allocator);

@@ -54,7 +54,7 @@ int test_ext_bucket_props()
         return -8;
     }
 
-    riack_free_bucket_properties(test_client, &read_props);
-    riack_free_bucket_properties(test_client, &old_props);
+    riack_free_bucket_properties_p(test_client, &read_props);
+    riack_free_bucket_properties_p(test_client, &old_props);
     return 0;
 }

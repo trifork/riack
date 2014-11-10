@@ -48,7 +48,7 @@ int put_object_with_index(char* bucket, char* key, char*value, RIACK_PAIR *index
 	content.indexes = indexes;
 	content.data = (uint8_t*)value;
 	content.data_len = strlen(value);
-	if (riack_put(test_client, object, 0, 0) == RIACK_SUCCESS) {
+	if (riack_put(test_client, &object, 0, 0) == RIACK_SUCCESS) {
 		return 1;
 	}
 	return 0;
@@ -151,12 +151,12 @@ int test_2i_pagination() {
             req.max_results = 100;
             // Copy continuation token from out to in.
             req.continuation_token = continuation_out;
-            riack_free_string_list(test_client, &keys);
+            riack_free_string_list_p(test_client, &keys);
             if (riack_2i_query_ext(test_client, &req, &keys, &continuation_out) == RIACK_SUCCESS) {
                 // Expect 4 keys since we got 5 for and need 9 in total
                 if (keys->string_count == 4 && continuation_out.len == 0) {
                     result = 0;
-                    riack_free_string_list(test_client, &keys);
+                    riack_free_string_list_p(test_client, &keys);
                 }
             }
             RSTR_SAFE_FREE(test_client, req.continuation_token);
@@ -190,7 +190,7 @@ int test_2i_range()
 		min_key.value = min_buff;
 		max_key.len = strlen(max_buff);
 		max_key.value = max_buff;
-		if (riack_2i_query_range(test_client, bucket, index1, min_key, max_key, &keys) != RIACK_SUCCESS) {
+		if (riack_2i_query_range(test_client, &bucket, &index1, &min_key, &max_key, &keys) != RIACK_SUCCESS) {
 			result = 1;
 			break;
 		}
@@ -198,7 +198,7 @@ int test_2i_range()
 			result = 2;
 			break;
 		}
-		riack_free_string_list(test_client, &keys);
+        riack_free_string_list_p(test_client, &keys);
 	}
 
 	return result;
@@ -223,7 +223,7 @@ int test_2i_exact()
 		search_key.len = strlen(buffer);
 		search_key.value = buffer;
 
-		if (riack_2i_query_exact(test_client, bucket, index1, search_key, &keys) != RIACK_SUCCESS) {
+		if (riack_2i_query_exact(test_client, &bucket, &index1, &search_key, &keys) != RIACK_SUCCESS) {
 			result = 1;
 			break;
 		}
@@ -231,7 +231,7 @@ int test_2i_exact()
 			result = 2;
 			break;
 		}
-		riack_free_string_list(test_client, &keys);
+        riack_free_string_list_p(test_client, &keys);
 	}
 	if (result != 0) {
 		return result;
@@ -240,7 +240,7 @@ int test_2i_exact()
 		sprintf(buffer, "%d", i);
 		search_key.len = strlen(buffer);
 		search_key.value = buffer;
-		if (riack_2i_query_exact(test_client, bucket, index2, search_key, &keys) != RIACK_SUCCESS) {
+		if (riack_2i_query_exact(test_client, &bucket, &index2, &search_key, &keys) != RIACK_SUCCESS) {
 			result = 3;
 			break;
 		}
@@ -248,7 +248,7 @@ int test_2i_exact()
 			result = 4;
 			break;
 		}
-		riack_free_string_list(test_client, &keys);
+        riack_free_string_list_p(test_client, &keys);
 	}
 	return result;
 }

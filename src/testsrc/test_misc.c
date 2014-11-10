@@ -58,7 +58,7 @@ int test_connect_with_options()
 
 int test_large_object()
 {
-	RIACK_GET_OBJECT obj;
+	RIACK_GET_OBJECT *obj;
 	RIACK_STRING key, bucket;
 	char* largeObject;
 	int result;
@@ -75,12 +75,12 @@ int test_large_object()
 	if (put(key.value, largeObject) == RIACK_SUCCESS) {
 		if (riack_get(test_client, &bucket, &key, 0, &obj) == RIACK_SUCCESS) {
 			// Validate the content we got back
-			if ((obj.object.content_count == 1) &&
-				(obj.object.content[0].data_len == 64*1024)) {
+			if ((obj->object.content_count == 1) &&
+				(obj->object.content[0].data_len == 64*1024)) {
 				result = 0;
 			}
 		}
-		riack_free_object(test_client, &obj.object);
+        riack_free_get_object_p(test_client, &obj);
 	} else {
 
 	}
@@ -107,10 +107,10 @@ int test_last_error()
 
 int test_server_info()
 {
-	RIACK_STRING node, version;
+	RIACK_STRING *node, *version;
 	if (riack_server_info(test_client, &node, &version) == RIACK_SUCCESS) {
-		riack_free_string(test_client, &node);
-		riack_free_string(test_client, &version);
+		riack_free_string_p(test_client, &node);
+		riack_free_string_p(test_client, &version);
 		return 0;
 	}
 	return 1;

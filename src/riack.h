@@ -1,4 +1,4 @@
-/*
+#include "riack_defines.h"/*
    Copyright 2012 Trifork A/S
    Author: Kaspar Pedersen
 
@@ -86,20 +86,19 @@ RIACK_EXPORT int riack_get_bucket_props_ext(RIACK_CLIENT *client, RIACK_STRING *
 
 RIACK_EXPORT int riack_reset_bucket_props(RIACK_CLIENT *client, RIACK_STRING *bucket);
 
-
 /*************************************************************************
 * Get
 *************************************************************************/
 /// props are optional and can be NULL in which case defaults will be used.
 RIACK_EXPORT int riack_get(RIACK_CLIENT *client, RIACK_STRING *bucket, RIACK_STRING *key, RIACK_GET_PROPERTIES* props,
-        RIACK_GET_OBJECT* result_object);
+        RIACK_GET_OBJECT** result_object);
 
 /*************************************************************************
 * Put
 *************************************************************************/
 /// Do a put to the server
 /// props are optional and can be NULL in which case defaults will be used.
-RIACK_EXPORT int riack_put(RIACK_CLIENT *client, RIACK_OBJECT object, RIACK_OBJECT* ppreturned_object,
+RIACK_EXPORT int riack_put(RIACK_CLIENT *client, RIACK_OBJECT *object, RIACK_OBJECT** returned_object,
         RIACK_PUT_PROPERTIES* props);
 
 /// Do a put with simplified parameters
@@ -111,11 +110,11 @@ RIACK_EXPORT int riack_put_simple(RIACK_CLIENT *client, char* bucket, char* key,
 * 2I
 *************************************************************************/
 
-RIACK_EXPORT int riack_2i_query_exact(RIACK_CLIENT *client, RIACK_STRING bucket, RIACK_STRING index,
-        RIACK_STRING search_key, RIACK_STRING_LIST **result_keys);
+RIACK_EXPORT int riack_2i_query_exact(RIACK_CLIENT *client, RIACK_STRING *bucket, RIACK_STRING *index,
+        RIACK_STRING *search_key, RIACK_STRING_LIST **result_keys);
 
-RIACK_EXPORT int riack_2i_query_range(RIACK_CLIENT *client, RIACK_STRING bucket, RIACK_STRING index,
-        RIACK_STRING search_key_min, RIACK_STRING search_key_max, RIACK_STRING_LIST **result_keys);
+RIACK_EXPORT int riack_2i_query_range(RIACK_CLIENT *client, RIACK_STRING *bucket, RIACK_STRING *index,
+        RIACK_STRING *search_key_min, RIACK_STRING *search_key_max, RIACK_STRING_LIST **result_keys);
 
 RIACK_EXPORT int riack_2i_query_ext(RIACK_CLIENT *client, RIACK_2I_QUERY_REQ *req, RIACK_STRING_LIST **result_keys,
         RIACK_STRING *continuation_token_out);
@@ -129,31 +128,32 @@ RIACK_EXPORT int riack_2i_query_stream_ext(RIACK_CLIENT *client, RIACK_2I_QUERY_
 *************************************************************************/
 
 /// Get the value of a CRDT counter, requires riak 1.4+
-RIACK_EXPORT int riack_counter_get(RIACK_CLIENT *client, RIACK_STRING bucket, RIACK_STRING key,
+RIACK_EXPORT int riack_counter_get(RIACK_CLIENT *client, RIACK_STRING *bucket, RIACK_STRING *key,
         RIACK_COUNTER_GET_PROPERTIES *props, int64_t *result);
 
 /// Increment a CRDT counter, requires riak 1.4+
 /// if returned_value is parsed along the updated value will be returned.
-RIACK_EXPORT int riack_counter_increment(RIACK_CLIENT *client, RIACK_STRING bucket, RIACK_STRING key,
+RIACK_EXPORT int riack_counter_increment(RIACK_CLIENT *client, RIACK_STRING *bucket, RIACK_STRING *key,
         int64_t amount, RIACK_COUNTER_UPDATE_PROPERTIES *props, int64_t *returned_value);
 
+/*************************************************************************
+* Misc
+*************************************************************************/
 
-////////////////////////////////////////////////////////////////////////
-// Riak 1.2
 
 /// Retrive server info
-RIACK_EXPORT int riack_server_info(RIACK_CLIENT *client, RIACK_STRING *node, RIACK_STRING* version);
+RIACK_EXPORT int riack_server_info(RIACK_CLIENT *client, RIACK_STRING **node, RIACK_STRING** version);
 
 /// Set the client id
-RIACK_EXPORT int riack_set_clientid(RIACK_CLIENT *client, RIACK_STRING clientid);
+RIACK_EXPORT int riack_set_clientid(RIACK_CLIENT *client, RIACK_STRING *clientid);
 
 /// Get client id from server
-RIACK_EXPORT int riack_get_clientid(RIACK_CLIENT *client, RIACK_STRING *clientid);
+RIACK_EXPORT int riack_get_clientid(RIACK_CLIENT *client, RIACK_STRING **clientid);
 
 
 /// Delete an object from server
 /// props are optional and can be NULL in which case defaults will be used.
-RIACK_EXPORT int riack_delete(RIACK_CLIENT *client, RIACK_STRING bucket, RIACK_STRING key,
+RIACK_EXPORT int riack_delete(RIACK_CLIENT *client, RIACK_STRING *bucket, RIACK_STRING *key,
         RIACK_DEL_PROPERTIES *props);
 
 /// Run a map reduce query on server
@@ -166,33 +166,41 @@ RIACK_EXPORT int riack_map_reduce_stream(RIACK_CLIENT *client, size_t data_len, 
         void(*callback)(RIACK_CLIENT*, void*, RIACK_MAPRED_RESPONSE*), void* callback_arg);
 
 
-RIACK_EXPORT int riack_search(RIACK_CLIENT *client, RIACK_STRING query, RIACK_STRING index,
-        RIACK_SEARCH_OPTIONAL_PARAMETERS* optional_parameters, RIACK_SEARCH_RESULT* search_result);
+RIACK_EXPORT int riack_search(RIACK_CLIENT *client, RIACK_STRING *query, RIACK_STRING *index,
+        RIACK_SEARCH_OPTIONAL_PARAMETERS* optional_parameters, RIACK_SEARCH_RESULT** search_result);
 
-////////////////////////////////////////////////////////////////////////
-// Memory management
+/*************************************************************************
+* Misc
+*************************************************************************/
 
 RIACK_EXPORT RIACK_STRING riack_copy_from_cstring(RIACK_CLIENT* client, const char* source);
 
 RIACK_EXPORT RIACK_STRING riack_copy_string(RIACK_CLIENT* client, RIACK_STRING source);
 
+RIACK_EXPORT RIACK_STRING* riack_string_alloc(RIACK_CLIENT* client);
+
 // String list
 RIACK_EXPORT RIACK_STRING_LIST* riack_string_list_alloc(RIACK_CLIENT* client);
-RIACK_EXPORT void riack_free_string_list(RIACK_CLIENT* client, RIACK_STRING_LIST** strings);
+RIACK_EXPORT void riack_free_string_list_p(RIACK_CLIENT *client, RIACK_STRING_LIST **strings);
 
-RIACK_EXPORT void riack_free_object(RIACK_CLIENT* client, RIACK_OBJECT *pobject);
+RIACK_EXPORT RIACK_OBJECT* riack_object_alloc(RIACK_CLIENT* client);
+RIACK_EXPORT void riack_free_object_p(RIACK_CLIENT *client, RIACK_OBJECT **object);
+RIACK_EXPORT void riack_free_object(RIACK_CLIENT *client, RIACK_OBJECT *object);
 
-RIACK_EXPORT void riack_free_get_object(RIACK_CLIENT* client, RIACK_GET_OBJECT *pobject);
+RIACK_EXPORT RIACK_GET_OBJECT* riack_get_object_alloc(RIACK_CLIENT* client);
+RIACK_EXPORT void riack_free_get_object_p(RIACK_CLIENT *client, RIACK_GET_OBJECT **object);
 
 RIACK_EXPORT void riack_free_mapred_result(RIACK_CLIENT* client, RIACK_MAPRED_RESPONSE_LIST *result);
 
-RIACK_EXPORT void riack_free_search_result(RIACK_CLIENT* client, RIACK_SEARCH_RESULT* search_result);
+RIACK_EXPORT void riack_free_search_result_p(RIACK_CLIENT* client, RIACK_SEARCH_RESULT** search_result);
+RIACK_EXPORT RIACK_SEARCH_RESULT* riack_search_result_alloc(RIACK_CLIENT* client);
 
 RIACK_EXPORT void riack_free_string(RIACK_CLIENT* client, RIACK_STRING* string);
+RIACK_EXPORT void riack_free_string_p(RIACK_CLIENT* client, RIACK_STRING** string);
 
-RIACK_EXPORT void riack_free_string_linked_list(RIACK_CLIENT* client, RIACK_STRING_LINKED_LIST** strings);
+RIACK_EXPORT void riack_free_string_linked_list_p(RIACK_CLIENT *client, RIACK_STRING_LINKED_LIST **strings);
 
-RIACK_EXPORT void riack_free_bucket_properties(RIACK_CLIENT *client, RIACK_BUCKET_PROPERTIES** properties);
+RIACK_EXPORT void riack_free_bucket_properties_p(RIACK_CLIENT *client, RIACK_BUCKET_PROPERTIES **properties);
 
 /// For testing purpose make a recv without sending anything
 RIACK_EXPORT void riack_timeout_test(RIACK_CLIENT* client);

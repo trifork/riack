@@ -31,7 +31,7 @@ int test_bucket_list() {
 					result = 0;
 				}
 			}
-			riack_free_string_list(test_client, &buckets);
+            riack_free_string_list_p(test_client, &buckets);
 		}
 	}
 	return result;

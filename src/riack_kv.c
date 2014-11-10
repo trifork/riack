@@ -23,6 +23,7 @@
 #include "riack_helpers.h"
 #include "protocol/riak_msg_codes.h"
 #include <string.h>
+#include <CoreFoundation/CoreFoundation.h>
 
 #define RIACK_REQ_LOCALS int retval; \
                          RIACK_PB_MSG msg_req, *msg_resp; \
@@ -114,7 +115,7 @@ int riack_put_simple(RIACK_CLIENT *client, char* bucket, char* key, uint8_t* dat
 	object.content[0].content_type.len = strlen(content_type);
 	object.content[0].data_len = datalen;
 	object.content[0].data = data;
-	result = riack_put(client, object, 0, (RIACK_PUT_PROPERTIES*)0);
+	result = riack_put(client, &object, 0, (RIACK_PUT_PROPERTIES*)0);
 	RFREE(client, object.content);
 	return result;
 }
@@ -219,17 +220,14 @@ void riack_set_del_properties(RIACK_CLIENT *client, RIACK_DEL_PROPERTIES* props,
 	}
 }
 
-int riack_get(RIACK_CLIENT *client,
-			 RIACK_STRING *bucket,
-			 RIACK_STRING *key,
-			 RIACK_GET_PROPERTIES* props,
-			 RIACK_GET_OBJECT* result_object)
+int riack_get(RIACK_CLIENT *client, RIACK_STRING *bucket, RIACK_STRING *key, RIACK_GET_PROPERTIES* props,
+        RIACK_GET_OBJECT** result_object)
 {
     RIACK_REQ_LOCALS;
 	RpbGetReq get_req;
     RpbGetResp *get_resp;
 
-	if (!RSTR_HAS_CONTENT_P(key) || !RSTR_HAS_CONTENT_P(bucket) || !client) {
+	if (!RSTR_HAS_CONTENT_P(key) || !RSTR_HAS_CONTENT_P(bucket) || !client || !result_object) {
 		return RIACK_ERROR_INVALID_INPUT;
 	}
 
@@ -256,7 +254,8 @@ int riack_get(RIACK_CLIENT *client,
 			if (msg_resp->msg_code == mc_RpbGetResp) {
 				get_resp = rpb_get_resp__unpack(&pb_allocator, msg_resp->msg_len, msg_resp->msg);
 				if (get_resp) {
-					riak_set_object_response_values_get(client, result_object, get_resp);
+                    *result_object = riack_get_object_alloc(client);
+					riak_set_object_response_values_get(client, *result_object, get_resp);
 					rpb_get_resp__free_unpacked(get_resp, &pb_allocator);
                     retval = RIACK_SUCCESS;
 				} else {
@@ -273,21 +272,21 @@ int riack_get(RIACK_CLIENT *client,
     return retval;
 }
 
-int riack_put(RIACK_CLIENT *client, RIACK_OBJECT object, RIACK_OBJECT* preturned_object,
+int riack_put(RIACK_CLIENT *client, RIACK_OBJECT *object, RIACK_OBJECT**returned_object,
         RIACK_PUT_PROPERTIES* properties)
 {
     RIACK_REQ_LOCALS;
 	RpbPutReq put_req;
     RpbPutResp *put_resp;
 
-    if (!client || !object.bucket.value) {
+    if (!client || !object || !object->bucket.value) {
 		return RIACK_ERROR_INVALID_INPUT;
 	}
 
 	pb_allocator = riack_pb_allocator(&client->allocator);
     retval = RIACK_ERROR_COMMUNICATION;
 	rpb_put_req__init(&put_req);
-	riack_copy_object_to_rpbputreq(client, &object, &put_req);
+	riack_copy_object_to_rpbputreq(client, object, &put_req);
     riack_set_object_properties(properties, &put_req);
 
 	packed_size = rpb_put_req__get_packed_size(&put_req);
@@ -302,10 +301,11 @@ int riack_put(RIACK_CLIENT *client, RIACK_OBJECT object, RIACK_OBJECT* preturned
 		{
 			if (msg_resp->msg_code == mc_RpbPutResp) {
                 retval = RIACK_SUCCESS;
-				if (preturned_object) {
+				if (returned_object) {
+                    *returned_object = riack_object_alloc(client);
 					put_resp = rpb_put_resp__unpack(&pb_allocator, msg_resp->msg_len, msg_resp->msg);
 					if (put_resp) {
-						riak_set_object_response_values(client, preturned_object, put_resp);
+						riak_set_object_response_values(client, *returned_object, put_resp);
 						rpb_put_resp__free_unpacked(put_resp, &pb_allocator);
 					} else {
                         retval = RIACK_FAILED_PB_UNPACK;
@@ -323,7 +323,7 @@ int riack_put(RIACK_CLIENT *client, RIACK_OBJECT object, RIACK_OBJECT* preturned
     return retval;
 }
 
-int riack_delete(RIACK_CLIENT *client, RIACK_STRING bucket, RIACK_STRING key, RIACK_DEL_PROPERTIES *props)
+int riack_delete(RIACK_CLIENT *client, RIACK_STRING *bucket, RIACK_STRING *key, RIACK_DEL_PROPERTIES *props)
 {
 	int result;
 	size_t packed_size;
@@ -331,17 +331,17 @@ int riack_delete(RIACK_CLIENT *client, RIACK_STRING bucket, RIACK_STRING key, RI
 	RpbDelReq del_req;
     uint8_t *request_buffer;
 
-	if (!client || !bucket.value || !key.value || key.len == 0 || bucket.len == 0) {
+	if (!client || !RSTR_HAS_CONTENT_P(bucket) || !RSTR_HAS_CONTENT_P(key)) {
 		return RIACK_ERROR_INVALID_INPUT;
 	}
 
 	result = RIACK_ERROR_COMMUNICATION;
 	rpb_del_req__init(&del_req);
 
-	del_req.bucket.len = bucket.len;
-	del_req.bucket.data = (uint8_t *) bucket.value;
-	del_req.key.len = key.len;
-	del_req.key.data = (uint8_t *) key.value;
+	del_req.bucket.len = bucket->len;
+	del_req.bucket.data = (uint8_t *) bucket->value;
+	del_req.key.len = key->len;
+	del_req.key.data = (uint8_t *) key->value;
 	riack_set_del_properties(client, props, &del_req);
 
 	packed_size = rpb_del_req__get_packed_size(&del_req);
@@ -521,14 +521,14 @@ int riack_list_buckets_ext(RIACK_CLIENT *client, RIACK_STRING* bucket_type,
     return retval;
 }
 
-int riack_set_clientid(RIACK_CLIENT *client, RIACK_STRING clientid)
+int riack_set_clientid(RIACK_CLIENT *client, RIACK_STRING *clientid)
 {
     RIACK_REQ_LOCALS;
     RpbSetClientIdReq req;
 
 	rpb_set_client_id_req__init(&req);
-	req.client_id.len = clientid.len;
-    req.client_id.data = (uint8_t*)clientid.value;
+	req.client_id.len = clientid->len;
+    req.client_id.data = (uint8_t*)clientid->value;
 
 	packed_size = rpb_set_client_id_req__get_packed_size(&req);
 	request_buffer = (uint8_t*)RMALLOC(client, packed_size);
@@ -553,13 +553,13 @@ int riack_set_clientid(RIACK_CLIENT *client, RIACK_STRING clientid)
     return retval;
 }
 
-int riack_get_clientid(RIACK_CLIENT *client, RIACK_STRING *clientid)
+int riack_get_clientid(RIACK_CLIENT *client, RIACK_STRING **clientid)
 {
     int retval;
     ProtobufCAllocator pb_allocator;
     RIACK_PB_MSG msg_req, *msg_resp;
 	RpbGetClientIdResp *id_resp;
-
+    // TODO Validate input
 	pb_allocator = riack_pb_allocator(&client->allocator);
 	msg_req.msg = 0;
 	msg_req.msg_len = 0;
@@ -570,7 +570,8 @@ int riack_get_clientid(RIACK_CLIENT *client, RIACK_STRING *clientid)
 		if (msg_resp->msg_code == mc_RpbGetClientIdResp) {
 			id_resp = rpb_get_client_id_resp__unpack(&pb_allocator, msg_resp->msg_len, msg_resp->msg);
 			if (id_resp) {
-				RMALLOCCOPY(client, clientid->value, clientid->len, id_resp->client_id.data, id_resp->client_id.len);
+                *clientid = riack_string_alloc(client);
+				RMALLOCCOPY(client, (*clientid)->value, (*clientid)->len, id_resp->client_id.data, id_resp->client_id.len);
 				rpb_get_client_id_resp__free_unpacked(id_resp, &pb_allocator);
                 retval = RIACK_SUCCESS;
 			} else {
@@ -761,40 +762,42 @@ int riack_2i_query(RIACK_CLIENT *client, RpbIndexReq* request, RIACK_STRING_LIST
     return retval;
 }
 
-int riack_2i_query_exact(RIACK_CLIENT *client, RIACK_STRING bucket,
-		RIACK_STRING index, RIACK_STRING search_key, RIACK_STRING_LIST** result_keys)
+int riack_2i_query_exact(RIACK_CLIENT *client, RIACK_STRING *bucket, RIACK_STRING *index,
+        RIACK_STRING *search_key, RIACK_STRING_LIST** result_keys)
 {
 	int result;
 	RpbIndexReq req;
+    // TODO Validate input
 	rpb_index_req__init(&req);
-	req.bucket.len = bucket.len;
-	req.bucket.data = (uint8_t*)bucket.value;
+	req.bucket.len = bucket->len;
+	req.bucket.data = (uint8_t*)bucket->value;
 	req.has_key = 1;
-	req.key.len = search_key.len;
-	req.key.data = (uint8_t*)search_key.value;
-	req.index.len = index.len;
-	req.index.data = (uint8_t*)index.value;
+	req.key.len = search_key->len;
+	req.key.data = (uint8_t*)search_key->value;
+	req.index.len = index->len;
+	req.index.data = (uint8_t*)index->value;
 	req.qtype = RPB_INDEX_REQ__INDEX_QUERY_TYPE__eq;
     result = riack_2i_query(client, &req, result_keys, 0, 0, 0);
 	return result;
 }
 
-int riack_2i_query_range(RIACK_CLIENT *client, RIACK_STRING bucket, RIACK_STRING index, RIACK_STRING search_key_min,
-		RIACK_STRING search_key_max, RIACK_STRING_LIST** result_keys)
+int riack_2i_query_range(RIACK_CLIENT *client, RIACK_STRING *bucket, RIACK_STRING *index, RIACK_STRING *search_key_min,
+		RIACK_STRING *search_key_max, RIACK_STRING_LIST** result_keys)
 {
 	int result;
 	RpbIndexReq req;
-	rpb_index_req__init(&req);
-	req.bucket.len = bucket.len;
-	req.bucket.data = (uint8_t*)bucket.value;
+    // TODO Validate input
+    rpb_index_req__init(&req);
+	req.bucket.len = bucket->len;
+	req.bucket.data = (uint8_t*)bucket->value;
 	req.has_range_min = 1;
-	req.range_min.len = search_key_min.len;
-	req.range_min.data = (uint8_t*)search_key_min.value;
+	req.range_min.len = search_key_min->len;
+	req.range_min.data = (uint8_t*)search_key_min->value;
 	req.has_range_max = 1;
-	req.range_max.len = search_key_max.len;
-	req.range_max.data = (uint8_t*)search_key_max.value;
-	req.index.len = index.len;
-	req.index.data = (uint8_t*)index.value;
+	req.range_max.len = search_key_max->len;
+	req.range_max.data = (uint8_t*)search_key_max->value;
+	req.index.len = index->len;
+	req.index.data = (uint8_t*)index->value;
 	req.qtype = RPB_INDEX_REQ__INDEX_QUERY_TYPE__range;
     result = riack_2i_query(client, &req, result_keys, 0, 0, 0);
 	return result;
@@ -868,23 +871,23 @@ int riack_2i_query_stream_ext(RIACK_CLIENT *client, RIACK_2I_QUERY_REQ *req, RIA
 * CRDTs
 ***************************/
 
-int riack_counter_get(RIACK_CLIENT *client, RIACK_STRING bucket, RIACK_STRING key,
+int riack_counter_get(RIACK_CLIENT *client, RIACK_STRING *bucket, RIACK_STRING *key,
         RIACK_COUNTER_GET_PROPERTIES *props, int64_t *result)
 {
     RIACK_REQ_LOCALS;
     RpbCounterGetReq pbreq;
     RpbCounterGetResp *pbresp;
 
-    if (!client || !RSTR_HAS_CONTENT(bucket) || !RSTR_HAS_CONTENT(key)) {
+    if (!client || !RSTR_HAS_CONTENT_P(bucket) || !RSTR_HAS_CONTENT_P(key)) {
         return RIACK_ERROR_INVALID_INPUT;
     }
     retval = RIACK_ERROR_COMMUNICATION;
     rpb_counter_get_req__init(&pbreq);
 
-    pbreq.bucket.data = (uint8_t*)bucket.value;
-    pbreq.bucket.len = bucket.len;
-    pbreq.key.data = (uint8_t*)key.value;
-    pbreq.key.len = key.len;
+    pbreq.bucket.data = (uint8_t*)bucket->value;
+    pbreq.bucket.len = bucket->len;
+    pbreq.key.data = (uint8_t*)key->value;
+    pbreq.key.len = key->len;
     if (props) {
         pbreq.has_basic_quorum = props->basic_quorum_use;
         pbreq.basic_quorum = props->basic_quorum;
@@ -931,23 +934,23 @@ int riack_counter_get(RIACK_CLIENT *client, RIACK_STRING bucket, RIACK_STRING ke
     return retval;
 }
 
-int riack_counter_increment(RIACK_CLIENT *client, RIACK_STRING bucket, RIACK_STRING key, int64_t amount,
+int riack_counter_increment(RIACK_CLIENT *client, RIACK_STRING *bucket, RIACK_STRING *key, int64_t amount,
         RIACK_COUNTER_UPDATE_PROPERTIES *props, int64_t *returned_value)
 {
     RIACK_REQ_LOCALS;
     RpbCounterUpdateReq pbreq;
     RpbCounterUpdateResp *pbresp;
 
-    if (!client || !RSTR_HAS_CONTENT(bucket) || !RSTR_HAS_CONTENT(key)) {
+    if (!client || !RSTR_HAS_CONTENT_P(bucket) || !RSTR_HAS_CONTENT_P(key)) {
         return RIACK_ERROR_INVALID_INPUT;
     }
     retval = RIACK_ERROR_COMMUNICATION;
     rpb_counter_update_req__init(&pbreq);
 
-    pbreq.bucket.data = (uint8_t*)bucket.value;
-    pbreq.bucket.len = bucket.len;
-    pbreq.key.data = (uint8_t*)key.value;
-    pbreq.key.len = key.len;
+    pbreq.bucket.data = (uint8_t*)bucket->value;
+    pbreq.bucket.len = bucket->len;
+    pbreq.key.data = (uint8_t*)key->value;
+    pbreq.key.len = key->len;
     pbreq.amount = amount;
     pbreq.has_returnvalue = 1;
     if (returned_value) {

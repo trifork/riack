@@ -131,24 +131,24 @@ void riack_copy_rpbsearchdoc_to_searchdoc(RIACK_CLIENT *client, RpbSearchDoc* rp
 }
 
 void riack_set_search_result_from_response(RIACK_CLIENT *client, RpbSearchQueryResp *response,
-        RIACK_SEARCH_RESULT* search_result)
+        RIACK_SEARCH_RESULT** search_result)
 {
-    memset(search_result, 0, sizeof(RIACK_SEARCH_RESULT));
+    *search_result = riack_search_result_alloc(client);
     if (response->has_max_score) {
-        search_result->max_score_present = 1;
-        search_result->max_score = response->max_score;
+        (*search_result)->max_score_present = 1;
+        (*search_result)->max_score = response->max_score;
     }
     if (response->has_num_found) {
-        search_result->num_found_present = 1;
-        search_result->num_found = response->num_found;
+        (*search_result)->num_found_present = 1;
+        (*search_result)->num_found = response->num_found;
     }
-    search_result->document_count = response->n_docs;
+    (*search_result)->document_count = response->n_docs;
     if (response->n_docs > 0) {
         size_t cnt, i;
         cnt = response->n_docs;
-        search_result->documents = (RIACK_SEARCH_DOCUMENT*)RMALLOC(client, sizeof(RIACK_SEARCH_DOCUMENT) * cnt);
+        (*search_result)->documents = (RIACK_SEARCH_DOCUMENT*)RMALLOC(client, sizeof(RIACK_SEARCH_DOCUMENT) * cnt);
         for (i=0; i<cnt; ++i) {
-            riack_copy_rpbsearchdoc_to_searchdoc(client, response->docs[i], &search_result->documents[i]);
+            riack_copy_rpbsearchdoc_to_searchdoc(client, response->docs[i], &(*search_result)->documents[i]);
         }
     }
 }
@@ -165,20 +165,29 @@ void riack_free_search_document(RIACK_CLIENT* client, RIACK_SEARCH_DOCUMENT* sea
     }
 }
 
-void riack_free_search_result(RIACK_CLIENT* client, RIACK_SEARCH_RESULT* search_result)
+void riack_free_search_result_p(RIACK_CLIENT* client, RIACK_SEARCH_RESULT** search_result)
 {
-    size_t cnt = search_result->document_count;
-    if (cnt > 0) {
-        size_t i;
-        for (i=0; i<cnt; ++i) {
-            riack_free_search_document(client, &search_result->documents[i]);
+    if (search_result && *search_result) {
+        size_t cnt = (*search_result)->document_count;
+        if (cnt > 0) {
+            size_t i;
+            for (i = 0; i < cnt; ++i) {
+                riack_free_search_document(client, &(*search_result)->documents[i]);
+            }
+            RFREE(client, (*search_result)->documents);
         }
-        RFREE(client, search_result->documents);
+        RFREE(client, *search_result);
+        *search_result = 0;
     }
 }
 
-int riack_search(RIACK_CLIENT *client, RIACK_STRING query, RIACK_STRING index,
-        RIACK_SEARCH_OPTIONAL_PARAMETERS* optional_parameters, RIACK_SEARCH_RESULT* search_result)
+RIACK_SEARCH_RESULT* riack_search_result_alloc(RIACK_CLIENT* client)
+{
+    return RCALLOC(client, sizeof(RIACK_SEARCH_RESULT));
+}
+
+int riack_search(RIACK_CLIENT *client, RIACK_STRING *query, RIACK_STRING *index,
+        RIACK_SEARCH_OPTIONAL_PARAMETERS* optional_parameters, RIACK_SEARCH_RESULT** search_result)
 {
     int result;
     RIACK_PB_MSG msg_req, *msg_resp;
@@ -188,16 +197,16 @@ int riack_search(RIACK_CLIENT *client, RIACK_STRING query, RIACK_STRING index,
     RpbSearchQueryResp *response;
     RpbSearchQueryReq search_req = RPB_SEARCH_QUERY_REQ__INIT;
 
-    if (!client || !query.value || query.len == 0 || !index.value || index.len == 0) {
+    if (!client || !RSTR_HAS_CONTENT_P(query) || !RSTR_HAS_CONTENT_P(index) || !search_result) {
         return RIACK_ERROR_INVALID_INPUT;
     }
     pb_allocator = riack_pb_allocator(&client->allocator);
     result = RIACK_ERROR_COMMUNICATION;
 
-    search_req.q.data = (uint8_t*)query.value;
-    search_req.q.len = query.len;
-    search_req.index.data = (uint8_t*)index.value;
-    search_req.index.len = index.len;
+    search_req.q.data = (uint8_t*)query->value;
+    search_req.q.len = query->len;
+    search_req.index.data = (uint8_t*)index->value;
+    search_req.index.len = index->len;
     riack_set_optional_search_properties_on_req(client, optional_parameters, &search_req);
     packed_size = rpb_search_query_req__get_packed_size(&search_req);
 
@@ -217,6 +226,7 @@ int riack_search(RIACK_CLIENT *client, RIACK_STRING query, RIACK_STRING index,
                     rpb_search_query_resp__free_unpacked(response, &pb_allocator);
                     result = RIACK_SUCCESS;
                 } else {
+                    *search_result = 0;
                     result = RIACK_FAILED_PB_UNPACK;
                 }
             } else {

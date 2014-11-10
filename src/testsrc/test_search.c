@@ -17,10 +17,10 @@ int test_search1()
     int result;
     RIACK_STRING test_query, index;
     RIACK_SEARCH_OPTIONAL_PARAMETERS params;
-    RIACK_SEARCH_RESULT search_result;
+    RIACK_SEARCH_RESULT *search_result;
     result = -2;
     // Load a lot of test data to search in
-    process_file("testdata/c_friendly/comments.json.out", SEARCH_BUCKET1);
+    process_file("c_friendly/comments.json.out", SEARCH_BUCKET1);
     memset(&params, 0, sizeof(RIACK_SEARCH_OPTIONAL_PARAMETERS));
 
     params.default_field_present = 1;
@@ -31,12 +31,12 @@ int test_search1()
     test_query.len = strlen(test_query.value);
     index.value = SEARCH_BUCKET1;
     index.len = strlen(index.value);
-    if (riack_search(test_client, test_query, index, &params, &search_result) == RIACK_SUCCESS) {
+    if (riack_search(test_client, &test_query, &index, &params, &search_result) == RIACK_SUCCESS) {
         // There should be two matches in data
-        if (search_result.document_count == 2) {
+        if (search_result->document_count == 2) {
             result = 0;
         }
-        riack_free_search_result(test_client, &search_result);
+        riack_free_search_result_p(test_client, &search_result);
     }
     test_load_cleanup_bucket(SEARCH_BUCKET1);
     return result;

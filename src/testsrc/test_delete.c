@@ -19,7 +19,7 @@ int delete(char* key) {
 	key_str.value = key;
 	bucket.value = RIAK_TEST_BUCKET;
 	bucket.len = strlen(bucket.value);
-	if (riack_delete(test_client, bucket, key_str, 0) == RIACK_SUCCESS) {
+	if (riack_delete(test_client, &bucket, &key_str, 0) == RIACK_SUCCESS) {
 		return 0;
 	}
 	return -1;
