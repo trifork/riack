@@ -1,4 +1,4 @@
-#include "riack_defines.h"/*
+/*
    Copyright 2012 Trifork A/S
    Author: Kaspar Pedersen
 
@@ -170,7 +170,7 @@ RIACK_EXPORT int riack_search(RIACK_CLIENT *client, RIACK_STRING *query, RIACK_S
         RIACK_SEARCH_OPTIONAL_PARAMETERS* optional_parameters, RIACK_SEARCH_RESULT** search_result);
 
 /*************************************************************************
-* Misc
+* Memory
 *************************************************************************/
 
 RIACK_EXPORT RIACK_STRING riack_copy_from_cstring(RIACK_CLIENT* client, const char* source);
