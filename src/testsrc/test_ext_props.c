@@ -16,7 +16,7 @@ int test_ext_bucket_props()
     bucket.value = RIAK_TEST_BUCKET;
 
     // Read properties so we can se them back afterwards.
-    if (riack_get_bucket_props_ext(test_client, &bucket, &old_props) != RIACK_SUCCESS) {
+    if (riack_get_bucket_props_ext(test_client, &bucket, 0, &old_props) != RIACK_SUCCESS) {
         return -1;
     }
     props.allow_mult_use = props.allow_mult = 1;
@@ -32,7 +32,7 @@ int test_ext_bucket_props()
     if (riack_set_bucket_props(test_client, &bucket, &props) != RIACK_SUCCESS) {
         return -2;
     }
-    if (riack_get_bucket_props_ext(test_client, &bucket, &read_props) != RIACK_SUCCESS) {
+    if (riack_get_bucket_props_ext(test_client, &bucket, 0, &read_props) != RIACK_SUCCESS) {
         return -1;
     }
     if (!read_props->allow_mult_use ||  read_props->allow_mult != props.allow_mult) {

@@ -582,17 +582,30 @@ RIACK_BUCKET_PROPERTIES* riack_riack_bucket_props_from_rpb(RIACK_CLIENT *client,
     return result;
 }
 
-int riack_get_bucket_base(RIACK_CLIENT *client, RIACK_STRING *bucket, RpbGetBucketResp **response) {
+int riack_get_bucket_base(RIACK_CLIENT *client, RIACK_STRING *bucket, RIACK_STRING *bucket_type,
+        RIACK_BUCKET_PROPERTIES** properties) {
     int result;
     RIACK_PB_MSG msg_req, *msg_resp;
     ProtobufCAllocator pb_allocator;
     size_t packed_size;
     uint8_t *request_buffer;
+    RpbGetBucketResp *response;
     RpbGetBucketReq get_request = RPB_GET_BUCKET_REQ__INIT;
+
+    if (!client || !RSTR_HAS_CONTENT_P(bucket) || !properties) {
+        return RIACK_ERROR_INVALID_INPUT;
+    }
     pb_allocator = riack_pb_allocator(&client->allocator);
+    *properties = NULL;
     result = RIACK_ERROR_COMMUNICATION;
+
+    get_request.bucket.data = (uint8_t *) bucket->value;
     get_request.bucket.len = bucket->len;
-    get_request.bucket.data = (uint8_t*)bucket->value;
+    if (bucket_type) {
+        get_request.has_type = 1;
+        get_request.type.len = bucket_type->len;
+        get_request.type.data = (uint8_t *) bucket_type->value;
+    }
     packed_size = rpb_get_bucket_req__get_packed_size(&get_request);
     request_buffer = (uint8_t*)RMALLOC(client, packed_size);
     if (request_buffer) {
@@ -604,8 +617,10 @@ int riack_get_bucket_base(RIACK_CLIENT *client, RIACK_STRING *bucket, RpbGetBuck
             (riack_receive_message(client, &msg_resp) > 0))
         {
             if (msg_resp->msg_code == mc_RpbGetBucketResp) {
-                *response = rpb_get_bucket_resp__unpack(&pb_allocator, msg_resp->msg_len, msg_resp->msg);
-                if (*response) {
+                response = rpb_get_bucket_resp__unpack(&pb_allocator, msg_resp->msg_len, msg_resp->msg);
+                if (response) {
+                    *properties = riack_riack_bucket_props_from_rpb(client, response->props);
+                    rpb_get_bucket_resp__free_unpacked(response, &pb_allocator);
                     result = RIACK_SUCCESS;
                 } else {
                     result = RIACK_FAILED_PB_UNPACK;
@@ -621,45 +636,15 @@ int riack_get_bucket_base(RIACK_CLIENT *client, RIACK_STRING *bucket, RpbGetBuck
     return result;
 }
 
-int riack_get_bucket_props_ext(RIACK_CLIENT *client, RIACK_STRING *bucket, RIACK_BUCKET_PROPERTIES** properties)
+int riack_get_bucket_props(RIACK_CLIENT *client, RIACK_STRING *bucket, RIACK_BUCKET_PROPERTIES** properties)
 {
-    ProtobufCAllocator pb_allocator;
-    int result;
-    RpbGetBucketResp *response;
-    if (!client || !RSTR_HAS_CONTENT_P(bucket)) {
-        return RIACK_ERROR_INVALID_INPUT;
-    }
-    pb_allocator = riack_pb_allocator(&client->allocator);
-    result = riack_get_bucket_base(client, bucket, &response);
-    *properties = NULL;
-    if (result == RIACK_SUCCESS) {
-        *properties = riack_riack_bucket_props_from_rpb(client, response->props);
-        rpb_get_bucket_resp__free_unpacked(response, &pb_allocator);
-    }
-    return result;
+    return riack_get_bucket_base(client, bucket, 0, properties);
 }
 
-
-int riack_get_bucket_props(RIACK_CLIENT *client, RIACK_STRING *bucket, uint32_t *n_val, uint8_t *allow_mult)
+int riack_get_bucket_props_ext(RIACK_CLIENT *client, RIACK_STRING *bucket, RIACK_STRING* bucket_type,
+        RIACK_BUCKET_PROPERTIES** properties)
 {
-    ProtobufCAllocator pb_allocator;
-    int result;
-    RpbGetBucketResp *response;
-    if (!client || !RSTR_HAS_CONTENT_P(bucket)) {
-        return RIACK_ERROR_INVALID_INPUT;
-    }
-    pb_allocator = riack_pb_allocator(&client->allocator);
-    result = riack_get_bucket_base(client, bucket, &response);
-    if (result == RIACK_SUCCESS) {
-        if (response->props->has_allow_mult) {
-            *allow_mult = (uint8_t) (response->props->allow_mult ? 1 : 0);
-        }
-        if (response->props->has_n_val) {
-            *n_val = response->props->n_val;
-        }
-        rpb_get_bucket_resp__free_unpacked(response, &pb_allocator);
-    }
-    return result;
+    return riack_get_bucket_base(client, bucket, bucket_type, properties);
 }
 
 int riack_server_info(RIACK_CLIENT *client, RIACK_STRING **node, RIACK_STRING** version)

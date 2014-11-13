@@ -404,7 +404,7 @@ int riack_stream_keys_ext(RIACK_CLIENT *client, RIACK_STRING *bucket, RIACK_STRI
     size_t num_keys, i;
     uint8_t recvdone;
 
-    if (!client || !callback || !bucket || bucket->len == 0) {
+    if (!client || !callback || !RSTR_HAS_CONTENT_P(bucket)) {
         return RIACK_ERROR_INVALID_INPUT;
     }
     pb_allocator = riack_pb_allocator(&client->allocator);
@@ -412,6 +412,7 @@ int riack_stream_keys_ext(RIACK_CLIENT *client, RIACK_STRING *bucket, RIACK_STRI
     rpb_list_keys_req__init(&list_req);
     list_req.bucket.len = bucket->len;
     list_req.bucket.data = (uint8_t*)bucket->value;
+
     RIACK_SET_BUCKETTYPE_AND_TIMEOUT(list_req)
     packed_size = rpb_list_keys_req__get_packed_size(&list_req);
     request_buffer = RMALLOC(client, packed_size);
