@@ -39,6 +39,7 @@ SET(RIACK_SRC	riack_sock.c
 				riack_mem.c
 				riack_helpers.h
 				riack_helpers.c
+				riack_internal.h
 				ints.h
 				protocol/riak_msg_codes.h
 				protocol/riak_msg_codes.c

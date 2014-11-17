@@ -1,4 +1,4 @@
-
+#include <riack_defines.h>
 #include "test.h"
 
 int test_ext_props(char* testcase)
@@ -6,17 +6,22 @@ int test_ext_props(char* testcase)
     return test_ext_bucket_props();
 }
 
+int test_bucket_type_props()
+{
+    //
+}
+
 int test_ext_bucket_props()
 {
-    RIACK_STRING bucket;
+    RIACK_STRING bucket, bucket_type;
     RIACK_BUCKET_PROPERTIES props, *old_props, *read_props;
 
     memset(&props, 0, sizeof(RIACK_BUCKET_PROPERTIES));
-    bucket.len = strlen(RIAK_TEST_BUCKET);
-    bucket.value = RIAK_TEST_BUCKET;
+    SZ_IN_RIACK_STR(RIAK_TEST_BUCKET, bucket)
+    SZ_IN_RIACK_STR(RIAK_TEST_BUCKET_TYPE, bucket_type);
 
     // Read properties so we can se them back afterwards.
-    if (riack_get_bucket_props_ext(test_client, &bucket, 0, &old_props) != RIACK_SUCCESS) {
+    if (riack_get_bucket_props_ext(test_client, &bucket, &bucket_type, &old_props) != RIACK_SUCCESS) {
         return -1;
     }
     props.allow_mult_use = props.allow_mult = 1;
@@ -29,10 +34,10 @@ int test_ext_bucket_props()
     props.n_val = 1;
     props.search_use = props.search = 1;
 
-    if (riack_set_bucket_props(test_client, &bucket, &props) != RIACK_SUCCESS) {
+    if (riack_set_bucket_props_ext(test_client, &bucket, &bucket_type, &props) != RIACK_SUCCESS) {
         return -2;
     }
-    if (riack_get_bucket_props_ext(test_client, &bucket, 0, &read_props) != RIACK_SUCCESS) {
+    if (riack_get_bucket_props_ext(test_client, &bucket, &bucket_type, &read_props) != RIACK_SUCCESS) {
         return -1;
     }
     if (!read_props->allow_mult_use ||  read_props->allow_mult != props.allow_mult) {

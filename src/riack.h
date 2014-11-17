@@ -88,6 +88,9 @@ RIACK_EXPORT int riack_get_bucket_props(RIACK_CLIENT *client, RIACK_STRING *buck
 
 RIACK_EXPORT int riack_reset_bucket_props(RIACK_CLIENT *client, RIACK_STRING *bucket);
 
+RIACK_EXPORT int riack_set_bucket_type_props(RIACK_CLIENT *client, RIACK_STRING *bucket_type,
+        RIACK_BUCKET_PROPERTIES* properties);
+
 /*************************************************************************
 * Get
 *************************************************************************/

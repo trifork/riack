@@ -18,18 +18,12 @@
 #pragma warning( disable:4005 )
 #define _CRT_SECURE_NO_WARNINGS
 
+#include "riack_internal.h"
 #include "riack.h"
 #include "riack_msg.h"
 #include "riack_helpers.h"
 #include "protocol/riak_msg_codes.h"
 #include <string.h>
-#include <CoreFoundation/CoreFoundation.h>
-
-#define RIACK_REQ_LOCALS int retval; \
-                         RIACK_PB_MSG msg_req, *msg_resp; \
-                         uint8_t *request_buffer; \
-                         ProtobufCAllocator pb_allocator; \
-                         size_t packed_size
 
 #define RIACK_SET_BUCKETTYPE_AND_TIMEOUT(REQ)  if (bucket_type && bucket_type->len > 0) { \
                             REQ.has_type = 1; \
@@ -37,7 +31,6 @@
                             REQ.type.data = (uint8_t *) bucket_type->value; } \
                         if (timeout > 0) { REQ.has_timeout = 1; REQ.timeout = timeout; }
 
-void riack_got_error_response(RIACK_CLIENT *client, RIACK_PB_MSG *msg);
 ProtobufCAllocator riack_pb_allocator(RIACK_ALLOCATOR *allocator);
 
 void riak_set_object_response_values(RIACK_CLIENT* client, RIACK_OBJECT *pobject, RpbPutResp* pput_resp)

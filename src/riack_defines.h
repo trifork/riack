@@ -169,7 +169,7 @@ typedef struct {
 
 /* Riak 1.4+ replication mode bucket setting */
 enum RIACK_REPLICATION_MODE {
-    REALTIME_AND_FULLSYNC, // TRUE in pbc interface
+    REALTIME_AND_FULLSYNC = 1, // TRUE in pbc interface
     REALTIME,
     FULLSYNC,
     DISABLED  // FALSE in pbc interface
@@ -246,7 +246,7 @@ typedef struct {
 
 /* MapReduce content type */
 enum RIACK_MAPRED_CONTENT_TYPE {
-	APPLICATION_JSON,
+	APPLICATION_JSON = 1,
 	APPLICATION_ERLANG_TERM
 };
 

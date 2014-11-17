@@ -19,6 +19,7 @@
 #define _CRT_SECURE_NO_WARNINGS
 
 #include "riack.h"
+#include "riack_internal.h"
 #include "riack_msg.h"
 #include "riack_helpers.h"
 #include "protocol/riak_msg_codes.h"
@@ -27,8 +28,6 @@
 #include <string.h>
 #include <stdio.h>
 
-void riack_got_error_response(RIACK_CLIENT *client, RIACK_PB_MSG *msg);
-ProtobufCAllocator riack_pb_allocator(RIACK_ALLOCATOR *allocator);
 
 void riack_free_copied_rpb_search_req(RIACK_CLIENT *client,
                                       RpbSearchQueryReq* search_req)
