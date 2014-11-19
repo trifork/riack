@@ -20,12 +20,9 @@
 
 #include "riack.h"
 #include "riack_internal.h"
-#include "riack_msg.h"
 #include "riack_helpers.h"
 #include "riack_sock.h"
-#include <stdlib.h>
 #include <string.h>
-#include <stdio.h>
 
 #include "protocol/riak_msg_codes.h"
 
@@ -192,31 +189,6 @@ int riack_reset_bucket_props(RIACK_CLIENT *client, RIACK_STRING *bucket)
     return retval;
 }
 
-int riack_set_bucket_props_base(RIACK_CLIENT *client, RpbSetBucketReq *set_request) {
-    RIACK_REQ_LOCALS;
-    retval = RIACK_ERROR_COMMUNICATION;
-    packed_size = rpb_set_bucket_req__get_packed_size(set_request);
-    request_buffer = (uint8_t*)RMALLOC(client, packed_size);
-    if (request_buffer) {
-        rpb_set_bucket_req__pack(set_request, request_buffer);
-        msg_req.msg_code = mc_RpbSetBucketReq;
-        msg_req.msg_len = (uint32_t) packed_size;
-        msg_req.msg = request_buffer;
-        if ((riack_send_message(client, &msg_req) > 0)&&
-            (riack_receive_message(client, &msg_resp) > 0)) {
-            if (msg_resp->msg_code == mc_RpbSetBucketResp) {
-                retval = RIACK_SUCCESS;
-            } else {
-                riack_got_error_response(client, msg_resp);
-                retval = RIACK_ERROR_RESPONSE;
-            }
-            riack_message_free(client, &msg_resp);
-        }
-        RFREE(client, request_buffer);
-    }
-    return retval;
-}
-
 int riack_set_bucket_props_ext(RIACK_CLIENT *client, RIACK_STRING *bucket,
         RIACK_STRING* bucket_type,
         RIACK_BUCKET_PROPERTIES* properties)
@@ -236,7 +208,7 @@ int riack_set_bucket_props_ext(RIACK_CLIENT *client, RIACK_STRING *bucket,
     set_request.bucket.len = bucket->len;
     set_request.bucket.data = (uint8_t*)bucket->value;
 
-    return riack_set_bucket_props_base(client, &set_request);
+    return riack_perform_commmand(client, &cmd_set_bucket_properties, (struct rpb_base_req const *) &set_request);
 }
 
 int riack_set_bucket_props(RIACK_CLIENT *client, RIACK_STRING *bucket, RIACK_BUCKET_PROPERTIES* properties)
@@ -244,43 +216,6 @@ int riack_set_bucket_props(RIACK_CLIENT *client, RIACK_STRING *bucket, RIACK_BUC
     return riack_set_bucket_props_ext(client, bucket, NULL, properties);
 }
 
-RIACK_EXPORT int riack_set_bucket_type_props(RIACK_CLIENT *client, RIACK_STRING *bucket_type,
-        RIACK_BUCKET_PROPERTIES* properties)
-{
-    RIACK_REQ_LOCALS;
-    RpbSetBucketTypeReq set_request = RPB_SET_BUCKET_TYPE_REQ__INIT;
-    RpbBucketProps bck_props = RPB_BUCKET_PROPS__INIT;
-    if (!client || !properties || !RSTR_HAS_CONTENT_P(bucket_type)) {
-        return RIACK_ERROR_INVALID_INPUT;
-    }
-    retval = RIACK_ERROR_COMMUNICATION;
-    set_request.type.data = (uint8_t *) bucket_type->value;
-    set_request.type.len = bucket_type->len;
-    riack_set_rpb_bucket_props(client, properties, &bck_props);
-    set_request.props = &bck_props;
-    packed_size = rpb_set_bucket_type_req__get_packed_size(&set_request);
-    request_buffer = (uint8_t*)RMALLOC(client, packed_size);
-    if (request_buffer) {
-        rpb_set_bucket_type_req__pack(&set_request, request_buffer);
-        msg_req.msg_code = mc_RpbSetBucketTypeReq;
-        msg_req.msg_len = (uint32_t) packed_size;
-        msg_req.msg = request_buffer;
-        if ((riack_send_message(client, &msg_req) > 0)&&
-                (riack_receive_message(client, &msg_resp) > 0))
-        {
-            if (msg_resp->msg_code == mc_RpbSetBucketResp) {
-                retval = RIACK_SUCCESS;
-            } else {
-                riack_got_error_response(client, msg_resp);
-                retval = RIACK_ERROR_RESPONSE;
-            }
-            riack_message_free(client, &msg_resp);
-        }
-
-        RFREE(client, request_buffer);
-    }
-    return retval;
-}
 
 int riack_get_bucket_base(RIACK_CLIENT *client, RIACK_STRING *bucket, RIACK_STRING *bucket_type,
         RIACK_BUCKET_PROPERTIES** properties) {
@@ -310,7 +245,7 @@ int riack_get_bucket_base(RIACK_CLIENT *client, RIACK_STRING *bucket, RIACK_STRI
         msg_req.msg_len = (uint32_t) packed_size;
         msg_req.msg = request_buffer;
         if ((riack_send_message(client, &msg_req) > 0)&&
-            (riack_receive_message(client, &msg_resp) > 0))
+                (riack_receive_message(client, &msg_resp) > 0))
         {
             if (msg_resp->msg_code == mc_RpbGetBucketResp) {
                 response = rpb_get_bucket_resp__unpack(&pb_allocator, msg_resp->msg_len, msg_resp->msg);
@@ -341,6 +276,64 @@ int riack_get_bucket_props_ext(RIACK_CLIENT *client, RIACK_STRING *bucket, RIACK
         RIACK_BUCKET_PROPERTIES** properties)
 {
     return riack_get_bucket_base(client, bucket, bucket_type, properties);
+}
+
+int riack_set_bucket_type_props(RIACK_CLIENT *client, RIACK_STRING *bucket_type,
+        RIACK_BUCKET_PROPERTIES* properties)
+{
+    RpbSetBucketTypeReq set_request = RPB_SET_BUCKET_TYPE_REQ__INIT;
+    RpbBucketProps bck_props = RPB_BUCKET_PROPS__INIT;
+    if (!client || !properties || !RSTR_HAS_CONTENT_P(bucket_type)) {
+        return RIACK_ERROR_INVALID_INPUT;
+    }
+    set_request.type.data = (uint8_t *) bucket_type->value;
+    set_request.type.len = bucket_type->len;
+    riack_set_rpb_bucket_props(client, properties, &bck_props);
+    set_request.props = &bck_props;
+    return riack_perform_commmand(client, &cmd_set_bucket_type, (struct rpb_base_req *) &set_request);
+}
+
+int riack_get_bucket_type_props(RIACK_CLIENT *client, RIACK_STRING* bucket_type, RIACK_BUCKET_PROPERTIES** properties)
+{
+    RIACK_REQ_LOCALS;
+    RpbGetBucketResp *response;
+    RpbGetBucketTypeReq get_request = RPB_GET_BUCKET_TYPE_REQ__INIT;
+    if (!client || !RSTR_HAS_CONTENT_P(bucket_type) || properties == 0) {
+        return RIACK_ERROR_INVALID_INPUT;
+    }
+    pb_allocator = riack_pb_allocator(&client->allocator);
+    *properties = NULL;
+    retval = RIACK_ERROR_COMMUNICATION;
+    get_request.type.len = bucket_type->len;
+    get_request.type.data = (uint8_t *) bucket_type->value;
+    packed_size = rpb_get_bucket_type_req__get_packed_size(&get_request);
+    request_buffer = (uint8_t*)RMALLOC(client, packed_size);
+    if (request_buffer) {
+        rpb_get_bucket_type_req__pack(&get_request, request_buffer);
+        msg_req.msg_code = mc_RpbGetBucketTypeReq;
+        msg_req.msg_len = (uint32_t) packed_size;
+        msg_req.msg = request_buffer;
+        if ((riack_send_message(client, &msg_req) > 0)&&
+                (riack_receive_message(client, &msg_resp) > 0))
+        {
+            if (msg_resp->msg_code == mc_RpbGetBucketResp) {
+                response = rpb_get_bucket_resp__unpack(&pb_allocator, msg_resp->msg_len, msg_resp->msg);
+                if (response) {
+                    *properties = riack_riack_bucket_props_from_rpb(client, response->props);
+                    rpb_get_bucket_resp__free_unpacked(response, &pb_allocator);
+                    retval = RIACK_SUCCESS;
+                } else {
+                    retval = RIACK_FAILED_PB_UNPACK;
+                }
+            } else {
+                riack_got_error_response(client, msg_resp);
+                retval = RIACK_ERROR_RESPONSE;
+            }
+            riack_message_free(client, &msg_resp);
+        }
+        RFREE(client, request_buffer);
+    }
+    return retval;
 }
 
 int riack_server_info(RIACK_CLIENT *client, RIACK_STRING **node, RIACK_STRING** version)

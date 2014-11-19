@@ -3,12 +3,25 @@
 
 int test_ext_props(char* testcase)
 {
-    return test_ext_bucket_props();
+    if (strcmp(testcase, "bucket") == 0) {
+        return test_ext_bucket_props();
+    } else if (strcmp(testcase, "type") == 0) {
+        return test_bucket_type_props();
+    }
+    return -1;
 }
 
 int test_bucket_type_props()
 {
-    //
+    RIACK_STRING bucket_type;
+    RIACK_BUCKET_PROPERTIES props, *read_props, *old_props;
+    memset(&props, 0, sizeof(RIACK_BUCKET_PROPERTIES));
+    SZ_IN_RIACK_STR(RIAK_TEST_BUCKET_TYPE, bucket_type);
+    if (riack_get_bucket_type_props(test_client, &bucket_type, &old_props) != RIACK_SUCCESS) {
+        return -1;
+    }
+    riack_free_bucket_properties_p(test_client, &old_props);
+    return 0;
 }
 
 int test_ext_bucket_props()

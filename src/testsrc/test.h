@@ -42,6 +42,7 @@ int test_crdt(char* testcase);
 // Specific tests
 int test_bucket_list();
 int test_bucket_properties();
+int test_bucket_type_props();
 int test_get1();
 int test_put1();
 int test_put_no_key();
