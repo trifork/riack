@@ -40,8 +40,8 @@ const struct pb_command cmd_ping = {
 const struct pb_command cmd_set_bucket_type = {
         mc_RpbSetBucketTypeReq,
         mc_RpbSetBucketResp,
-        (size_t (*)(void const *)) rpb_set_bucket_type_req__get_packed_size,
-        (size_t (*)(void const *, uint8_t *)) rpb_set_bucket_type_req__pack,
+        (rpb_packed_size_fn) rpb_set_bucket_type_req__get_packed_size,
+        (rpb_pack_fn) rpb_set_bucket_type_req__pack,
         0,
         0
 };
@@ -50,8 +50,8 @@ const struct pb_command cmd_set_bucket_type = {
 const struct pb_command cmd_set_bucket_properties = {
         mc_RpbSetBucketReq,
         mc_RpbSetBucketResp,
-        (size_t (*)(void const *)) rpb_set_bucket_req__get_packed_size,
-        (size_t (*)(void const *, uint8_t *)) rpb_set_bucket_req__pack,
+        (rpb_packed_size_fn) rpb_set_bucket_req__get_packed_size,
+        (rpb_pack_fn) rpb_set_bucket_req__pack,
         0,
         0
 };
@@ -60,30 +60,51 @@ const struct pb_command cmd_set_bucket_properties = {
 const struct pb_command cmd_reset_bucket_properties = {
         mc_RpbResetBucketReq,
         mc_RpbResetBucketResp,
-        (size_t (*)(void const *)) rpb_reset_bucket_req__get_packed_size,
-        (size_t (*)(void const *, uint8_t *)) rpb_reset_bucket_req__pack,
+        (rpb_packed_size_fn) rpb_reset_bucket_req__get_packed_size,
+        (rpb_pack_fn) rpb_reset_bucket_req__pack,
         0,
         0
 };
 
 /* Get bucket properties command */
-const struct pb_command cmd_get_bucket_props = {
+const struct pb_command cmd_get_bucket_properties = {
         mc_RpbGetBucketReq,
         mc_RpbGetBucketResp,
-        (size_t (*)(void const *)) rpb_get_bucket_req__get_packed_size,
-        (size_t (*)(void const *, uint8_t *)) rpb_get_bucket_req__pack,
-        (struct rpb_base_resp *(*)(ProtobufCAllocator *, size_t, uint8_t const *)) rpb_get_bucket_resp__unpack,
-        (void (*)(struct rpb_base_resp *, ProtobufCAllocator *)) rpb_get_bucket_resp__free_unpacked
-// TODO Find some way of hiding all these long function pointer casts
+        (rpb_packed_size_fn) rpb_get_bucket_req__get_packed_size,
+        (rpb_pack_fn) rpb_get_bucket_req__pack,
+        (rpb_unpack_fn) rpb_get_bucket_resp__unpack,
+        (rpb_free_unpacked_fn) rpb_get_bucket_resp__free_unpacked
+};
+
+/* Get bucket type properties command */
+const struct pb_command cmd_get_type_properties = {
+        mc_RpbGetBucketTypeReq,
+        mc_RpbGetBucketResp,
+        (rpb_packed_size_fn) rpb_get_bucket_type_req__get_packed_size,
+        (rpb_pack_fn) rpb_get_bucket_type_req__pack,
+        // Response is same as for get bucket properties
+        (rpb_unpack_fn) rpb_get_bucket_resp__unpack,
+        (rpb_free_unpacked_fn) rpb_get_bucket_resp__free_unpacked
 };
 
 
+/* Get server info command */
+const struct pb_command cmd_get_server_info = {
+        mc_RpbGetServerInfoReq,
+        mc_RpbGetServerInfoResp,
+        0,
+        0,
+        // Response is same as for get bucket properties
+        (rpb_unpack_fn) rpb_get_server_info_resp__unpack,
+        (rpb_free_unpacked_fn) rpb_get_server_info_resp__free_unpacked
+};
+
 int riack_perform_commmand(RIACK_CLIENT *client, const struct pb_command* cmd, const struct rpb_base_req* req,
-        int (*response_cb)(RIACK_CLIENT*, struct rpb_base_resp*))
+        cmd_response_cb cb, void** cb_arg)
 {
     RIACK_PB_MSG msg_req, *msg_resp;
     ProtobufCAllocator pb_allocator;
-    struct rpb_base_resp* resp;
+    void* resp;
     uint8_t *request_buffer;
     size_t packed_size;
     int retval;
@@ -96,14 +117,14 @@ int riack_perform_commmand(RIACK_CLIENT *client, const struct pb_command* cmd, c
     packed_size = 0;
 
     // Not all commands have data
-    if (cmd->rpb_packed_size_fn != 0 && cmd->rpb_pack != 0) {
-        packed_size = cmd->rpb_packed_size_fn(req);
+    if (cmd->packed_size_fn != 0 && cmd->pack_fn != 0) {
+        packed_size = cmd->packed_size_fn(req);
         request_buffer = (uint8_t*)RMALLOC(client, packed_size);
     }
-    if (request_buffer != 0 || cmd->rpb_packed_size_fn == 0) {
-        if (cmd->rpb_packed_size_fn != 0 && cmd->rpb_pack != 0) {
+    if (request_buffer != 0 || cmd->packed_size_fn == 0) {
+        if (cmd->packed_size_fn != 0 && cmd->pack_fn != 0) {
             // Pack if we have data
-            cmd->rpb_pack(req, request_buffer);
+            cmd->pack_fn(req, request_buffer);
         }
         msg_req.msg_code = cmd->req_msg_code;
         msg_req.msg_len = (uint32_t) packed_size;
@@ -111,11 +132,11 @@ int riack_perform_commmand(RIACK_CLIENT *client, const struct pb_command* cmd, c
         if ((riack_send_message(client, &msg_req) > 0)&&
                 (riack_receive_message(client, &msg_resp) > 0)) {
             if (msg_resp->msg_code == cmd->resp_msg_code) {
-                if (cmd->rpb_unpack != 0 && response_cb != 0) {
-                    resp = cmd->rpb_unpack(&pb_allocator, msg_resp->msg_len, msg_resp->msg);
+                if (cmd->unpack_fn != 0 && cb != 0) {
+                    resp = cmd->unpack_fn(&pb_allocator, msg_resp->msg_len, msg_resp->msg);
                     if (resp) {
-                        retval = response_cb(client, resp);
-                        cmd->rpb_free_unpacked(resp, &pb_allocator);
+                        retval = cb(client, resp, cb_arg);
+                        cmd->free_unpacked_fn(resp, &pb_allocator);
                     } else {
                         retval = RIACK_FAILED_PB_UNPACK;
                     }

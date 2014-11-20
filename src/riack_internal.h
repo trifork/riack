@@ -24,13 +24,21 @@ struct rpb_base_resp {
     ProtobufCMessage base;
 };
 
+typedef int (*cmd_response_cb)(RIACK_CLIENT*, struct rpb_base_resp*, void**);
+
+typedef size_t (*rpb_packed_size_fn)(const void *);
+typedef size_t (*rpb_pack_fn)(const void *, uint8_t*);
+typedef struct rpb_base_resp* (*rpb_unpack_fn)(ProtobufCAllocator*, size_t, const uint8_t*);
+
+typedef void (*rpb_free_unpacked_fn)(struct rpb_base_resp*, ProtobufCAllocator*);
+
 struct pb_command {
     uint8_t req_msg_code;
     uint8_t resp_msg_code;
-    size_t (*rpb_packed_size_fn)(const void *message);
-    size_t (*rpb_pack)(const void *message, uint8_t *out);
-    struct rpb_base_resp* (*rpb_unpack)(ProtobufCAllocator *allocator, size_t len, const uint8_t *data);
-    void   (*rpb_free_unpacked)(struct rpb_base_resp *message, ProtobufCAllocator *allocator);
+    rpb_packed_size_fn packed_size_fn;
+    rpb_pack_fn pack_fn;
+    rpb_unpack_fn unpack_fn;
+    rpb_free_unpacked_fn free_unpacked_fn;
 };
 
 /************************************
@@ -40,10 +48,12 @@ extern const struct pb_command cmd_ping;
 extern const struct pb_command cmd_set_bucket_type;
 extern const struct pb_command cmd_set_bucket_properties;
 extern const struct pb_command cmd_reset_bucket_properties;
-extern const struct pb_command cmd_get_bucket_props;
+extern const struct pb_command cmd_get_bucket_properties;
+extern const struct pb_command cmd_get_type_properties;
+extern const struct pb_command cmd_get_server_info;
 
 int riack_perform_commmand(RIACK_CLIENT *client, const struct pb_command* cmd, const struct rpb_base_req* req,
-        int (*response_cb)(RIACK_CLIENT*, struct rpb_base_resp* /* TODO out param*/));
+        cmd_response_cb cb, void** cb_arg);
 
 /************************************
 * riack.c
