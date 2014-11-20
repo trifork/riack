@@ -414,7 +414,7 @@ void riack_copy_pair_to_rpbpair(RIACK_CLIENT* client, RIACK_PAIR* rpair, RpbPair
 void riack_copy_rpbpair_to_pair(RIACK_CLIENT* client, RpbPair* rpc_pair, RIACK_PAIR* rpair)
 {
 	RMALLOCCOPY(client, rpair->key.value, rpair->key.len, rpc_pair->key.data, rpc_pair->key.len);
-	rpair->value_present = rpc_pair->has_value;
+	rpair->value_present = (uint8_t) rpc_pair->has_value;
 	if (rpair->value_present) {
 		rpair->value_len = rpc_pair->value.len;
 		rpair->value = (uint8_t*)RMALLOC(client, rpair->value_len);
@@ -589,7 +589,7 @@ void riack_copy_object_to_rpbputreq(RIACK_CLIENT* client, RIACK_OBJECT *pobject,
 void riack_link_strmapred_with_rpbmapred(RIACK_CLIENT* client, RpbMapRedResp* source,
                                          RIACK_MAPRED_RESPONSE* target)
 {
-	target->phase_present = source->has_phase;
+	target->phase_present = (uint8_t) source->has_phase;
 	target->phase = source->phase;
 	if (source->has_response) {
 		target->data_size = source->response.len;

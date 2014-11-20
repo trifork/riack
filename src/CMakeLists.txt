@@ -27,11 +27,14 @@ CONFIGURE_FILE (
 
 ENABLE_TESTING()
 
-SET(RIACK_SRC	riack_cmd.c
+SET(RIACK_SRC	riack_commands.c
                 riack_sock.c
 				riack_sock.h
 				riack.c
 				riack_kv.c
+				riack_2i.c
+				riack_crdt.c
+				riack_mapreduce.c
 				riack_search.c
 				riack.h
 				riack_defines.h

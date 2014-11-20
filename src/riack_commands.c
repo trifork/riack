@@ -25,6 +25,9 @@
 #include "riack_sock.h"
 #include "protocol/riak_msg_codes.h"
 
+/******************************************************************************
+* Commands
+******************************************************************************/
 
 /* Ping command */
 const struct pb_command cmd_ping = {
@@ -87,7 +90,6 @@ const struct pb_command cmd_get_type_properties = {
         (rpb_free_unpacked_fn) rpb_get_bucket_resp__free_unpacked
 };
 
-
 /* Get server info command */
 const struct pb_command cmd_get_server_info = {
         mc_RpbGetServerInfoReq,
@@ -98,6 +100,78 @@ const struct pb_command cmd_get_server_info = {
         (rpb_unpack_fn) rpb_get_server_info_resp__unpack,
         (rpb_free_unpacked_fn) rpb_get_server_info_resp__free_unpacked
 };
+
+/* Counter get command */
+const struct pb_command cmd_index_query = {
+        mc_RpbIndexReq,
+        mc_RpbIndexResp,
+        (rpb_packed_size_fn) rpb_index_req__get_packed_size,
+        (rpb_pack_fn) rpb_index_req__pack,
+        (rpb_unpack_fn) rpb_index_resp__unpack,
+        (rpb_free_unpacked_fn) rpb_index_resp__free_unpacked
+};
+
+/* Counter increment command */
+const struct pb_command cmd_counter_increment = {
+        mc_RpbCounterUpdateReq,
+        mc_RpbCounterUpdateResp,
+        (rpb_packed_size_fn) rpb_counter_update_req__get_packed_size,
+        (rpb_pack_fn) rpb_counter_update_req__pack,
+        (rpb_unpack_fn) rpb_counter_update_resp__unpack,
+        (rpb_free_unpacked_fn) rpb_counter_update_resp__free_unpacked
+};
+
+/* Counter get command */
+const struct pb_command cmd_counter_get = {
+        mc_RpbCounterGetReq,
+        mc_RpbCounterGetResp,
+        (rpb_packed_size_fn) rpb_counter_get_req__get_packed_size,
+        (rpb_pack_fn) rpb_counter_get_req__pack,
+        (rpb_unpack_fn) rpb_counter_get_resp__unpack,
+        (rpb_free_unpacked_fn) rpb_counter_get_resp__free_unpacked
+};
+
+/* Get command */
+const struct pb_command cmd_get = {
+        mc_RpbGetReq,
+        mc_RpbGetResp,
+        (rpb_packed_size_fn) rpb_get_req__get_packed_size,
+        (rpb_pack_fn) rpb_get_req__pack,
+        (rpb_unpack_fn) rpb_get_resp__unpack,
+        (rpb_free_unpacked_fn) rpb_get_resp__free_unpacked
+};
+
+/* Put command */
+const struct pb_command cmd_put = {
+        mc_RpbPutReq,
+        mc_RpbPutResp,
+        (rpb_packed_size_fn) rpb_put_req__get_packed_size,
+        (rpb_pack_fn) rpb_put_req__pack,
+        (rpb_unpack_fn) rpb_put_resp__unpack,
+        (rpb_free_unpacked_fn) rpb_put_resp__free_unpacked
+};
+
+
+/* Set client id command */
+const struct pb_command cmd_set_clientid = {
+        mc_RpbSetClientIdReq,
+        mc_RpbSetClientIdResp,
+        (rpb_packed_size_fn) rpb_set_client_id_req__get_packed_size,
+        (rpb_pack_fn) rpb_set_client_id_req__pack,
+        0,
+        0
+};
+
+/* Get client command */
+const struct pb_command cmd_get_clientid = {
+        mc_RpbGetClientIdReq,
+        mc_RpbGetClientIdResp,
+        0,
+        0,
+        (rpb_unpack_fn) rpb_get_client_id_resp__unpack,
+        (rpb_free_unpacked_fn) rpb_get_client_id_resp__free_unpacked
+};
+
 
 int riack_perform_commmand(RIACK_CLIENT *client, const struct pb_command* cmd, const struct rpb_base_req* req,
         cmd_response_cb cb, void** cb_arg)
@@ -129,25 +203,31 @@ int riack_perform_commmand(RIACK_CLIENT *client, const struct pb_command* cmd, c
         msg_req.msg_code = cmd->req_msg_code;
         msg_req.msg_len = (uint32_t) packed_size;
         msg_req.msg = request_buffer;
-        if ((riack_send_message(client, &msg_req) > 0)&&
-                (riack_receive_message(client, &msg_resp) > 0)) {
-            if (msg_resp->msg_code == cmd->resp_msg_code) {
-                if (cmd->unpack_fn != 0 && cb != 0) {
-                    resp = cmd->unpack_fn(&pb_allocator, msg_resp->msg_len, msg_resp->msg);
-                    if (resp) {
-                        retval = cb(client, resp, cb_arg);
-                        cmd->free_unpacked_fn(resp, &pb_allocator);
+        if (riack_send_message(client, &msg_req) > 0) {
+            int done = 0;
+            while (!done && riack_receive_message(client, &msg_resp) > 0) {
+                done = 1;
+                if (msg_resp->msg_code == cmd->resp_msg_code) {
+                    if (cmd->unpack_fn != 0 && cb != 0) {
+                        resp = cmd->unpack_fn(&pb_allocator, msg_resp->msg_len, msg_resp->msg);
+                        if (resp) {
+                            retval = RIACK_SUCCESS;
+                            if (cb(client, resp, cb_arg) == RIACK_CMD_CONTINUE) {
+                                done = 0;
+                            }
+                            cmd->free_unpacked_fn(resp, &pb_allocator);
+                        } else {
+                            retval = RIACK_FAILED_PB_UNPACK;
+                        }
                     } else {
-                        retval = RIACK_FAILED_PB_UNPACK;
+                        retval = RIACK_SUCCESS;
                     }
                 } else {
-                    retval = RIACK_SUCCESS;
+                    riack_got_error_response(client, msg_resp);
+                    retval = RIACK_ERROR_RESPONSE;
                 }
-            } else {
-                riack_got_error_response(client, msg_resp);
-                retval = RIACK_ERROR_RESPONSE;
+                riack_message_free(client, &msg_resp);
             }
-            riack_message_free(client, &msg_resp);
         }
         if (request_buffer != 0) {
             RFREE(client, request_buffer);

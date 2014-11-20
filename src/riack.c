@@ -26,6 +26,10 @@
 
 #include "protocol/riak_msg_codes.h"
 
+/******************************************************************************
+*
+******************************************************************************/
+
 RIACK_CLIENT* riack_new_client(RIACK_ALLOCATOR *allocator)
 {
     /* Creates a new RIACK_CLIENT instance.
@@ -173,10 +177,10 @@ int riack_set_bucket_props(RIACK_CLIENT *client, RIACK_STRING *bucket, RIACK_BUC
     return riack_set_bucket_props_ext(client, bucket, NULL, properties);
 }
 
-int riack_get_bucket_base_cb(RIACK_CLIENT *client, RpbGetBucketResp* response, RIACK_BUCKET_PROPERTIES** out)
+riack_cmd_cb_result riack_get_bucket_base_cb(RIACK_CLIENT *client, RpbGetBucketResp* response, RIACK_BUCKET_PROPERTIES** out)
 {
     *out = riack_riack_bucket_props_from_rpb(client, response->props);
-    return RIACK_SUCCESS;
+    return RIACK_CMD_DONE;
 }
 
 int riack_get_bucket_base(RIACK_CLIENT *client, RIACK_STRING *bucket, RIACK_STRING *bucket_type,
@@ -236,55 +240,43 @@ int riack_get_bucket_type_props(RIACK_CLIENT *client, RIACK_STRING* bucket_type,
             (cmd_response_cb) riack_get_bucket_base_cb, (void **) properties);
 }
 
-int riack_server_info_cb(RIACK_CLIENT *client,RpbGetServerInfoResp* response, RIACK_BUCKET_PROPERTIES** out)
+riack_cmd_cb_result riack_server_info_cb(RIACK_CLIENT *client, RpbGetServerInfoResp* response,
+        struct riack_server_info** server_info)
 {
-    // TODO
-    return RIACK_SUCCESS;
+    *server_info = RMALLOC(client, sizeof(struct riack_server_info*));
+    if (response->has_node) {
+        (*server_info)->node = riack_string_alloc(client);
+        RMALLOCCOPY(client, (*server_info)->node->value, (*server_info)->node->len, response->node.data, response->node.len);
+    } else {
+        (*server_info)->node = 0;
+    }
+    if (response->has_server_version) {
+        (*server_info)->server_version = riack_string_alloc(client);
+        RMALLOCCOPY(client, (*server_info)->server_version->value, (*server_info)->server_version->len,
+                response->server_version.data, response->server_version.len);
+    } else {
+        (*server_info)->server_version = 0;
+    }
+    return RIACK_CMD_DONE;
 }
 
 int riack_server_info(RIACK_CLIENT *client, RIACK_STRING **node, RIACK_STRING** version)
 {
-    RIACK_REQ_LOCALS;
-	RpbGetServerInfoResp *response;
-	msg_req.msg_code = mc_RpbGetServerInfoReq;
-	msg_req.msg_len = 0;
-
+    int retval;
+    struct riack_server_info* server_info;
     if (!client || node == 0 || version == 0) {
         return RIACK_ERROR_INVALID_INPUT;
     }
-	pb_allocator = riack_pb_allocator(&client->allocator);
-	retval = RIACK_ERROR_COMMUNICATION;
-	if ((riack_send_message(client, &msg_req) > 0) &&
-		(riack_receive_message(client, &msg_resp) > 0)) {
-		if (msg_resp->msg_code == mc_RpbGetServerInfoResp) {
-			response = rpb_get_server_info_resp__unpack(&pb_allocator, msg_req.msg_len, msg_req.msg);
-			if (response) {
-				if (response->has_node) {
-                    *node = riack_string_alloc(client);
-					RMALLOCCOPY(client, (*node)->value, (*node)->len, response->node.data, response->node.len);
-				} else {
-                    *node = 0;
-				}
-				if (response->has_server_version) {
-                    *version = riack_string_alloc(client);
-					RMALLOCCOPY(client, (*version)->value, (*version)->len,
-							response->server_version.data, response->server_version.len);
-				} else {
-					*version = 0;
-				}
-				// Copy responses
-				rpb_get_server_info_resp__free_unpacked(response, &pb_allocator);
-                retval = RIACK_SUCCESS;
-			} else {
-                retval = RIACK_FAILED_PB_UNPACK;
-			}
-		} else {
-			riack_got_error_response(client, msg_resp);
-            retval = RIACK_ERROR_RESPONSE;
-		}
-		riack_message_free(client, &msg_resp);
-	}
-	return retval;
+    *node = 0;
+    *version = 0;
+    retval = riack_perform_commmand(client, &cmd_get_server_info, 0,
+            (cmd_response_cb) riack_server_info_cb, (void **) &server_info);
+    if (server_info) {
+        *node = server_info->node;
+        *version = server_info->server_version;
+        RFREE(client, server_info);
+    }
+    return retval;
 }
 
 void riack_timeout_test(RIACK_CLIENT* client)

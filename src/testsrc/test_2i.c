@@ -91,7 +91,7 @@ void test_2i_pagination_stream_cb(RIACK_CLIENT* c, void* arg, RIACK_STRING *key)
 int test_2i_pagination_stream() {
     char min_buff[10], max_buff[10];
     RIACK_2I_QUERY_REQ req;
-    RIACK_STRING continuation;
+    RIACK_STRING *continuation;
     int result, cnt;
     memset(&req, 0, sizeof(req));
     result = 1;
@@ -109,17 +109,22 @@ int test_2i_pagination_stream() {
     req.search_max.len = strlen(max_buff);
     req.search_max.value = max_buff;
     if (riack_2i_query_stream_ext(test_client, &req, &continuation, &test_2i_pagination_stream_cb, &cnt) == RIACK_SUCCESS) {
-        if (cnt == 25 && continuation.len > 0) {
+        if (cnt == 25 && continuation) {
+            RIACK_STRING *continuation_inner;
             result = 0;
             // We got the first five starting from 5-9 now get the rest which should be 8
-            req.continuation_token = continuation;
+            req.continuation_token = *continuation;
             req.max_results = 100;
-            if (riack_2i_query_stream_ext(test_client, &req, &continuation, &test_2i_pagination_stream_cb, &cnt) == RIACK_SUCCESS) {
+
+            if (riack_2i_query_stream_ext(test_client, &req, &continuation_inner, &test_2i_pagination_stream_cb, &cnt) == RIACK_SUCCESS) {
                 // Expect 4 keys since we got 5 for and need 9 in total
-                if (cnt == 46 && continuation.len == 0) {
+                if (cnt == 46 && continuation_inner == 0) {
                     result = 0;
                 }
             }
+        }
+        if (continuation) {
+            riack_free_string_p(test_client, &continuation);
         }
     }
     return result;
@@ -130,7 +135,7 @@ int test_2i_pagination() {
     RIACK_2I_QUERY_REQ req;
     int result;
     RIACK_STRING_LIST *keys;
-    RIACK_STRING continuation_out;
+    RIACK_STRING *continuation_out;
     memset(&req, 0, sizeof(req));
     result = 1;
     req.bucket.len = strlen(TEST_2i_BUCKET);
@@ -146,21 +151,23 @@ int test_2i_pagination() {
     req.search_max.len = strlen(max_buff);
     req.search_max.value = max_buff;
     if (riack_2i_query_ext(test_client, &req, &keys, &continuation_out) == RIACK_SUCCESS) {
-        if (keys->string_count == 5 && continuation_out.len > 0) {
+        if (keys->string_count == 5 && continuation_out) {
+            RIACK_STRING *continuation_out_inner;
             result = 0;
             req.max_results = 100;
             // Copy continuation token from out to in.
-            req.continuation_token = continuation_out;
+            req.continuation_token = *continuation_out;
             riack_free_string_list_p(test_client, &keys);
-            if (riack_2i_query_ext(test_client, &req, &keys, &continuation_out) == RIACK_SUCCESS) {
+            if (riack_2i_query_ext(test_client, &req, &keys, &continuation_out_inner) == RIACK_SUCCESS) {
                 // Expect 4 keys since we got 5 for and need 9 in total
-                if (keys->string_count == 4 && continuation_out.len == 0) {
+                if (keys->string_count == 4 && continuation_out_inner == 0) {
                     result = 0;
                     riack_free_string_list_p(test_client, &keys);
                 }
             }
-            RSTR_SAFE_FREE(test_client, req.continuation_token);
+            riack_free_string_p(test_client, &continuation_out_inner);
         }
+        riack_free_string_p(test_client, &continuation_out);
     }
     return result;
 }

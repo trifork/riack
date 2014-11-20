@@ -117,6 +117,8 @@ RIACK_EXPORT int riack_put_simple(RIACK_CLIENT *client, char* bucket, char* key,
 * 2I
 *************************************************************************/
 
+typedef void(*index_query_cb_fn)(RIACK_CLIENT*, void*, RIACK_STRING *key);
+
 RIACK_EXPORT int riack_2i_query_exact(RIACK_CLIENT *client, RIACK_STRING *bucket, RIACK_STRING *index,
         RIACK_STRING *search_key, RIACK_STRING_LIST **result_keys);
 
@@ -124,11 +126,10 @@ RIACK_EXPORT int riack_2i_query_range(RIACK_CLIENT *client, RIACK_STRING *bucket
         RIACK_STRING *search_key_min, RIACK_STRING *search_key_max, RIACK_STRING_LIST **result_keys);
 
 RIACK_EXPORT int riack_2i_query_ext(RIACK_CLIENT *client, RIACK_2I_QUERY_REQ *req, RIACK_STRING_LIST **result_keys,
-        RIACK_STRING *continuation_token_out);
+        RIACK_STRING **continuation_token_out);
 
 RIACK_EXPORT int riack_2i_query_stream_ext(RIACK_CLIENT *client, RIACK_2I_QUERY_REQ *req,
-        RIACK_STRING *continuation_token_out, void(*callback)(RIACK_CLIENT*, void*, RIACK_STRING *key),
-        void *callback_arg);
+        RIACK_STRING **continuation_token_out, index_query_cb_fn callback, void *callback_arg);
 
 /*************************************************************************
 * Datatypes
