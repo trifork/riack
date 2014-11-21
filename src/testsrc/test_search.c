@@ -15,13 +15,13 @@ int test_search(char* testcase)
 int test_search1()
 {
     int result;
-    RIACK_STRING test_query, index;
-    RIACK_SEARCH_OPTIONAL_PARAMETERS params;
-    RIACK_SEARCH_RESULT *search_result;
+    riack_string test_query, index;
+    riack_search_optional_params params;
+    riack_search_result *search_result;
     result = -2;
     // Load a lot of test data to search in
     process_file("c_friendly/comments.json.out", SEARCH_BUCKET1);
-    memset(&params, 0, sizeof(RIACK_SEARCH_OPTIONAL_PARAMETERS));
+    memset(&params, 0, sizeof(riack_search_optional_params));
 
     params.default_field_present = 1;
     params.default_field.value = "Body";

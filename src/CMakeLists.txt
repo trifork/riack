@@ -38,6 +38,7 @@ SET(RIACK_SRC	riack_commands.c
 				riack_search.c
 				riack.h
 				riack_defines.h
+				riack_compat.h
 				riack_msg.c
 				riack_msg.h
 				riack_mem.c

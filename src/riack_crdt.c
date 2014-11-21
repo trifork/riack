@@ -20,8 +20,6 @@
 
 #include <string.h>
 #include "riack_internal.h"
-#include "riack.h"
-#include "protocol/riak_msg_codes.h"
 #include "protocol/riak_kv.pb-c.h"
 
 
@@ -29,7 +27,7 @@
 * CRDTs
 ******************************************************************************/
 
-int riack_counter_get_cb(RIACK_CLIENT *client, RpbCounterGetResp *response, int64_t *returned_value)
+int riack_counter_get_cb(riack_client *client, RpbCounterGetResp *response, int64_t *returned_value)
 {
     if (returned_value && response->has_value) {
         *returned_value = response->value;
@@ -39,8 +37,8 @@ int riack_counter_get_cb(RIACK_CLIENT *client, RpbCounterGetResp *response, int6
     return RIACK_CMD_DONE;
 }
 
-int riack_counter_get(RIACK_CLIENT *client, RIACK_STRING *bucket, RIACK_STRING *key,
-        RIACK_COUNTER_GET_PROPERTIES *props, int64_t *result)
+int riack_counter_get(riack_client *client, riack_string *bucket, riack_string *key,
+        riack_counter_get_properties *props, int64_t *result)
 {
     RpbCounterGetReq pbreq;
     if (!client || !RSTR_HAS_CONTENT_P(bucket) || !RSTR_HAS_CONTENT_P(key)) {
@@ -65,7 +63,7 @@ int riack_counter_get(RIACK_CLIENT *client, RIACK_STRING *bucket, RIACK_STRING *
             (cmd_response_cb) riack_counter_get_cb, (void **) result);
 }
 
-riack_cmd_cb_result riack_counter_increment_cb(RIACK_CLIENT *client, RpbCounterUpdateResp *response, int64_t *returned_value)
+riack_cmd_cb_result riack_counter_increment_cb(riack_client *client, RpbCounterUpdateResp *response, int64_t *returned_value)
 {
     if (returned_value && response->has_value) {
         *returned_value = response->value;
@@ -75,8 +73,8 @@ riack_cmd_cb_result riack_counter_increment_cb(RIACK_CLIENT *client, RpbCounterU
     return RIACK_CMD_DONE;
 }
 
-int riack_counter_increment(RIACK_CLIENT *client, RIACK_STRING *bucket, RIACK_STRING *key, int64_t amount,
-        RIACK_COUNTER_UPDATE_PROPERTIES *props, int64_t *returned_value)
+int riack_counter_increment(riack_client *client, riack_string *bucket, riack_string *key, int64_t amount,
+        riack_counter_update_properties *props, int64_t *returned_value)
 {
     RpbCounterUpdateReq pbreq;
     if (!client || !RSTR_HAS_CONTENT_P(bucket) || !RSTR_HAS_CONTENT_P(key)) {

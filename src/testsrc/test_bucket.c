@@ -16,7 +16,7 @@ int test_bucket(char* testcase)
 
 int test_bucket_list() {
 	size_t i;
-	RIACK_STRING_LIST *buckets;
+	riack_string_list *buckets;
 	int result, list_buckets_result;
 	result = 1;
 

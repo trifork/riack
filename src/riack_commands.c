@@ -20,9 +20,7 @@
 
 #include "riack.h"
 #include "riack_internal.h"
-#include "riack_msg.h"
 #include "riack_helpers.h"
-#include "riack_sock.h"
 #include "protocol/riak_msg_codes.h"
 
 /******************************************************************************
@@ -172,11 +170,31 @@ const struct pb_command cmd_get_clientid = {
         (rpb_free_unpacked_fn) rpb_get_client_id_resp__free_unpacked
 };
 
+/* Search command */
+const struct pb_command cmd_search = {
+        mc_RpbSearchQueryReq,
+        mc_RbpSearchQueryResp,
+        (rpb_packed_size_fn) rpb_search_query_req__get_packed_size,
+        (rpb_pack_fn) rpb_search_query_req__pack,
+        (rpb_unpack_fn) rpb_search_query_resp__unpack,
+        (rpb_free_unpacked_fn) rpb_search_query_resp__free_unpacked
+};
 
-int riack_perform_commmand(RIACK_CLIENT *client, const struct pb_command* cmd, const struct rpb_base_req* req,
+/* List buckets command */
+const struct pb_command cmd_list_buckets = {
+        mc_RpbListBucketsReq,
+        mc_RpbListBucketsResp,
+        (rpb_packed_size_fn) rpb_list_buckets_req__get_packed_size,
+        (rpb_pack_fn) rpb_list_buckets_req__pack,
+        (rpb_unpack_fn) rpb_list_buckets_resp__unpack,
+        (rpb_free_unpacked_fn) rpb_list_buckets_resp__free_unpacked
+};
+
+
+int riack_perform_commmand(riack_client *client, const struct pb_command* cmd, const struct rpb_base_req* req,
         cmd_response_cb cb, void** cb_arg)
 {
-    RIACK_PB_MSG msg_req, *msg_resp;
+    riack_pb_msg msg_req, *msg_resp;
     ProtobufCAllocator pb_allocator;
     void* resp;
     uint8_t *request_buffer;

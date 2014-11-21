@@ -21,32 +21,29 @@
 #include "protocol/riak.pb-c.h"
 #include "protocol/riak_kv.pb-c.h"
 
-void riack_free_copied_rpb_put_req(RIACK_CLIENT* client, RpbPutReq* pput_req);
-void riack_free_copied_pair(RIACK_CLIENT* client, RIACK_PAIR *ppair);
+void riack_free_copied_rpb_put_req(riack_client* client, RpbPutReq* pput_req);
+void riack_free_copied_pair(riack_client* client, riack_pair *ppair);
 
-void riack_copy_string_to_buffer(RIACK_CLIENT* client, char* str, ProtobufCBinaryData* target);
-void riack_copy_buffer_to_string(RIACK_CLIENT* client, ProtobufCBinaryData* src, char** str);
+void riack_copy_string_to_buffer(riack_client* client, char* str, ProtobufCBinaryData* target);
+void riack_copy_buffer_to_string(riack_client* client, ProtobufCBinaryData* src, char** str);
 
-void riack_copy_content_to_rpbcontent(RIACK_CLIENT* client, RIACK_CONTENT *pcontent, RpbContent* ppbc_content);
-void riack_copy_rpbcontent_to_content(RIACK_CLIENT* client, RpbContent* ppbc_content, RIACK_CONTENT *pcontent);
+void riack_copy_content_to_rpbcontent(riack_client* client, riack_content *pcontent, RpbContent* ppbc_content);
+void riack_copy_rpbcontent_to_content(riack_client* client, RpbContent* ppbc_content, riack_content *pcontent);
 
-void riack_copy_object_to_rpbputreq(RIACK_CLIENT* client, RIACK_OBJECT *pobject, RpbPutReq* pput_req);
+void riack_copy_object_to_rpbputreq(riack_client* client, riack_object *pobject, RpbPutReq* pput_req);
 
-void riack_copy_rpbpair_to_pair(RIACK_CLIENT* client, RpbPair* rpc_pair, RIACK_PAIR* rpair);
+void riack_copy_rpbpair_to_pair(riack_client* client, RpbPair* rpc_pair, riack_pair* rpair);
 
 /// This function will not allocate dynamic memory for data
-void riack_link_strmapred_with_rpbmapred(RIACK_CLIENT* client, RpbMapRedResp* source,
-                                         RIACK_MAPRED_RESPONSE* target);
+void riack_link_strmapred_with_rpbmapred(riack_client* client, RpbMapRedResp* source, riack_mapred_response* target);
 
-void riack_copy_strmapred_to_mapred(RIACK_CLIENT* client, RIACK_MAPRED_RESPONSE* source,
-                                    RIACK_MAPRED_RESPONSE_LIST* target);
+void riack_copy_strmapred_to_mapred(riack_client* client, riack_mapred_response* source,
+                                    riack_mapred_response_list* target);
 
-RIACK_STRING_LINKED_LIST* riack_string_linked_list_add(RIACK_CLIENT *client,
-		RIACK_STRING_LINKED_LIST** base,
-		RIACK_STRING string_new);
+riack_string_linked_list* riack_string_linked_list_add(riack_client *client, riack_string_linked_list** base,
+		riack_string string_new);
 
-void riack_mapred_add_to_chain(RIACK_CLIENT *client,
-        RIACK_MAPRED_RESPONSE_LIST** base,
-        RIACK_MAPRED_RESPONSE_LIST* mapred_new);
+void riack_mapred_add_to_chain(riack_client *client, riack_mapred_response_list** base,
+        riack_mapred_response_list* mapred_new);
 
 #endif // __RIACK__HELPERS__H__

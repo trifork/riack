@@ -13,9 +13,9 @@ int test_ext_props(char* testcase)
 
 int test_bucket_type_props()
 {
-    RIACK_STRING bucket_type;
-    RIACK_BUCKET_PROPERTIES props, *read_props, *old_props;
-    memset(&props, 0, sizeof(RIACK_BUCKET_PROPERTIES));
+    riack_string bucket_type;
+    riack_bucket_properties props, *read_props, *old_props;
+    memset(&props, 0, sizeof(riack_bucket_properties));
     SZ_IN_RIACK_STR(RIAK_TEST_BUCKET_TYPE, bucket_type);
     if (riack_get_bucket_type_props(test_client, &bucket_type, &old_props) != RIACK_SUCCESS) {
         return -1;
@@ -26,10 +26,10 @@ int test_bucket_type_props()
 
 int test_ext_bucket_props()
 {
-    RIACK_STRING bucket, bucket_type;
-    RIACK_BUCKET_PROPERTIES props, *old_props, *read_props;
+    riack_string bucket, bucket_type;
+    riack_bucket_properties props, *old_props, *read_props;
 
-    memset(&props, 0, sizeof(RIACK_BUCKET_PROPERTIES));
+    memset(&props, 0, sizeof(riack_bucket_properties));
     SZ_IN_RIACK_STR(RIAK_TEST_BUCKET, bucket)
     SZ_IN_RIACK_STR(RIAK_TEST_BUCKET_TYPE, bucket_type);
 

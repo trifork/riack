@@ -26,7 +26,7 @@ int put(char* key, char* data)
 
 int test_put_no_key()
 {
-    RIACK_OBJECT obj, *put_result;
+    riack_object obj, *put_result;
     char* data;
     int result;
 
@@ -38,14 +38,14 @@ int test_put_no_key()
     obj.key.value = 0;
     obj.key.len = 0;
     obj.vclock.len = 0;
-    obj.content = (RIACK_CONTENT*)RMALLOC(test_client, sizeof(RIACK_CONTENT));
-    memset(obj.content, 0, sizeof(RIACK_CONTENT));
+    obj.content = (riack_content*)RMALLOC(test_client, sizeof(riack_content));
+    memset(obj.content, 0, sizeof(riack_content));
     obj.content[0].content_type.value = "application/json";
     obj.content[0].content_type.len = strlen(obj.content[0].content_type.value);
     obj.content[0].data = (uint8_t*)data;
     obj.content[0].data_len = strlen(data);
 
-    if (riack_put(test_client, &obj, &put_result, (RIACK_PUT_PROPERTIES*)0) == RIACK_SUCCESS) {
+    if (riack_put(test_client, &obj, &put_result, (riack_put_properties*)0) == RIACK_SUCCESS) {
         if (put_result->key.len > 0) {
             result = 0;
         }
@@ -71,8 +71,8 @@ int test_put_return_header()
 	char* data;
 	size_t cnt, i;
 	int result;
-	RIACK_OBJECT obj, *put_result;
-	RIACK_PUT_PROPERTIES put_props;
+	riack_object obj, *put_result;
+    riack_put_properties put_props;
 	result = 1;
 
 	memset(&put_props, 0, sizeof(put_props));
@@ -87,8 +87,8 @@ int test_put_return_header()
 	obj.key.len = strlen(obj.key.value);
 	obj.vclock.len = 0;
 	obj.content_count = 1;
-	obj.content = (RIACK_CONTENT*)malloc(sizeof(RIACK_CONTENT));
-	memset(obj.content, 0, sizeof(RIACK_CONTENT));
+	obj.content = (riack_content*)malloc(sizeof(riack_content));
+	memset(obj.content, 0, sizeof(riack_content));
 	obj.content[0].content_type.value = "application/json";
 	obj.content[0].content_type.len = strlen(obj.content[0].content_type.value);
     obj.content[0].data = (uint8_t*)data;
@@ -119,8 +119,8 @@ int test_put_return_header()
 
 int test_get1()
 {
-	RIACK_GET_OBJECT *obj;
-	RIACK_STRING key, bucket;
+	riack_get_object *obj;
+	riack_string key, bucket;
 	char *data;
 	size_t content_size;
 	int result;

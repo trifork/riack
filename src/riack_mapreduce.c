@@ -28,19 +28,19 @@
 * Map reduce
 ******************************************************************************/
 
-static void _map_reduce_stream_callback(RIACK_CLIENT *client, void *args_raw, RIACK_MAPRED_RESPONSE *result)
+static void _map_reduce_stream_callback(riack_client *client, void *args_raw, riack_mapred_response *result)
 {
-    RIACK_MAPRED_RESPONSE_LIST** chain = (RIACK_MAPRED_RESPONSE_LIST**)args_raw;
-    RIACK_MAPRED_RESPONSE_LIST* mapred_result_current =
-            (RIACK_MAPRED_RESPONSE_LIST*)RMALLOC(client, sizeof(RIACK_MAPRED_RESPONSE_LIST));
+    riack_mapred_response_list** chain = (riack_mapred_response_list**)args_raw;
+    riack_mapred_response_list* mapred_result_current =
+            (riack_mapred_response_list*)RMALLOC(client, sizeof(riack_mapred_response_list));
     assert(chain);
     assert(result);
     riack_copy_strmapred_to_mapred(client, result, mapred_result_current);
     riack_mapred_add_to_chain(client, chain, mapred_result_current);
 }
 
-int riack_map_reduce(RIACK_CLIENT *client, size_t data_len, uint8_t* data,
-        enum RIACK_MAPRED_CONTENT_TYPE content_type, RIACK_MAPRED_RESPONSE_LIST** mapred_result)
+int riack_map_reduce(riack_client *client, size_t data_len, uint8_t* data,
+        enum RIACK_MAPRED_CONTENT_TYPE content_type, riack_mapred_response_list** mapred_result)
 {
     if (!mapred_result) {
         return RIACK_ERROR_INVALID_INPUT;
@@ -49,13 +49,13 @@ int riack_map_reduce(RIACK_CLIENT *client, size_t data_len, uint8_t* data,
     return riack_map_reduce_stream(client, data_len, data, content_type, _map_reduce_stream_callback, mapred_result);
 }
 
-int riack_map_reduce_stream(RIACK_CLIENT *client, size_t data_len, uint8_t* data,
+int riack_map_reduce_stream(riack_client *client, size_t data_len, uint8_t* data,
         enum RIACK_MAPRED_CONTENT_TYPE content_type,
-        void(*callback)(RIACK_CLIENT*, void*, RIACK_MAPRED_RESPONSE*),
+        void(*callback)(riack_client*, void*, riack_mapred_response*),
         void* callback_arg)
 {
     RIACK_REQ_LOCALS;
-    RIACK_MAPRED_RESPONSE mapred_result_current;
+    riack_mapred_response mapred_result_current;
     RpbMapRedReq mr_req;
     RpbMapRedResp *mr_resp;
     char* content_type_sz;

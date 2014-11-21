@@ -15,8 +15,8 @@
 #define RIAK_TEST_BUCKET_ANSWERS  "riack_test_answers"
 #define SZ_IN_RIACK_STR(CSTR, RSTR) RSTR.len = strlen(CSTR); RSTR.value = CSTR;
 
-extern RIACK_CLIENT *test_client;
-extern RIACK_ALLOCATOR test_allocator;
+extern riack_client *test_client;
+extern riack_allocator test_allocator;
 
 extern int test_port;
 extern char* test_host;

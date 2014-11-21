@@ -62,9 +62,9 @@ int process_file(char* filename, char* target_bucket)
 	return result;
 }
 
-int test_delete_all_keys(RIACK_STRING bucket, RIACK_STRING_LINKED_LIST *list)
+int test_delete_all_keys(riack_string bucket, riack_string_linked_list *list)
 {
-	RIACK_STRING_LINKED_LIST *current;
+    riack_string_linked_list *current;
 	int result;
 	current = list;
 	result = 1;
@@ -81,8 +81,8 @@ int test_delete_all_keys(RIACK_STRING bucket, RIACK_STRING_LINKED_LIST *list)
 
 int test_load_cleanup_bucket(char* szbucket)
 {
-	RIACK_STRING_LINKED_LIST *list;
-	RIACK_STRING bucket;
+    riack_string_linked_list *list;
+	riack_string bucket;
 	int result;
 	bucket.value = szbucket;
 	bucket.len = strlen(szbucket);

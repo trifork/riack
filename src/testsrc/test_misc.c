@@ -22,8 +22,8 @@ int test_misc(char* testcase)
 
 int test_reconnect()
 {
-	RIACK_CLIENT *client;
-	RIACK_CONNECTION_OPTIONS options;
+	riack_client *client;
+	riack_connection_options options;
 	int result;
 	result = 1;
 	client = riack_new_client(0);
@@ -42,8 +42,8 @@ int test_reconnect()
 
 int test_connect_with_options()
 {
-	RIACK_CLIENT *client;
-	RIACK_CONNECTION_OPTIONS options;
+	riack_client *client;
+	riack_connection_options options;
 	int result;
 	result = 1;
 	client = riack_new_client(0);
@@ -58,8 +58,8 @@ int test_connect_with_options()
 
 int test_large_object()
 {
-	RIACK_GET_OBJECT *obj;
-	RIACK_STRING key, bucket;
+	riack_get_object *obj;
+	riack_string key, bucket;
 	char* largeObject;
 	int result;
 
@@ -91,8 +91,8 @@ int test_large_object()
 
 int test_last_error()
 {
-	RIACK_STRING bucket, key;
-    RIACK_MAPRED_RESPONSE_LIST *result;
+    riack_string bucket, key;
+    riack_mapred_response_list *result;
 	bucket.len = strlen(RIAK_TEST_BUCKET);
 	bucket.value = RIAK_TEST_BUCKET;
 	key.len = strlen(TEST_NON_EXISTING_KEY);
@@ -107,7 +107,7 @@ int test_last_error()
 
 int test_server_info()
 {
-	RIACK_STRING *node, *version;
+	riack_string *node, *version;
 	if (riack_server_info(test_client, &node, &version) == RIACK_SUCCESS) {
 		riack_free_string_p(test_client, &node);
 		riack_free_string_p(test_client, &version);

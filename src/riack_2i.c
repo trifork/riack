@@ -32,11 +32,11 @@
 struct riack_2i_cb_args {
     index_query_cb_fn user_cb;
     void* user_cb_arg;
-    RIACK_STRING_LIST** result_keys;
-    RIACK_STRING** continuation_token;
+    riack_string_list** result_keys;
+    riack_string** continuation_token;
 };
 
-riack_cmd_cb_result riack_2i_query_cb(RIACK_CLIENT *client, RpbIndexResp* response, struct riack_2i_cb_args* args)
+riack_cmd_cb_result riack_2i_query_cb(riack_client *client, RpbIndexResp* response, struct riack_2i_cb_args* args)
 {
     size_t keys, i;
     riack_cmd_cb_result retval;
@@ -45,7 +45,7 @@ riack_cmd_cb_result riack_2i_query_cb(RIACK_CLIENT *client, RpbIndexResp* respon
     // If we have result keys then we are not streaming
     if (args->result_keys) {
         (*args->result_keys)->string_count = keys;
-        (*args->result_keys)->strings = RMALLOC(client, sizeof(RIACK_STRING) * keys);
+        (*args->result_keys)->strings = RMALLOC(client, sizeof(riack_string) * keys);
         for (i=0; i<keys; ++i) {
             RMALLOCCOPY(client, (*args->result_keys)->strings[i].value, (*args->result_keys)->strings[i].len,
                     response->keys[i].data, response->keys[i].len);
@@ -55,7 +55,7 @@ riack_cmd_cb_result riack_2i_query_cb(RIACK_CLIENT *client, RpbIndexResp* respon
     if (args->user_cb) {
         retval = RIACK_CMD_CONTINUE;
         for (i=0; i<keys; ++i) {
-            RIACK_STRING key;
+            riack_string key;
             key.len = response->keys[i].len;
             key.value = (char*)response->keys[i].data;
             args->user_cb(client, args->user_cb_arg, &key);
@@ -74,8 +74,8 @@ riack_cmd_cb_result riack_2i_query_cb(RIACK_CLIENT *client, RpbIndexResp* respon
     return retval;
 }
 
-int riack_2i_query(RIACK_CLIENT *client, RpbIndexReq* request, RIACK_STRING_LIST** result_keys,
-        RIACK_STRING** continuation_token, index_query_cb_fn callback, void *callback_arg)
+int riack_2i_query(riack_client *client, RpbIndexReq* request, riack_string_list** result_keys,
+        riack_string** continuation_token, index_query_cb_fn callback, void *callback_arg)
 {
     struct riack_2i_cb_args cb_args_cmd;
     if (result_keys) {
@@ -90,8 +90,8 @@ int riack_2i_query(RIACK_CLIENT *client, RpbIndexReq* request, RIACK_STRING_LIST
 
 }
 
-int riack_2i_query_exact(RIACK_CLIENT *client, RIACK_STRING *bucket, RIACK_STRING *index,
-        RIACK_STRING *search_key, RIACK_STRING_LIST** result_keys)
+int riack_2i_query_exact(riack_client *client, riack_string *bucket, riack_string *index,
+        riack_string *search_key, riack_string_list** result_keys)
 {
     int result;
     RpbIndexReq req;
@@ -111,8 +111,8 @@ int riack_2i_query_exact(RIACK_CLIENT *client, RIACK_STRING *bucket, RIACK_STRIN
     return result;
 }
 
-int riack_2i_query_range(RIACK_CLIENT *client, RIACK_STRING *bucket, RIACK_STRING *index, RIACK_STRING *search_key_min,
-        RIACK_STRING *search_key_max, RIACK_STRING_LIST** result_keys)
+int riack_2i_query_range(riack_client *client, riack_string *bucket, riack_string *index, riack_string *search_key_min,
+        riack_string *search_key_max, riack_string_list** result_keys)
 {
     int result;
     RpbIndexReq req;
@@ -136,7 +136,7 @@ int riack_2i_query_range(RIACK_CLIENT *client, RIACK_STRING *bucket, RIACK_STRIN
     return result;
 }
 
-void riack_set_index_req_from_riack_req(RIACK_2I_QUERY_REQ *req, RpbIndexReq *pbreq)
+void riack_set_index_req_from_riack_req(riack_2i_query_req *req, RpbIndexReq *pbreq)
 {
     pbreq->bucket.len = req->bucket.len;
     pbreq->bucket.data = (uint8_t*)req->bucket.value;
@@ -169,10 +169,8 @@ void riack_set_index_req_from_riack_req(RIACK_2I_QUERY_REQ *req, RpbIndexReq *pb
     }
 }
 
-int riack_2i_query_ext(RIACK_CLIENT *client,
-        RIACK_2I_QUERY_REQ *req,
-        RIACK_STRING_LIST **result_keys,
-        RIACK_STRING **continuation_token_out)
+int riack_2i_query_ext(riack_client *client, riack_2i_query_req *req,
+        riack_string_list **result_keys, riack_string **continuation_token_out)
 {
     int result;
     RpbIndexReq pbreq;
@@ -185,8 +183,8 @@ int riack_2i_query_ext(RIACK_CLIENT *client,
     return result;
 }
 
-int riack_2i_query_stream_ext(RIACK_CLIENT *client, RIACK_2I_QUERY_REQ *req, RIACK_STRING **continuation_token_out,
-        void(*callback)(RIACK_CLIENT*, void*, RIACK_STRING *key), void *callback_arg)
+int riack_2i_query_stream_ext(riack_client *client, riack_2i_query_req *req, riack_string **continuation_token_out,
+        void(*callback)(riack_client*, void*, riack_string *key), void *callback_arg)
 {
     int result;
     RpbIndexReq pbreq;

@@ -28,10 +28,10 @@ int test_2i(char* testcase)
 	}
 }
 
-int put_object_with_index(char* bucket, char* key, char*value, RIACK_PAIR *indexes, size_t index_count)
+int put_object_with_index(char* bucket, char* key, char*value, riack_pair *indexes, size_t index_count)
 {
-	RIACK_CONTENT content;
-	RIACK_OBJECT object;
+	riack_content content;
+	riack_object object;
 	
 	memset(&content, 0, sizeof(content));
 	memset(&object, 0, sizeof(object));
@@ -57,9 +57,9 @@ int put_object_with_index(char* bucket, char* key, char*value, RIACK_PAIR *index
 int test_2i_load()
 {
 	char buffer1[10], buffer2[10], keybuffer[16];
-	RIACK_PAIR *indexes;
+	riack_pair *indexes;
 	int i;
-	indexes = malloc(sizeof(RIACK_PAIR)*2);
+	indexes = malloc(sizeof(riack_pair)*2);
 	indexes[0].key.value = TETS_2i_INDEX1;
 	indexes[0].key.len = strlen(indexes[0].key.value);
 	indexes[0].value_present = 1;
@@ -83,15 +83,15 @@ int test_2i_load()
 	return 0;
 }
 
-void test_2i_pagination_stream_cb(RIACK_CLIENT* c, void* arg, RIACK_STRING *key) {
+void test_2i_pagination_stream_cb(riack_client* c, void* arg, riack_string *key) {
     int *cnt = (int*)arg;
     (*cnt)++;
 }
 
 int test_2i_pagination_stream() {
     char min_buff[10], max_buff[10];
-    RIACK_2I_QUERY_REQ req;
-    RIACK_STRING *continuation;
+    riack_2i_query_req req;
+    riack_string *continuation;
     int result, cnt;
     memset(&req, 0, sizeof(req));
     result = 1;
@@ -110,7 +110,7 @@ int test_2i_pagination_stream() {
     req.search_max.value = max_buff;
     if (riack_2i_query_stream_ext(test_client, &req, &continuation, &test_2i_pagination_stream_cb, &cnt) == RIACK_SUCCESS) {
         if (cnt == 25 && continuation) {
-            RIACK_STRING *continuation_inner;
+            riack_string *continuation_inner;
             result = 0;
             // We got the first five starting from 5-9 now get the rest which should be 8
             req.continuation_token = *continuation;
@@ -132,10 +132,10 @@ int test_2i_pagination_stream() {
 
 int test_2i_pagination() {
     char min_buff[10], max_buff[10];
-    RIACK_2I_QUERY_REQ req;
+    riack_2i_query_req req;
     int result;
-    RIACK_STRING_LIST *keys;
-    RIACK_STRING *continuation_out;
+    riack_string_list *keys;
+    riack_string *continuation_out;
     memset(&req, 0, sizeof(req));
     result = 1;
     req.bucket.len = strlen(TEST_2i_BUCKET);
@@ -152,7 +152,7 @@ int test_2i_pagination() {
     req.search_max.value = max_buff;
     if (riack_2i_query_ext(test_client, &req, &keys, &continuation_out) == RIACK_SUCCESS) {
         if (keys->string_count == 5 && continuation_out) {
-            RIACK_STRING *continuation_out_inner;
+            riack_string *continuation_out_inner;
             result = 0;
             req.max_results = 100;
             // Copy continuation token from out to in.
@@ -180,8 +180,8 @@ int test_2i_cleanup()
 int test_2i_range()
 {
     char min_buff[10], max_buff[10];
-	RIACK_STRING index1, index2, min_key, max_key, bucket;
-	RIACK_STRING_LIST *keys;
+    riack_string index1, index2, min_key, max_key, bucket;
+	riack_string_list *keys;
     int i, result;
 	index1.len = strlen(TETS_2i_INDEX1);
 	index1.value = TETS_2i_INDEX1;
@@ -214,8 +214,8 @@ int test_2i_range()
 int test_2i_exact()
 {
 	char buffer[10], expected_key[100];
-	RIACK_STRING index1, index2, search_key, bucket;
-	RIACK_STRING_LIST *keys;
+	riack_string index1, index2, search_key, bucket;
+	riack_string_list *keys;
 	int i, result;
 	index1.len = strlen(TETS_2i_INDEX1);
 	index1.value = TETS_2i_INDEX1;

@@ -23,13 +23,13 @@ typedef struct {
 	uint8_t  msg_code;
 	uint32_t msg_len;
 	uint8_t* msg;
-} RIACK_PB_MSG;
+} riack_pb_msg;
 
-void dbg_print_message(RIACK_PB_MSG* pmsg);
+void dbg_print_message(riack_pb_msg * pmsg);
 
-int riack_send_message(RIACK_CLIENT *client, RIACK_PB_MSG* msg);
-int riack_receive_message(RIACK_CLIENT *client, RIACK_PB_MSG** msg);
+int riack_send_message(riack_client *client, riack_pb_msg * msg);
+int riack_receive_message(riack_client *client, riack_pb_msg ** msg);
 
-void riack_message_free(RIACK_CLIENT *client, RIACK_PB_MSG** ppMsg);
+void riack_message_free(riack_client *client, riack_pb_msg ** ppMsg);
 
 #endif /* RIACK_MSG_H_ */

@@ -14,9 +14,9 @@ int test_meta_links(char* testcase)
 	}
 }
 
-RIACK_STRING_LINKED_LIST *test_make_links(RIACK_STRING_LINKED_LIST *keys_answers, RIACK_CONTENT *content)
+riack_string_linked_list *test_make_links(riack_string_linked_list *keys_answers, riack_content *content)
 {
-	RIACK_STRING_LINKED_LIST *current;
+    riack_string_linked_list *current;
 	current = keys_answers;
 	if (current) {
 		if (current->next) {
@@ -24,7 +24,7 @@ RIACK_STRING_LINKED_LIST *test_make_links(RIACK_STRING_LINKED_LIST *keys_answers
 		} else {
 			content->link_count = 1;
 		}
-		content->links = malloc(sizeof(RIACK_LINK) * content->link_count);
+		content->links = malloc(sizeof(riack_link) * content->link_count);
 		content->links[0].bucket = riack_copy_from_cstring(test_client, RIAK_TEST_BUCKET_ANSWERS);
 		content->links[0].key = riack_copy_string(test_client, current->string);
 		content->links[0].tag = riack_copy_from_cstring(test_client, "link1");
@@ -42,8 +42,8 @@ RIACK_STRING_LINKED_LIST *test_make_links(RIACK_STRING_LINKED_LIST *keys_answers
 	return current;
 }
 
-RIACK_STRING copy_string(RIACK_STRING *str) {
-	RIACK_STRING result;
+riack_string copy_string(riack_string *str) {
+    riack_string result;
 	result.len = str->len;
 	result.value = 0;
 	if (str->len>0) {
@@ -53,9 +53,9 @@ RIACK_STRING copy_string(RIACK_STRING *str) {
 	return result;
 }
 
-RIACK_PAIR* copy_metas(RIACK_PAIR* pairs, size_t count) {
+riack_pair* copy_metas(riack_pair* pairs, size_t count) {
 	size_t i;
-	RIACK_PAIR* result = malloc(sizeof(RIACK_PAIR) * count);
+    riack_pair* result = malloc(sizeof(riack_pair) * count);
 	for (i=0; i<count; ++i) {
 		result[i].key = copy_string(&(pairs[i].key));
 		result[i].value_present = pairs[i].value_present;
@@ -68,9 +68,9 @@ RIACK_PAIR* copy_metas(RIACK_PAIR* pairs, size_t count) {
 	return result;
 }
 
-RIACK_CONTENT *copy_content(RIACK_CONTENT *org) {
-	RIACK_CONTENT *result = malloc(sizeof(RIACK_CONTENT));
-	memset(result, 0, sizeof(RIACK_CONTENT));
+riack_content *copy_content(riack_content *org) {
+    riack_content *result = malloc(sizeof(riack_content));
+	memset(result, 0, sizeof(riack_content));
 	result->charset = copy_string(&org->charset);
 	result->content_encoding = copy_string(&org->content_encoding);
 	result->content_type = copy_string(&org->content_type);
@@ -92,10 +92,10 @@ RIACK_CONTENT *copy_content(RIACK_CONTENT *org) {
 
 int test_meta_links_load()
 {
-	RIACK_STRING bucket_posts, bucket_answers;
-	RIACK_GET_OBJECT *get_post;
-	RIACK_OBJECT put_post;
-	RIACK_STRING_LINKED_LIST *keys_posts, *current_post, *keys_answers, *current_answer;
+	riack_string bucket_posts, bucket_answers;
+	riack_get_object *get_post;
+	riack_object put_post;
+	riack_string_linked_list *keys_posts, *current_post, *keys_answers, *current_answer;
 	bucket_posts.len = strlen(RIAK_TEST_BUCKET_POSTS);
 	bucket_posts.value = RIAK_TEST_BUCKET_POSTS;
 	bucket_answers.len = strlen(RIAK_TEST_BUCKET_ANSWERS);

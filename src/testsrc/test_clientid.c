@@ -13,7 +13,7 @@ int test_clientid(char* testcase)
 }
 
 int test_clientid_basic() {
-	RIACK_STRING clientid_in, *clientid_out;
+	riack_string clientid_in, *clientid_out;
 	clientid_in.len = strlen(TEST_CLIENT_ID);
 	clientid_in.value = TEST_CLIENT_ID;
 	if (riack_set_clientid(test_client, &clientid_in) == RIACK_SUCCESS) {
