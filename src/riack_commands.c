@@ -211,10 +211,12 @@ int riack_perform_commmand(riack_client *client, const struct pb_command* cmd, c
     // Not all commands have data
     if (cmd->packed_size_fn != 0 && cmd->pack_fn != 0) {
         packed_size = cmd->packed_size_fn(req);
-        request_buffer = (uint8_t*)RMALLOC(client, packed_size);
+        if (packed_size > 0) {
+            request_buffer = (uint8_t *) RMALLOC(client, packed_size);
+        }
     }
-    if (request_buffer != 0 || cmd->packed_size_fn == 0) {
-        if (cmd->packed_size_fn != 0 && cmd->pack_fn != 0) {
+    if (request_buffer != 0 || packed_size == 0) {
+        if (packed_size > 0 && cmd->pack_fn != 0) {
             // Pack if we have data
             cmd->pack_fn(req, request_buffer);
         }
