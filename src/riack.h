@@ -59,8 +59,10 @@ RIACK_EXPORT int riack_list_buckets(riack_client *client, riack_string_list** bu
 * Key listing (should not be used in production)
 *************************************************************************/
 
+typedef void(*list_keys_stream_cb)(riack_client*, void*, riack_string);
+
 RIACK_EXPORT int riack_stream_keys_ext(riack_client *client, riack_string *bucket, riack_string *bucket_type,
-        void(*callback)(riack_client*, void*, riack_string), void* callback_arg, uint32_t timeout);
+        list_keys_stream_cb callback, void* callback_arg, uint32_t timeout);
 
 RIACK_EXPORT int riack_stream_keys(riack_client *client, riack_string *bucket,
         void(*callback)(riack_client*, void*, riack_string), void* callback_arg);

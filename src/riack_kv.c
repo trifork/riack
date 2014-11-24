@@ -19,10 +19,7 @@
 #define _CRT_SECURE_NO_WARNINGS
 
 #include "riack_internal.h"
-#include "riack.h"
-#include "riack_msg.h"
 #include "riack_helpers.h"
-#include "protocol/riak_msg_codes.h"
 #include <string.h>
 
 #define RIACK_SET_BUCKETTYPE_AND_TIMEOUT(REQ)  if (bucket_type && bucket_type->len > 0) { \
@@ -37,27 +34,9 @@ void riack_set_object_properties(riack_put_properties* pprops, RpbPutReq* pput_r
 void riack_set_get_properties(riack_client *client, riack_get_properties* props, RpbGetReq* get_req);
 void riack_set_del_properties(riack_client *client, riack_del_properties* props, RpbDelReq* del_req);
 
-
-int riack_put_simple(riack_client *client, char* bucket, char* key, uint8_t* data, size_t datalen, char* content_type)
-{
-	int result;
-	riack_object object;
-	object.bucket.value = bucket;
-	object.bucket.len = strlen(bucket);
-	object.key.value = key;
-	object.key.len = strlen(key);
-	object.vclock.len = 0;
-	object.content = (riack_content*)RMALLOC(client, sizeof(riack_content));
-	memset(object.content, 0, sizeof(riack_content));
-	object.content[0].content_type.value = content_type;
-	object.content[0].content_type.len = strlen(content_type);
-	object.content[0].data_len = datalen;
-	object.content[0].data = data;
-	result = riack_put(client, &object, 0, (riack_put_properties*)0);
-	RFREE(client, object.content);
-	return result;
-}
-
+/******************************************************************************
+* Get
+******************************************************************************/
 
 riack_cmd_cb_result riack_get_cb(riack_client *client, RpbGetResp* response, riack_get_object** result_object)
 {
@@ -83,6 +62,31 @@ int riack_get(riack_client *client, riack_string *bucket, riack_string *key, ria
             (cmd_response_cb) riack_get_cb, (void **) result_object);
 }
 
+/******************************************************************************
+* Put
+******************************************************************************/
+
+
+int riack_put_simple(riack_client *client, char* bucket, char* key, uint8_t* data, size_t datalen, char* content_type)
+{
+    int result;
+    riack_object object;
+    object.bucket.value = bucket;
+    object.bucket.len = strlen(bucket);
+    object.key.value = key;
+    object.key.len = strlen(key);
+    object.vclock.len = 0;
+    object.content = (riack_content*)RMALLOC(client, sizeof(riack_content));
+    memset(object.content, 0, sizeof(riack_content));
+    object.content[0].content_type.value = content_type;
+    object.content[0].content_type.len = strlen(content_type);
+    object.content[0].data_len = datalen;
+    object.content[0].data = data;
+    result = riack_put(client, &object, 0, (riack_put_properties*)0);
+    RFREE(client, object.content);
+    return result;
+}
+
 riack_cmd_cb_result riack_put_cb(riack_client *client, RpbPutResp* response, riack_object** returned_object)
 {
     if (returned_object) {
@@ -96,29 +100,30 @@ int riack_put(riack_client *client, riack_object *object, riack_object**returned
         riack_put_properties* properties)
 {
 	RpbPutReq put_req;
+    int retval;
     if (!client || !object || !object->bucket.value) {
 		return RIACK_ERROR_INVALID_INPUT;
 	}
 	rpb_put_req__init(&put_req);
 	riack_copy_object_to_rpbputreq(client, object, &put_req);
     riack_set_object_properties(properties, &put_req);
-    return riack_perform_commmand(client, &cmd_put, (struct rpb_base_req const *) &put_req,
+    retval = riack_perform_commmand(client, &cmd_put, (struct rpb_base_req const *) &put_req,
             (cmd_response_cb) riack_put_cb, (void **) returned_object);
+    riack_free_copied_rpb_put_req(client, &put_req);
+    return retval;
 }
+
+/******************************************************************************
+* Delete
+******************************************************************************/
 
 int riack_delete(riack_client *client, riack_string *bucket, riack_string *key, riack_del_properties *props)
 {
 	int result;
-	size_t packed_size;
-	riack_pb_msg msg_req, *msg_resp;
 	RpbDelReq del_req;
-    uint8_t *request_buffer;
-
 	if (!client || !RSTR_HAS_CONTENT_P(bucket) || !RSTR_HAS_CONTENT_P(key)) {
 		return RIACK_ERROR_INVALID_INPUT;
 	}
-
-	result = RIACK_ERROR_COMMUNICATION;
 	rpb_del_req__init(&del_req);
 
 	del_req.bucket.len = bucket->len;
@@ -127,30 +132,16 @@ int riack_delete(riack_client *client, riack_string *bucket, riack_string *key, 
 	del_req.key.data = (uint8_t *) key->value;
 	riack_set_del_properties(client, props, &del_req);
 
-	packed_size = rpb_del_req__get_packed_size(&del_req);
-	request_buffer = (uint8_t*)RMALLOC(client, packed_size);
-	if (request_buffer) {
-		rpb_del_req__pack(&del_req, request_buffer);
-		msg_req.msg_code = mc_RpbDelReq;
-		msg_req.msg_len = (uint32_t) packed_size;
-		msg_req.msg = request_buffer;
-		if ((riack_send_message(client, &msg_req) > 0)&&
-			(riack_receive_message(client, &msg_resp) > 0))
-		{
-			if (msg_resp->msg_code == mc_RpbDelResp) {
-				result = RIACK_SUCCESS;
-			} else {
-				riack_got_error_response(client, msg_resp);
-				result = RIACK_ERROR_RESPONSE;
-			}
-			riack_message_free(client, &msg_resp);
-		}
-		RFREE(client, request_buffer);
-	}
+    result = riack_perform_commmand(client, &cmd_delete, (struct rpb_base_req const *) &del_req, 0, 0);
 
+    // TODO No need to copy and free vclock
     RFREE(client, del_req.vclock.data);
     return result;
 }
+
+/******************************************************************************
+* List keys
+******************************************************************************/
 
 static void _list_keys_stream_callback(riack_client *client, void *args_raw, riack_string key)
 {
@@ -176,67 +167,39 @@ int riack_list_keys(riack_client *client, riack_string *bucket, riack_string_lin
 	return riack_list_keys_ext(client, bucket, NULL, keys, 0);
 }
 
-int riack_stream_keys_ext(riack_client *client, riack_string *bucket, riack_string* bucket_type,
-        void(*callback)(riack_client*, void*, riack_string),
-        void* callback_arg, uint32_t timeout)
+riack_cmd_cb_result riack_stream_keys_ext_cb(riack_client *client, RpbListKeysResp *response,
+        riack_stream_cb_params* user_cb_arg)
 {
-    RIACK_REQ_LOCALS;
-    RpbListKeysReq list_req;
-    RpbListKeysResp *list_resp;
     riack_string current_string;
-    size_t num_keys, i;
-    uint8_t recvdone;
+    size_t i;
+    for (i=0; i<response->n_keys; ++i) {
+        current_string.value = (char*)response->keys[i].data;
+        current_string.len   = response->keys[i].len;
+        user_cb_arg->callback(client, user_cb_arg->user_cb_arg, current_string);
+    }
+    if (response->has_done && response->done) {
+        return RIACK_CMD_DONE;
+    }
+    return RIACK_CMD_CONTINUE;
+}
+
+int riack_stream_keys_ext(riack_client *client, riack_string *bucket, riack_string* bucket_type,
+        list_keys_stream_cb callback, void* callback_arg, uint32_t timeout)
+{
+    RpbListKeysReq list_req;
+    riack_stream_cb_params user_cb;
 
     if (!client || !callback || !RSTR_HAS_CONTENT_P(bucket)) {
         return RIACK_ERROR_INVALID_INPUT;
     }
-    pb_allocator = riack_pb_allocator(&client->allocator);
-    retval = RIACK_ERROR_COMMUNICATION;
     rpb_list_keys_req__init(&list_req);
     list_req.bucket.len = bucket->len;
     list_req.bucket.data = (uint8_t*)bucket->value;
-
     RIACK_SET_BUCKETTYPE_AND_TIMEOUT(list_req)
-    packed_size = rpb_list_keys_req__get_packed_size(&list_req);
-    request_buffer = RMALLOC(client, packed_size);
-    if (request_buffer) {
-        rpb_list_keys_req__pack(&list_req, request_buffer);
-        msg_req.msg_code = mc_RpbListKeysReq;
-        msg_req.msg_len = (uint32_t) packed_size;
-        msg_req.msg = request_buffer;
-        if (riack_send_message(client, &msg_req) > 0)
-        {
-            recvdone = 0;
-            while (!recvdone) {
-                if (riack_receive_message(client, &msg_resp) > 0) {
-                    if (msg_resp->msg_code == mc_RpbListKeysResp) {
-                        list_resp = rpb_list_keys_resp__unpack(&pb_allocator, msg_resp->msg_len, msg_resp->msg);
-                        if (list_resp) {
-                            if (list_resp->has_done && list_resp->done) {
-                                recvdone = 1;
-                                retval = RIACK_SUCCESS;
-                            }
-                            num_keys = list_resp->n_keys;
-                            for (i=0; i<num_keys; ++i) {
-                                current_string.value = (char*)list_resp->keys[i].data;
-                                current_string.len   = list_resp->keys[i].len;
-                                callback(client, callback_arg, current_string);
-                            }
-                            rpb_list_keys_resp__free_unpacked(list_resp, &pb_allocator);
-                        } else {
-                            retval = RIACK_FAILED_PB_UNPACK;
-                        }
-                    } else {
-                        riack_got_error_response(client, msg_resp);
-                        recvdone = 1;
-                    }
-                    riack_message_free(client, &msg_resp);
-                }
-            }
-        }
-        RFREE(client, request_buffer);
-    }
-    return retval;
+    user_cb.callback = callback;
+    user_cb.user_cb_arg = callback_arg;
+    return riack_perform_commmand(client, &cmd_list_keys, (struct rpb_base_req const *) &list_req,
+            (cmd_response_cb) riack_stream_keys_ext_cb, (void **) &user_cb);
 }
 
 int riack_stream_keys(riack_client *client, riack_string *bucket,
@@ -244,6 +207,10 @@ int riack_stream_keys(riack_client *client, riack_string *bucket,
 {
     return riack_stream_keys_ext(client, bucket, NULL, callback, callback_arg, 0);
 }
+
+/******************************************************************************
+* List buckets
+******************************************************************************/
 
 int riack_list_buckets(riack_client *client, riack_string_list** bucket_list)
 {
@@ -284,6 +251,10 @@ int riack_list_buckets_ext(riack_client *client, riack_string* bucket_type,
     return riack_perform_commmand(client, &cmd_list_buckets, (struct rpb_base_req const *) &list_req,
             (cmd_response_cb) riack_list_buckets_ext_cb, (void **) bucket_list);
 }
+
+/******************************************************************************
+* Get/Set client id
+******************************************************************************/
 
 int riack_set_clientid(riack_client *client, riack_string *clientid)
 {

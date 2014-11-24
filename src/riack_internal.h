@@ -2,10 +2,11 @@
 #ifndef __RIACK_INTERNAL__H__
 #define __RIACK_INTERNAL__H__
 
-#include "riack_msg.h"
 #include "protobuf-c/protobuf-c.h"
 #include "protocol/riak.pb-c.h"
 #include "protocol/riak_search.pb-c.h"
+#include "riack_msg.h"
+#include "riack.h"
 
 #define FAILED_TO_SET_SOCKET_OPTION_KEEPALIVE "Failed to set keep-alive socket option"
 #define FAILED_TO_SET_SOCKET_TIMEOUTS "Failed to timeout options on socket"
@@ -66,10 +67,12 @@ extern const struct pb_command cmd_counter_get;
 extern const struct pb_command cmd_index_query;
 extern const struct pb_command cmd_get;
 extern const struct pb_command cmd_put;
+extern const struct pb_command cmd_delete;
 extern const struct pb_command cmd_set_clientid;
 extern const struct pb_command cmd_get_clientid;
 extern const struct pb_command cmd_search;
 extern const struct pb_command cmd_list_buckets;
+extern const struct pb_command cmd_list_keys;
 
 int riack_perform_commmand(riack_client *client, const struct pb_command* cmd, const struct rpb_base_req* req,
         cmd_response_cb cb, void** cb_arg);
@@ -82,6 +85,14 @@ void riack_set_rpb_bucket_props(riack_client *client, riack_bucket_properties* p
 riack_bucket_properties* riack_riack_bucket_props_from_rpb(riack_client *client, RpbBucketProps* rpb_props);
 void riack_free_copied_rpb_mod_fun(riack_client *client, RpbModFun* rpb_modfun);
 RpbCommitHook** riack_hooks_to_rpb_hooks(riack_client *client, riack_commit_hook* hooks, size_t hook_count);
+
+/************************************
+* riack_kv.c
+************************************/
+typedef struct {
+    list_keys_stream_cb callback;
+    void* user_cb_arg;
+} riack_stream_cb_params;
 
 /************************************
 * riack_mem.c

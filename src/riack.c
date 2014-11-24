@@ -18,17 +18,11 @@
 #pragma warning( disable:4005 )
 #define _CRT_SECURE_NO_WARNINGS
 
-#include "riack.h"
 #include "riack_internal.h"
 #include "riack_helpers.h"
 #include "riack_sock.h"
 #include <string.h>
-
-#include "protocol/riak_msg_codes.h"
-
-/******************************************************************************
-*
-******************************************************************************/
+#include <protocol/riak_msg_codes.h>
 
 riack_client* riack_new_client(riack_allocator *allocator)
 {
