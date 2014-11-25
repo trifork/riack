@@ -49,6 +49,7 @@ RIACK_EXPORT int riack_ping(riack_client *client);
 /*************************************************************************
 * List all buckets on the server (should not be used in production)
 *************************************************************************/
+
 RIACK_EXPORT int riack_list_buckets_ext(riack_client *client, riack_string* bucket_type,
         riack_string_list** bucket_list, uint32_t timeout);
 
@@ -116,6 +117,16 @@ RIACK_EXPORT int riack_put_simple(riack_client *client, char* bucket, char* key,
         size_t datalen, char* content_type);
 
 /*************************************************************************
+* Delete
+*************************************************************************/
+
+/// Delete an object from server
+/// props are optional and can be NULL in which case defaults will be used.
+RIACK_EXPORT int riack_delete(riack_client *client, riack_string *bucket, riack_string *key,
+        riack_del_properties *props);
+
+
+/*************************************************************************
 * 2I
 *************************************************************************/
 
@@ -147,9 +158,31 @@ RIACK_EXPORT int riack_counter_increment(riack_client *client, riack_string *buc
         int64_t amount, riack_counter_update_properties *props, int64_t *returned_value);
 
 /*************************************************************************
-* Misc
+* Map reduce
 *************************************************************************/
 
+typedef void(*map_reduce_stream_cb)(riack_client*, void*, riack_mapred_response*);
+
+/// Run a map reduce query on server
+RIACK_EXPORT int riack_map_reduce(riack_client *client, size_t data_len, uint8_t* data,
+        enum RIACK_MAPRED_CONTENT_TYPE content_type, riack_mapred_response_list** mapred_result);
+
+
+/// Run a map reduce query on server, return the every result separately through the callback
+RIACK_EXPORT int riack_map_reduce_stream(riack_client *client, size_t data_len, uint8_t* data,
+        enum RIACK_MAPRED_CONTENT_TYPE content_type,
+        map_reduce_stream_cb callback, void* callback_arg);
+
+/*************************************************************************
+* Search
+*************************************************************************/
+
+RIACK_EXPORT int riack_search(riack_client *client, riack_string *query, riack_string *index,
+        riack_search_optional_params* optional_parameters, riack_search_result** search_result);
+
+/*************************************************************************
+* Misc
+*************************************************************************/
 
 /// Retrive server info
 RIACK_EXPORT int riack_server_info(riack_client *client, riack_string **node, riack_string** version);
@@ -159,25 +192,6 @@ RIACK_EXPORT int riack_set_clientid(riack_client *client, riack_string *clientid
 
 /// Get client id from server
 RIACK_EXPORT int riack_get_clientid(riack_client *client, riack_string **clientid);
-
-
-/// Delete an object from server
-/// props are optional and can be NULL in which case defaults will be used.
-RIACK_EXPORT int riack_delete(riack_client *client, riack_string *bucket, riack_string *key,
-        riack_del_properties *props);
-
-/// Run a map reduce query on server
-RIACK_EXPORT int riack_map_reduce(riack_client *client, size_t data_len, uint8_t* data,
-        enum RIACK_MAPRED_CONTENT_TYPE content_type, riack_mapred_response_list** mapred_result);
-
-/// Run a map reduce query on server, return the every result separately through the callback
-RIACK_EXPORT int riack_map_reduce_stream(riack_client *client, size_t data_len, uint8_t* data,
-        enum RIACK_MAPRED_CONTENT_TYPE content_type,
-        void(*callback)(riack_client*, void*, riack_mapred_response*), void* callback_arg);
-
-
-RIACK_EXPORT int riack_search(riack_client *client, riack_string *query, riack_string *index,
-        riack_search_optional_params* optional_parameters, riack_search_result** search_result);
 
 /*************************************************************************
 * Memory

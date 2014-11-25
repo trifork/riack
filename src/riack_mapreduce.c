@@ -21,8 +21,6 @@
 #include <string.h>
 #include "riack_internal.h"
 #include "riack_helpers.h"
-#include "riack.h"
-#include "protocol/riak_msg_codes.h"
 
 /******************************************************************************
 * Map reduce
@@ -49,27 +47,28 @@ int riack_map_reduce(riack_client *client, size_t data_len, uint8_t* data,
     return riack_map_reduce_stream(client, data_len, data, content_type, _map_reduce_stream_callback, mapred_result);
 }
 
-int riack_map_reduce_stream(riack_client *client, size_t data_len, uint8_t* data,
-        enum RIACK_MAPRED_CONTENT_TYPE content_type,
-        void(*callback)(riack_client*, void*, riack_mapred_response*),
-        void* callback_arg)
+riack_cmd_cb_result riack_map_reduce_stream_cb(riack_client *client, RpbMapRedResp *response, riack_mapreduce_cb_params *cb_params)
 {
-    RIACK_REQ_LOCALS;
     riack_mapred_response mapred_result_current;
-    RpbMapRedReq mr_req;
-    RpbMapRedResp *mr_resp;
-    char* content_type_sz;
-    uint8_t last_message;
-
     memset(&mapred_result_current, 0, sizeof(mapred_result_current));
+    riack_link_strmapred_with_rpbmapred(client, response, &mapred_result_current);
+    cb_params->callback(client, cb_params->user_cb_arg, &mapred_result_current);
+    if (response->has_done && response->done) {
+        return RIACK_CMD_DONE;
+    }
+    return RIACK_CMD_CONTINUE;
+}
+
+int riack_map_reduce_stream(riack_client *client, size_t data_len, uint8_t* data,
+        enum RIACK_MAPRED_CONTENT_TYPE content_type, map_reduce_stream_cb callback, void* callback_arg)
+{
+    RpbMapRedReq mr_req;
+    riack_mapreduce_cb_params cb_params;
+    char* content_type_sz;
 
     if (!client || !data || data_len == 0 || !callback) {
         return RIACK_ERROR_INVALID_INPUT;
     }
-
-    pb_allocator = riack_pb_allocator(&client->allocator);
-    retval = RIACK_ERROR_COMMUNICATION;
-
     rpb_map_red_req__init(&mr_req);
     if (content_type == APPLICATION_JSON) {
         content_type_sz = "application/json";
@@ -82,41 +81,10 @@ int riack_map_reduce_stream(riack_client *client, size_t data_len, uint8_t* data
     mr_req.content_type.data = (uint8_t*)content_type_sz;
     mr_req.request.len = data_len;
     mr_req.request.data = data;
-    packed_size = rpb_map_red_req__get_packed_size(&mr_req);
-    request_buffer = (uint8_t*)RMALLOC(client, packed_size);
-    if (request_buffer) {
-        rpb_map_red_req__pack(&mr_req, request_buffer);
-        msg_req.msg_code = mc_RpbMapRedReq;
-        msg_req.msg_len = (uint32_t) packed_size;
-        msg_req.msg = request_buffer;
-        if (riack_send_message(client, &msg_req) > 0) {
-            last_message = 0;
-            while ((last_message == 0) && (riack_receive_message(client, &msg_resp) > 0)) {
-                if (msg_resp->msg_code == mc_RpbMapRedResp) {
-                    mr_resp = rpb_map_red_resp__unpack(&pb_allocator, msg_resp->msg_len, msg_resp->msg);
-                    if (mr_resp) {
-                        riack_link_strmapred_with_rpbmapred(client, mr_resp, &mapred_result_current);
-                        callback(client, callback_arg, &mapred_result_current);
-                        if (mr_resp->has_done && mr_resp->done) {
-                            retval = RIACK_SUCCESS;
-                            last_message = 1;
-                        }
-                        rpb_map_red_resp__free_unpacked(mr_resp, &pb_allocator);
-                    } else {
-                        retval = RIACK_FAILED_PB_UNPACK;
-                    }
-                } else {
-                    riack_got_error_response(client, msg_resp);
-                    retval = RIACK_ERROR_RESPONSE;
-                    last_message = 1;
-                }
-                riack_message_free(client, &msg_resp);
-            }
-        }
-        RFREE(client, request_buffer);
-    }
-
-    return retval;
+    cb_params.user_cb_arg = callback_arg;
+    cb_params.callback = callback;
+    return riack_perform_commmand(client, &cmd_map_reduce, (struct rpb_base_req const *) &mr_req,
+            (cmd_response_cb) riack_map_reduce_stream_cb, (void **) &cb_params);
 }
 
 

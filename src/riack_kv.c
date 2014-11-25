@@ -131,9 +131,7 @@ int riack_delete(riack_client *client, riack_string *bucket, riack_string *key, 
 	del_req.key.len = key->len;
 	del_req.key.data = (uint8_t *) key->value;
 	riack_set_del_properties(client, props, &del_req);
-
     result = riack_perform_commmand(client, &cmd_delete, (struct rpb_base_req const *) &del_req, 0, 0);
-
     // TODO No need to copy and free vclock
     RFREE(client, del_req.vclock.data);
     return result;

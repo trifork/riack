@@ -24,6 +24,11 @@
 #include <string.h>
 #include <protocol/riak_msg_codes.h>
 
+void riack_set_rpb_bucket_props(riack_client *client, riack_bucket_properties* props, RpbBucketProps *rpb_props);
+riack_bucket_properties* riack_riack_bucket_props_from_rpb(riack_client *client, RpbBucketProps* rpb_props);
+RpbCommitHook** riack_hooks_to_rpb_hooks(riack_client *client, riack_commit_hook* hooks, size_t hook_count);
+
+
 riack_client* riack_new_client(riack_allocator *allocator)
 {
     /* Creates a new riack_client instance.
@@ -576,15 +581,5 @@ RpbCommitHook** riack_hooks_to_rpb_hooks(riack_client *client, riack_commit_hook
         }
     }
     return result;
-}
-
-// Frees all members of a RpbModFun, but not the RpbModFun* itself
-void riack_free_copied_rpb_mod_fun(riack_client *client, RpbModFun* rpb_modfun) {
-    if (rpb_modfun->function.len > 0 && rpb_modfun->function.data) {
-        RFREE(client, rpb_modfun->function.data);
-    }
-    if (rpb_modfun->module.len > 0 && rpb_modfun->module.data) {
-        RFREE(client, rpb_modfun->module.data);
-    }
 }
 

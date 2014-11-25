@@ -149,7 +149,6 @@ const struct pb_command cmd_put = {
         (rpb_free_unpacked_fn) rpb_put_resp__free_unpacked
 };
 
-
 /* Delete command */
 const struct pb_command cmd_delete = {
         mc_RpbDelReq,
@@ -159,7 +158,6 @@ const struct pb_command cmd_delete = {
         0,
         0
 };
-
 
 /* Set client id command */
 const struct pb_command cmd_set_clientid = {
@@ -211,6 +209,15 @@ const struct pb_command cmd_list_keys = {
         (rpb_free_unpacked_fn) rpb_list_keys_resp__free_unpacked
 };
 
+/* Map/Reduce command */
+const struct pb_command cmd_map_reduce = {
+        mc_RpbMapRedReq,
+        mc_RpbMapRedResp,
+        (rpb_packed_size_fn) rpb_map_red_req__get_packed_size,
+        (rpb_pack_fn) rpb_map_red_req__pack,
+        (rpb_unpack_fn) rpb_map_red_resp__unpack,
+        (rpb_free_unpacked_fn) rpb_map_red_resp__free_unpacked
+};
 
 
 int riack_perform_commmand(riack_client *client, const struct pb_command* cmd, const struct rpb_base_req* req,
