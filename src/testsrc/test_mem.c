@@ -4,7 +4,7 @@
 void *test_pb_alloc(void *allocator_data, size_t size);
 void test_pb_free (void *allocator_data, void *data);
 
-struct RIACK_ALLOCATOR test_allocator =
+riack_allocator test_allocator =
 {
 	test_pb_alloc,
 	test_pb_free,

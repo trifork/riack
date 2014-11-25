@@ -33,8 +33,14 @@ Before the examples can run you must place the compiled library files in the pre
 To make all tests succeed you need a running riak server with eleveldb backend and riak search enabled in app.config.
 You also need to have seach enabled on the ´testsearch´ bucket, this can be done using the riak search-cmd like this:
 ```
-bin/search-cmd install testsearch
+search-cmd install testsearch
 ```
+Futhermore an active bucket type called ´riack_bt_test´ needs to exist, can be done like this:  
+```
+riak-admin bucket-type create riack_bt_test
+riak-admin bucket-type activate riack_bt_test
+```
+
 If your server is running on localhost with port 8087 set as protocol buffer port, you can run it right away, if not you need to input the ip and port in src/CMakeLists.txt line 4 & 5 and rerun cmake
 When ready you can simply do a make test.
 (on windows just choose the correct build target in Visual Studio)

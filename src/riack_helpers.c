@@ -24,8 +24,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-void riack_dbg_print_mapred_result(struct RIACK_MAPRED_RESPONSE_LIST *mapred) {
-    struct RIACK_MAPRED_RESPONSE_LIST *current;
+void riack_dbg_print_mapred_result(riack_mapred_response_list *mapred) {
+    riack_mapred_response_list *current;
 	char buffer[4000];
 	current = mapred;
 	while (current) {
@@ -39,10 +39,29 @@ void riack_dbg_print_mapred_result(struct RIACK_MAPRED_RESPONSE_LIST *mapred) {
 	}
 }
 
+riack_get_object* riack_get_object_alloc(riack_client* client)
+{
+    return RCALLOC(client, sizeof(riack_get_object));
+}
+
+riack_object* riack_object_alloc(riack_client* client)
+{
+    return RCALLOC(client, sizeof(riack_object));
+}
+
+riack_string_list* riack_string_list_alloc(riack_client* client)
+{
+    return RCALLOC(client, sizeof(riack_string_list));
+}
+
+riack_string* riack_string_alloc(riack_client* client) {
+    return RCALLOC(client, sizeof(riack_string));
+}
+
 /**
  * Free all memory associated with a RpbPair
  */
-void riack_free_copied_rpb_pair(struct RIACK_CLIENT* client, RpbPair* ppair)
+void riack_free_copied_rpb_pair(riack_client* client, RpbPair* ppair)
 {
 	RFREE(client, ppair->key.data);
 	if (ppair->has_value) {
@@ -53,7 +72,7 @@ void riack_free_copied_rpb_pair(struct RIACK_CLIENT* client, RpbPair* ppair)
 /**
  * Free all memory associated with a RpbLink
  */
-void riack_free_copied_rpb_link(struct RIACK_CLIENT* client, RpbLink* plink)
+void riack_free_copied_rpb_link(riack_client* client, RpbLink* plink)
 {
 	RFREE(client, plink->bucket.data);
 	RFREE(client, plink->key.data);
@@ -63,7 +82,7 @@ void riack_free_copied_rpb_link(struct RIACK_CLIENT* client, RpbLink* plink)
 /**
  * Free all memory associated with this RpbContent
  */
-void riack_free_copied_rpb_content(struct RIACK_CLIENT* client, RpbContent* pcontent)
+void riack_free_copied_rpb_content(riack_client* client, RpbContent* pcontent)
 {
 	size_t n, i;
 
@@ -101,7 +120,7 @@ void riack_free_copied_rpb_content(struct RIACK_CLIENT* client, RpbContent* pcon
 /**
  * Free alle memory associated with a RpbPutReq
  */
-void riack_free_copied_rpb_put_req(struct RIACK_CLIENT* client, RpbPutReq* pput_req)
+void riack_free_copied_rpb_put_req(riack_client* client, RpbPutReq* pput_req)
 {
 	if (pput_req) {
 		RFREE(client, pput_req->bucket.data);
@@ -112,7 +131,7 @@ void riack_free_copied_rpb_put_req(struct RIACK_CLIENT* client, RpbPutReq* pput_
     }
 }
 
-void riack_free_copied_pair(struct RIACK_CLIENT* client, struct RIACK_PAIR *ppair)
+void riack_free_copied_pair(riack_client* client, riack_pair *ppair)
 {
 	RFREE(client, ppair->key.value);
 	if (ppair->value_present) {
@@ -120,14 +139,14 @@ void riack_free_copied_pair(struct RIACK_CLIENT* client, struct RIACK_PAIR *ppai
 	}
 }
 
-void riack_free_copied_link(struct RIACK_CLIENT* client, struct RIACK_LINK *plink)
+void riack_free_copied_link(riack_client* client, riack_link *plink)
 {
 	RFREE(client, plink->bucket.value);
 	RFREE(client, plink->key.value);
 	RFREE(client, plink->tag.value);
 }
 
-void riack_free_content(struct RIACK_CLIENT* client, struct RIACK_CONTENT *pcontent)
+void riack_free_content(riack_client* client, riack_content *pcontent)
 {
 	size_t cnt, i;
 	RFREE(client, pcontent->charset.value);
@@ -162,33 +181,46 @@ void riack_free_content(struct RIACK_CLIENT* client, struct RIACK_CONTENT *pcont
 	}
 }
 
-void riack_free_object(struct RIACK_CLIENT* client, struct RIACK_OBJECT *pobject)
+void riack_free_object(riack_client *client, riack_object *object)
 {
-	size_t cnt, i;
-	if (pobject) {
-		RFREE(client, pobject->bucket.value);
-		RFREE(client, pobject->key.value);
-		if (pobject->vclock.len > 0) {
-			RFREE(client, pobject->vclock.clock);
-		}
-		cnt = pobject->content_count;
-		if (cnt > 0) {
-			for (i=0; i<cnt; ++i) {
-                riack_free_content(client, &pobject->content[i]);
-			}
-			RFREE(client,pobject->content);
-		}
+    size_t cnt, i;
+    if (object) {
+        RFREE(client, object->bucket.value);
+        RFREE(client, object->key.value);
+        if (object->vclock.len > 0) {
+            RFREE(client, object->vclock.clock);
+        }
+        cnt = object->content_count;
+        if (cnt > 0) {
+            for (i=0; i<cnt; ++i) {
+                riack_free_content(client, &object->content[i]);
+            }
+            RFREE(client,object->content);
+        }
+    }
+}
+
+void riack_free_object_p(riack_client *client, riack_object **object)
+{
+	if (object && *object) {
+        riack_free_object(client, *object);
+        RFREE(client, *object);
+        *object = 0;
 	}
 }
 
-void riack_free_get_object(struct RIACK_CLIENT* client, struct RIACK_GET_OBJECT *pobject)
+void riack_free_get_object_p(riack_client *client, riack_get_object **object)
 {
-	riack_free_object(client, &pobject->object);
+    if (object && *object) {
+        riack_free_object(client, &(*object)->object);
+        RFREE(client, *object);
+        *object = 0;
+    }
 }
 
-void riack_free_mapred_result(struct RIACK_CLIENT* client, struct RIACK_MAPRED_RESPONSE_LIST *result)
+void riack_free_mapred_result(riack_client* client, riack_mapred_response_list *result)
 {
-    struct RIACK_MAPRED_RESPONSE_LIST *current, *last;
+    riack_mapred_response_list *current, *last;
 	current = result;
 	last = 0;
 	while (current) {
@@ -201,24 +233,38 @@ void riack_free_mapred_result(struct RIACK_CLIENT* client, struct RIACK_MAPRED_R
 	}
 }
 
-void riack_free_string(struct RIACK_CLIENT* client, RIACK_STRING* string)
+void riack_free_string_p(riack_client* client, riack_string** string)
+{
+    if (string != 0 && *string != 0) {
+        riack_free_string(client, *string);
+        RFREE(client, *string);
+        *string = 0;
+    }
+}
+
+void riack_free_string(riack_client* client, riack_string* string)
 {
 	RFREE(client, string->value);
 	string->len = 0;
 }
 
-void riack_free_string_list(struct RIACK_CLIENT* client, RIACK_STRING_LIST* strings)
+void riack_free_string_list_p(riack_client *client, riack_string_list **strings)
 {
-	size_t i;
-	for (i=0; i<strings->string_count; ++i) {
-		riack_free_string(client, &(strings->strings[i]));
-	}
-	RFREE(client, strings->strings);
+    size_t i;
+    if (!strings) {
+        return;
+    }
+    for (i=0; i<(*strings)->string_count; ++i) {
+        riack_free_string(client, &((*strings)->strings[i]));
+    }
+    RFREE(client, (*strings)->strings);
+    RFREE(client, *strings)
 }
 
-void riack_free_string_linked_list(struct RIACK_CLIENT* client, struct RIACK_STRING_LINKED_LIST** strings)
+
+void riack_free_string_linked_list_p(riack_client *client, riack_string_linked_list **strings)
 {
-	 struct RIACK_STRING_LINKED_LIST *current, *next;
+    riack_string_linked_list *current, *next;
 	 current = *strings;
 	 while (current != 0) {
 		 next = current->next;
@@ -229,34 +275,34 @@ void riack_free_string_linked_list(struct RIACK_CLIENT* client, struct RIACK_STR
 	 *strings = 0;
 }
 
-RIACK_STRING riack_copy_string(struct RIACK_CLIENT* client, RIACK_STRING source)
+riack_string riack_copy_string(riack_client* client, riack_string source)
 {
-	RIACK_STRING result;
+    riack_string result;
 	RMALLOCCOPY(client, result.value, result.len, source.value, source.len);
 	return result;
 }
 
-RIACK_STRING riack_copy_from_cstring(struct RIACK_CLIENT* client, const char* source)
+riack_string riack_copy_from_cstring(riack_client* client, const char* source)
 {
-	RIACK_STRING result;
+    riack_string result;
 	RMALLOCCOPY(client, result.value, result.len, source, strlen(source));
 	return result;
 }
 
-void riack_string_linked_list_set_entry(struct RIACK_CLIENT *client,
-										struct RIACK_STRING_LINKED_LIST** entry,
-										RIACK_STRING string_new)
+void riack_string_linked_list_set_entry(riack_client *client,
+										riack_string_linked_list** entry,
+                                        riack_string string_new)
 {
-	*entry = RMALLOC(client, sizeof(struct RIACK_STRING_LINKED_LIST));
+	*entry = RMALLOC(client, sizeof(riack_string_linked_list));
 	(*entry)->next = 0;
 	(*entry)->string = string_new;
 }
 
-struct RIACK_STRING_LINKED_LIST* riack_string_linked_list_add(struct RIACK_CLIENT *client,
-		struct RIACK_STRING_LINKED_LIST** base,
-		RIACK_STRING string_new)
+riack_string_linked_list* riack_string_linked_list_add(riack_client *client,
+        riack_string_linked_list** base,
+		riack_string string_new)
 {
-	struct RIACK_STRING_LINKED_LIST *current;
+    riack_string_linked_list *current;
 	current = *base;
 	if (current == 0) {
 		riack_string_linked_list_set_entry(client, base, string_new);
@@ -270,11 +316,11 @@ struct RIACK_STRING_LINKED_LIST* riack_string_linked_list_add(struct RIACK_CLIEN
 	return current;
 }
 
-void riack_mapred_add_to_chain(struct RIACK_CLIENT *client,
-        struct RIACK_MAPRED_RESPONSE_LIST** base,
-        struct RIACK_MAPRED_RESPONSE_LIST* mapred_new)
+void riack_mapred_add_to_chain(riack_client *client,
+        riack_mapred_response_list** base,
+        riack_mapred_response_list* mapred_new)
 {
-    struct RIACK_MAPRED_RESPONSE_LIST* current;
+    riack_mapred_response_list* current;
 	if (*base == 0) {
 		*base = mapred_new;
 	} else {
@@ -286,7 +332,7 @@ void riack_mapred_add_to_chain(struct RIACK_CLIENT *client,
 	}
 }
 
-void riack_copy_buffer_to_string(struct RIACK_CLIENT* client, ProtobufCBinaryData* src, char** str)
+void riack_copy_buffer_to_string(riack_client* client, ProtobufCBinaryData* src, char** str)
 {
 	*str = RMALLOC(client, src->len + 1);
 	memcpy(*str, src->data, src->len);
@@ -296,14 +342,14 @@ void riack_copy_buffer_to_string(struct RIACK_CLIENT* client, ProtobufCBinaryDat
 /**
  * Copy a zero terminated string into a ProtobufCBinaryData structure
  */
-void riack_copy_string_to_buffer(struct RIACK_CLIENT* client, char* str, ProtobufCBinaryData* target)
+void riack_copy_string_to_buffer(riack_client* client, char* str, ProtobufCBinaryData* target)
 {
 	target->len = strlen(str);
 	target->data = (uint8_t*)RMALLOC(client, target->len);
 	memcpy(target->data, str, target->len);
 }
 
-void riack_copy_rpblink_to_link(struct RIACK_CLIENT* client, RpbLink* src, struct RIACK_LINK* target)
+void riack_copy_rpblink_to_link(riack_client* client, RpbLink* src, riack_link* target)
 {
 	if (src->has_key) {
 		RMALLOCCOPY(client, target->key.value, target->key.len, src->key.data, src->key.len);
@@ -328,7 +374,7 @@ void riack_copy_rpblink_to_link(struct RIACK_CLIENT* client, RpbLink* src, struc
 /**
  * Copy a RIACK_LINK structure to a RpbLink structure
  */
-void riack_copy_link_to_rpblink(struct RIACK_CLIENT* client, struct RIACK_LINK* rlink, RpbLink* rpc_link)
+void riack_copy_link_to_rpblink(riack_client* client, riack_link* rlink, RpbLink* rpc_link)
 {
 	rpb_link__init(rpc_link);
 	if (rlink->bucket.value) {
@@ -351,7 +397,7 @@ void riack_copy_link_to_rpblink(struct RIACK_CLIENT* client, struct RIACK_LINK* 
 /**
  * Copy a RIACK_PAIR structure to a RpbPair structure
  */
-void riack_copy_pair_to_rpbpair(struct RIACK_CLIENT* client, struct RIACK_PAIR* rpair, RpbPair* rpc_pair)
+void riack_copy_pair_to_rpbpair(riack_client* client, riack_pair* rpair, RpbPair* rpc_pair)
 {
 	rpb_pair__init(rpc_pair);
 	if (rpair->key.value) {
@@ -365,10 +411,10 @@ void riack_copy_pair_to_rpbpair(struct RIACK_CLIENT* client, struct RIACK_PAIR* 
 	}
 }
 
-void riack_copy_rpbpair_to_pair(struct RIACK_CLIENT* client, RpbPair* rpc_pair, struct RIACK_PAIR* rpair)
+void riack_copy_rpbpair_to_pair(riack_client* client, RpbPair* rpc_pair, riack_pair* rpair)
 {
 	RMALLOCCOPY(client, rpair->key.value, rpair->key.len, rpc_pair->key.data, rpc_pair->key.len);
-	rpair->value_present = rpc_pair->has_value;
+	rpair->value_present = (uint8_t) rpc_pair->has_value;
 	if (rpair->value_present) {
 		rpair->value_len = rpc_pair->value.len;
 		rpair->value = (uint8_t*)RMALLOC(client, rpair->value_len);
@@ -380,7 +426,7 @@ void riack_copy_rpbpair_to_pair(struct RIACK_CLIENT* client, RpbPair* rpc_pair, 
  * Copy the content of a RIACK_CONTENT structure to a RpbContent structure
  * All memory and strings are copied
  */
-void riack_copy_content_to_rpbcontent(struct RIACK_CLIENT* client, struct RIACK_CONTENT *pcontent, RpbContent* ppbc_content)
+void riack_copy_content_to_rpbcontent(riack_client* client, riack_content *pcontent, RpbContent* ppbc_content)
 {
 	size_t i;
 	if (pcontent->charset.value) {
@@ -446,7 +492,7 @@ void riack_copy_content_to_rpbcontent(struct RIACK_CLIENT* client, struct RIACK_
  * Copy contents of a RpbContent request into a RIACK_CONTENT structure.
  * Memory is copied so ppbc_content is ok to release after.
  */
-void riack_copy_rpbcontent_to_content(struct RIACK_CLIENT* client, RpbContent *src, struct RIACK_CONTENT *target)
+void riack_copy_rpbcontent_to_content(riack_client* client, RpbContent *src, riack_content *target)
 {
 	size_t cnt, i;
 	target->data_len = src->value.len;
@@ -483,7 +529,7 @@ void riack_copy_rpbcontent_to_content(struct RIACK_CLIENT* client, RpbContent *s
 	cnt = src->n_indexes;
 	target->index_count = cnt;
 	if (cnt > 0) {
-		target->indexes = (struct RIACK_PAIR*)RMALLOC(client, sizeof(struct RIACK_PAIR) * cnt);
+		target->indexes = (riack_pair*)RMALLOC(client, sizeof(riack_pair) * cnt);
 		for (i=0; i<cnt; ++i) {
             riack_copy_rpbpair_to_pair(client, src->indexes[i], &target->indexes[i]);
 		}
@@ -492,7 +538,7 @@ void riack_copy_rpbcontent_to_content(struct RIACK_CLIENT* client, RpbContent *s
 	cnt = src->n_usermeta;
 	target->usermeta_count = cnt;
 	if (cnt > 0) {
-		target->usermetas = (struct RIACK_PAIR*)RMALLOC(client, sizeof(struct RIACK_PAIR) * cnt);
+		target->usermetas = (riack_pair*)RMALLOC(client, sizeof(riack_pair) * cnt);
 		for (i=0; i<cnt; ++i) {
             riack_copy_rpbpair_to_pair(client, src->usermeta[i], &target->usermetas[i]);
 		}
@@ -501,21 +547,21 @@ void riack_copy_rpbcontent_to_content(struct RIACK_CLIENT* client, RpbContent *s
 	cnt = src->n_links;
 	target->link_count = cnt;
 	if (cnt > 0) {
-		target->links = (struct RIACK_LINK*)RMALLOC(client, sizeof(struct RIACK_LINK) * cnt);
+		target->links = (riack_link*)RMALLOC(client, sizeof(riack_link) * cnt);
 		for (i=0; i<cnt; ++i) {
             riack_copy_rpblink_to_link(client, src->links[i], &target->links[i]);
 		}
 	}
 
-	target->last_modified_present = src->has_last_mod;
+	target->last_modified_present = (uint8_t) src->has_last_mod;
 	target->last_modified = src->last_mod;
-	target->last_modified_usecs_present = src->has_last_mod_usecs;
+	target->last_modified_usecs_present = (uint8_t) src->has_last_mod_usecs;
 	target->last_modified_usecs = src->last_mod_usecs;
-	target->deleted_present = src->has_deleted;
-	target->deleted = src->deleted;
+	target->deleted_present = (uint8_t) src->has_deleted;
+	target->deleted = (uint8_t) src->deleted;
 }
 
-void riack_copy_object_to_rpbputreq(struct RIACK_CLIENT* client, struct RIACK_OBJECT *pobject, RpbPutReq* pput_req)
+void riack_copy_object_to_rpbputreq(riack_client* client, riack_object *pobject, RpbPutReq* pput_req)
 {
 	RpbContent *content;
 	content = (RpbContent*)RMALLOC(client, sizeof(RpbContent));
@@ -540,10 +586,10 @@ void riack_copy_object_to_rpbputreq(struct RIACK_CLIENT* client, struct RIACK_OB
 	}
 }
 
-void riack_link_strmapred_with_rpbmapred(struct RIACK_CLIENT* client, RpbMapRedResp* source,
-                                         struct RIACK_MAPRED_RESPONSE* target)
+void riack_link_strmapred_with_rpbmapred(riack_client* client, RpbMapRedResp* source,
+                                         riack_mapred_response* target)
 {
-	target->phase_present = source->has_phase;
+	target->phase_present = (uint8_t) source->has_phase;
 	target->phase = source->phase;
 	if (source->has_response) {
 		target->data_size = source->response.len;
@@ -554,8 +600,8 @@ void riack_link_strmapred_with_rpbmapred(struct RIACK_CLIENT* client, RpbMapRedR
 	}
 }
 
-void riack_copy_strmapred_to_mapred(struct RIACK_CLIENT* client, struct RIACK_MAPRED_RESPONSE* source,
-                                    struct RIACK_MAPRED_RESPONSE_LIST* target)
+void riack_copy_strmapred_to_mapred(riack_client* client, riack_mapred_response* source,
+        riack_mapred_response_list* target)
 {
 	memset(target, 0, sizeof(*target));
     target->response.phase = source->phase;

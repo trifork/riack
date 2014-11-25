@@ -18,6 +18,7 @@
 #define __RIACK__DEFINES__H__
 
 #include "ints.h"
+// #include "riack_compat.h"
 #include <stdlib.h>
 #include <stddef.h>
 
@@ -52,6 +53,7 @@
 #define RMALLOCCOPY(client, target, target_len, source, len) target = (void*)RMALLOC(client, len); memcpy(target, source, len); target_len=len
 
 #define RSTR_HAS_CONTENT(s) (s.len > 0 && s.value)
+#define RSTR_HAS_CONTENT_P(s) (s && s->len > 0 && s->value)
 
 #define RSTR_SAFE_FREE(client, str) if (RSTR_HAS_CONTENT(str)) { RFREE(client, str.value); str.len = 0; str.value=0; }
 
@@ -62,40 +64,40 @@
                                           } else { \
                                               target.value = 0; }
 
-struct RIACK_ALLOCATOR
+typedef struct _riack_allocator
 {
 	void *(*alloc)(void *optional_data, size_t size);
 	void (*free)(void *optional_data, void *pointer);
 	void *allocator_optional_data;
-};
+} riack_allocator;
 
 /* Socket connection options */
-struct RIACK_CONNECTION_OPTIONS {
+typedef struct _riack_connection_options {
 	uint32_t recv_timeout_ms;
 	uint32_t send_timeout_ms;
     uint8_t keep_alive_enabled;
-};
+} riack_connection_options;
 
 /* Riack's base string type */
-typedef struct {
+typedef struct _riack_string {
 	char* value;
 	size_t len;
-} RIACK_STRING;
+} riack_string;
 
 /* List of strings */
-typedef struct {
-	RIACK_STRING* strings;
+typedef struct _riack_string_list {
+    riack_string* strings;
 	size_t string_count;
-} RIACK_STRING_LIST;
+} riack_string_list;
 
 /* Linked list of strings */
-struct RIACK_STRING_LINKED_LIST {
-	RIACK_STRING string;
-	struct RIACK_STRING_LINKED_LIST* next;
-};
+typedef struct _riack_string_linked_list {
+    riack_string string;
+	struct _riack_string_linked_list* next;
+} riack_string_linked_list;
 
 /* Riack client */
-struct RIACK_CLIENT {
+typedef struct _riack_client {
     /* Socket handle */
 	int sockfd;
     /* Last error text zero terminated */
@@ -107,40 +109,40 @@ struct RIACK_CLIENT {
     /* Riak port number (protocol buffers port) */
 	int port;
     /* Connection options */
-	struct RIACK_CONNECTION_OPTIONS options;
+    riack_connection_options options;
 
     /* Allocator to use with this client */
-	struct RIACK_ALLOCATOR allocator;
-};
+	riack_allocator allocator;
+} riack_client;
 
 /* Link to an object */
-struct RIACK_LINK
+typedef struct _riack_link
 {
-	RIACK_STRING bucket;
-	RIACK_STRING key;
+	riack_string bucket;
+    riack_string key;
     /* Link tag */
-	RIACK_STRING tag;
-};
+    riack_string tag;
+} riack_link;
 
 /* key/value pair */
-struct RIACK_PAIR
+typedef struct _riack_pair
 {
-	RIACK_STRING key;
+    riack_string key;
 	uint8_t  value_present;
 	size_t   value_len;
 	uint8_t* value;
-};
+} riack_pair;
 
-struct RIACK_CONTENT
+typedef struct _riack_content
 {
 	size_t data_len;
 	uint8_t *data;
-	RIACK_STRING content_type;
-	RIACK_STRING charset;
-	RIACK_STRING content_encoding;
-	RIACK_STRING vtag;
+    riack_string content_type;
+    riack_string charset;
+    riack_string content_encoding;
+    riack_string vtag;
 	size_t link_count;
-	struct RIACK_LINK* links;
+	riack_link* links;
 	//
 	uint8_t last_modified_present;
 	uint32_t last_modified;
@@ -150,32 +152,32 @@ struct RIACK_CONTENT
 	uint8_t deleted;
 	//
 	size_t usermeta_count;
-	struct RIACK_PAIR *usermetas;
+    riack_pair *usermetas;
 	size_t index_count;
-	struct RIACK_PAIR *indexes;
-};
+    riack_pair *indexes;
+} riack_content;
 
 
-struct RIACK_MODULE_FUNCTION {
-    RIACK_STRING module;
-    RIACK_STRING function;
-};
+typedef struct _riack_module_function {
+    riack_string module;
+    riack_string function;
+} riack_module_function;
 
-struct RIACK_COMMIT_HOOK {
-    struct RIACK_MODULE_FUNCTION modfun;
-    RIACK_STRING name;
-};
+typedef struct _riack_commit_hook {
+    riack_module_function modfun;
+    riack_string name;
+} riack_commit_hook;
 
 /* Riak 1.4+ replication mode bucket setting */
 enum RIACK_REPLICATION_MODE {
-    REALTIME_AND_FULLSYNC, // TRUE in pbc interface
+    REALTIME_AND_FULLSYNC = 1, // TRUE in pbc interface
     REALTIME,
     FULLSYNC,
     DISABLED  // FALSE in pbc interface
 };
 
 /* Riak bucket properties for riak 1.4+ */
-struct RIACK_BUCKET_PROPERTIES {
+typedef struct _riack_bucket_properties {
     uint8_t n_val_use;
     uint32_t n_val;
     uint8_t allow_mult_use;
@@ -187,16 +189,16 @@ struct RIACK_BUCKET_PROPERTIES {
 
     uint8_t has_precommit_hooks;
     size_t precommit_hook_count;
-    struct RIACK_COMMIT_HOOK* precommit_hooks;
+    riack_commit_hook* precommit_hooks;
 
     uint8_t has_postcommit_hooks;
     size_t postcommit_hook_count;
-    struct RIACK_COMMIT_HOOK* postcommit_hooks;
+    riack_commit_hook* postcommit_hooks;
 
     uint8_t linkfun_use;
-    struct RIACK_MODULE_FUNCTION linkfun;
+    riack_module_function linkfun;
     uint8_t chash_keyfun_use;
-    struct RIACK_MODULE_FUNCTION chash_keyfun;
+    riack_module_function chash_keyfun;
 
     uint8_t old_vclock_use;
     uint32_t old_vclock;
@@ -225,7 +227,7 @@ struct RIACK_BUCKET_PROPERTIES {
     uint8_t notfound_ok_use;
     uint8_t notfound_ok;
 
-    RIACK_STRING backend;
+    riack_string backend;
 
     uint8_t search_use;
     uint8_t search;
@@ -233,56 +235,63 @@ struct RIACK_BUCKET_PROPERTIES {
     uint8_t replication_mode_use;
     enum RIACK_REPLICATION_MODE replication_mode;
 
-};
+    uint8_t search_index_use;
+    riack_string search_index;
+
+    uint8_t datatype_use;
+    riack_string datatype;
+
+    uint8_t consistent_use;
+    uint8_t consistent;
+} riack_bucket_properties;
 
 /* MapReduce content type */
 enum RIACK_MAPRED_CONTENT_TYPE {
-	APPLICATION_JSON,
+	APPLICATION_JSON = 1,
 	APPLICATION_ERLANG_TERM
 };
 
 /* MapReduce response structure */
-struct RIACK_MAPRED_RESPONSE {
+typedef struct _riack_mapred_response {
     /* What phase is this response from */
 	uint8_t phase_present;
 	uint32_t phase;
 
 	size_t data_size;
 	uint8_t* data;
-};
+} riack_mapred_response;
 
 /* Mapreduce response list */
-struct RIACK_MAPRED_RESPONSE_LIST {
-    struct RIACK_MAPRED_RESPONSE response;
-    struct RIACK_MAPRED_RESPONSE_LIST* next_result;
-};
+typedef struct _riack_mapred_response_list{
+    riack_mapred_response response;
+    struct _riack_mapred_response_list* next_result;
+} riack_mapred_response_list;
 
-struct RIACK_VECTOR_CLOCK {
+typedef struct _riack_vector_clock {
 	size_t len;
 	uint8_t* clock;
-};
+} riack_vector_clock;
 
-struct RIACK_OBJECT {
-	RIACK_STRING bucket;
-	RIACK_STRING key;
-	struct RIACK_VECTOR_CLOCK vclock;
+typedef struct _riack_object {
+	riack_string bucket;
+    riack_string key;
+    riack_vector_clock vclock;
 	size_t content_count;
-	struct RIACK_CONTENT* content;
-};
+	riack_content* content;
+} riack_object;
 
-struct RIACK_GET_OBJECT {
-	struct RIACK_OBJECT object;
+typedef struct _riack_get_object {
+	riack_object object;
 	uint8_t unchanged_present;
 	uint8_t unchanged;
-};
+} riack_get_object;
 
-struct RIACK_BUCKET_TYPE_OPTIONAL {
+typedef struct _riack_bucket_type_optional {
     uint8_t bucket_type_present;
-    RIACK_STRING bucket_type;
-};
+    riack_string bucket_type;
+} riack_bucket_type_optional;
 
-struct RIACK_GET_PROPERTIES
-{
+typedef struct _riack_get_properties {
 	uint8_t r_use;
 	uint32_t r;
 	uint8_t pr_use;
@@ -298,12 +307,11 @@ struct RIACK_GET_PROPERTIES
 	uint8_t deletedvclock;
 
 	uint8_t if_modified_use;
-	struct RIACK_VECTOR_CLOCK if_modified;
-    struct RIACK_BUCKET_TYPE_OPTIONAL bucket_type;
-};
+	riack_vector_clock if_modified;
+    riack_bucket_type_optional bucket_type;
+} riack_get_properties;
 
-struct RIACK_PUT_PROPERTIES
-{
+typedef struct _riack_put_properties {
 	uint8_t w_use;
 	uint32_t w;
 	uint8_t dw_use;
@@ -319,11 +327,10 @@ struct RIACK_PUT_PROPERTIES
 	uint8_t return_head_use;
     uint8_t return_head;
 
-    struct RIACK_BUCKET_TYPE_OPTIONAL bucket_type;
-};
+    riack_bucket_type_optional bucket_type;
+} riack_put_properties;
 
-struct RIACK_DEL_PROPERTIES
-{
+typedef struct _riack_del_properties {
 	uint8_t rw_use;
 	uint32_t rw;
 	uint8_t r_use;
@@ -336,77 +343,77 @@ struct RIACK_DEL_PROPERTIES
 	uint32_t pw;
 	uint8_t dw_use;
 	uint32_t dw;
-	struct RIACK_VECTOR_CLOCK vclock;
-    struct RIACK_BUCKET_TYPE_OPTIONAL bucket_type;
-};
+	riack_vector_clock vclock;
+    riack_bucket_type_optional bucket_type;
+} riack_del_properties;
 
 //************************
 // Secondary Indexes
 //************************
-struct RIACK_2I_QUERY_REQ {
-    RIACK_STRING bucket;
-    RIACK_STRING index;
-    RIACK_STRING search_exact;
-    RIACK_STRING search_min;
-    RIACK_STRING search_max;
+typedef struct _riack_2i_query_req {
+    riack_string bucket;
+    riack_string index;
+    riack_string search_exact;
+    riack_string search_min;
+    riack_string search_max;
     uint32_t max_results;
-    RIACK_STRING continuation_token;
-};
+    riack_string continuation_token;
+} riack_2i_query_req;
 
 //************************
 // Search
 //************************
 
 /* Optional search parameters */
-struct RIACK_SEARCH_OPTIONAL_PARAMETERS {
+typedef struct _riack_search_optional_params {
     uint8_t rowlimit_present;
     uint32_t rowlimit;
     uint8_t start_present;
     uint32_t start;
     uint8_t sort_present;
-    RIACK_STRING sort;
+    riack_string sort;
     uint8_t filter_present;
-    RIACK_STRING filter;
+    riack_string filter;
     uint8_t default_field_present;
-    RIACK_STRING default_field;
+    riack_string default_field;
     uint8_t default_operation_present;
-    RIACK_STRING default_operation;
+    riack_string default_operation;
     uint8_t presort_present;
-    RIACK_STRING presort;
+    riack_string presort;
     size_t field_limits_count;
-    RIACK_STRING *field_limits;
-};
+    riack_string *field_limits;
+} riack_search_optional_params;
 
 /* Search document */
-struct RIACK_SEARCH_DOCUMENT {
+typedef struct _riack_search_doc {
     size_t field_count;
-    struct RIACK_PAIR *fields;
-};
+    riack_pair *fields;
+} riack_search_doc;
 
 /* Result from a search */
-struct RIACK_SEARCH_RESULT {
+typedef struct _riack_search_result {
     size_t document_count;
-    struct RIACK_SEARCH_DOCUMENT* documents;
+    riack_search_doc* documents;
     uint8_t max_score_present;
     float max_score;
     uint8_t num_found_present;
     uint32_t num_found;
-};
+} riack_search_result;
 
 //************************
 // CRDTs
 //************************
 
-struct RIACK_COUNTER_UPDATE_PROPERTIES {
+typedef struct _riack_counter_update_properties {
     uint8_t w_use;
     uint32_t w;
     uint8_t dw_use;
     uint32_t dw;
     uint8_t pw_use;
     uint32_t pw;
-};
+} riack_counter_update_properties;
 
-struct RIACK_COUNTER_GET_PROPERTIES {
+typedef struct _riack_counter_get_properties {
     uint8_t r_use;
     uint32_t r;
     uint8_t pr_use;
@@ -415,6 +422,6 @@ struct RIACK_COUNTER_GET_PROPERTIES {
     uint8_t basic_quorum;
     uint8_t notfound_ok_use;
     uint8_t notfound_ok;
-};
+} riack_counter_get_properties;
 
 #endif // __RIACK__DEFINES__H__

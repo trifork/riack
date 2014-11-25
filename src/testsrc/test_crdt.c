@@ -14,9 +14,9 @@ int test_crdt(char* testcase)
 
 int test_counter()
 {
-    struct RIACK_COUNTER_UPDATE_PROPERTIES update_props;
-    struct RIACK_COUNTER_GET_PROPERTIES get_props;
-    RIACK_STRING key, bucket;
+    riack_counter_update_properties update_props;
+    riack_counter_get_properties get_props;
+    riack_string key, bucket;
     int64_t value;
     int res;
     memset(&update_props, 0, sizeof(update_props));
@@ -41,17 +41,17 @@ int test_counter()
     update_props.pw = 1;
     update_props.w_use = 1;
     update_props.w = 1;
-    res = riack_counter_get(test_client, bucket, key, &get_props, &value);
+    res = riack_counter_get(test_client, &bucket, &key, &get_props, &value);
     if (res == RIACK_SUCCESS) {
         int64_t readden_value;
         // test increment with properties, no returned value
-        res = riack_counter_increment(test_client, bucket, key, 3, &update_props, 0);
+        res = riack_counter_increment(test_client, &bucket, &key, 3, &update_props, 0);
         if (res == RIACK_SUCCESS) {
             // Get without props
-            res = riack_counter_get(test_client, bucket, key, 0, &readden_value);
+            res = riack_counter_get(test_client, &bucket, &key, 0, &readden_value);
             if (res == RIACK_SUCCESS && readden_value == value + 3) {
                 // Increment no properties return value
-                res = riack_counter_increment(test_client, bucket, key, -5, 0, &readden_value);
+                res = riack_counter_increment(test_client, &bucket, &key, -5, 0, &readden_value);
                 if (res == RIACK_SUCCESS && readden_value == value - 2) {
                     return 0;
                 }

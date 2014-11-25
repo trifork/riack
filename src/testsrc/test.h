@@ -8,13 +8,15 @@
 #include "../riack.h"
 
 #define RIAK_TEST_BUCKET "riack_test_bucket"
+#define RIAK_TEST_BUCKET_TYPE "riack_bt_test"
 #define RIAK_TEST_BUCKET_COMMENTS "riack_test_comments"
 #define RIAK_TEST_BUCKET_POSTS    "riack_test_posts"
 #define RIAK_TEST_BUCKET_USERS    "riack_test_users"
 #define RIAK_TEST_BUCKET_ANSWERS  "riack_test_answers"
+#define SZ_IN_RIACK_STR(CSTR, RSTR) RSTR.len = strlen(CSTR); RSTR.value = CSTR;
 
-extern struct RIACK_CLIENT *test_client;
-extern struct RIACK_ALLOCATOR test_allocator;
+extern riack_client *test_client;
+extern riack_allocator test_allocator;
 
 extern int test_port;
 extern char* test_host;
@@ -40,6 +42,7 @@ int test_crdt(char* testcase);
 // Specific tests
 int test_bucket_list();
 int test_bucket_properties();
+int test_bucket_type_props();
 int test_get1();
 int test_put1();
 int test_put_no_key();

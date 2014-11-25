@@ -57,7 +57,7 @@ int test_mapred(char* testcase)
 int test_mapred_basic() {
 	int result;
 	char buffer[2000];
-    struct RIACK_MAPRED_RESPONSE_LIST *mapresult;
+    riack_mapred_response_list *mapresult;
 	result = 1;
 	if (put("test_mapred1", testdata_1) == RIACK_SUCCESS &&
 		put("test_mapred2", testdata_2) == RIACK_SUCCESS &&
@@ -66,7 +66,7 @@ int test_mapred_basic() {
 				RIAK_TEST_BUCKET, "test_mapred2",
 				RIAK_TEST_BUCKET, "test_mapred3");
         if (riack_map_reduce(test_client, strlen(buffer), (uint8_t*)buffer, APPLICATION_JSON, &mapresult) == RIACK_SUCCESS) {
-			// TODO verufy the actual results instead of printing them
+			// TODO verify the actual results instead of printing them
 
 			riack_free_mapred_result(test_client, mapresult);
 			result = 0;

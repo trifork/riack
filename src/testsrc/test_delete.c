@@ -13,13 +13,13 @@ int test_delete(char* testcase)
 }
 
 int delete(char* key) {
-	RIACK_STRING key_str;
-	RIACK_STRING bucket;
+	riack_string key_str;
+    riack_string bucket;
 	key_str.len = strlen(key);
 	key_str.value = key;
 	bucket.value = RIAK_TEST_BUCKET;
 	bucket.len = strlen(bucket.value);
-	if (riack_delete(test_client, bucket, key_str, 0) == RIACK_SUCCESS) {
+	if (riack_delete(test_client, &bucket, &key_str, 0) == RIACK_SUCCESS) {
 		return 0;
 	}
 	return -1;

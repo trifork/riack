@@ -33,6 +33,9 @@
 #define mc_RbpSearchQueryResp 28
 #define mc_RpbResetBucketReq 29
 #define mc_RpbResetBucketResp 30
+#define mc_RpbGetBucketTypeReq 31
+#define mc_RpbSetBucketTypeReq 32
+
 #define mc_RpbCounterUpdateReq 50
 #define mc_RpbCounterUpdateResp 51
 #define mc_RpbCounterGetReq 52

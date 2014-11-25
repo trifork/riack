@@ -1,7 +1,7 @@
 
 #include "test.h"
 
-struct RIACK_CLIENT *test_client;
+riack_client *test_client;
 
 int test_port;
 char* test_host;
