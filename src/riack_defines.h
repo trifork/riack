@@ -352,6 +352,7 @@ typedef struct _riack_del_properties {
 //************************
 typedef struct _riack_2i_query_req {
     riack_string bucket;
+    riack_string bucket_type;
     riack_string index;
     riack_string search_exact;
     riack_string search_min;

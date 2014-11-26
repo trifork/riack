@@ -238,14 +238,14 @@ int riack_perform_commmand(riack_client *client, const struct pb_command* cmd, c
     packed_size = 0;
 
     // Not all commands have data
-    if (cmd->packed_size_fn != 0 && cmd->pack_fn != 0) {
+    if (cmd->packed_size_fn != NULL && cmd->pack_fn != NULL) {
         packed_size = cmd->packed_size_fn(req);
         if (packed_size > 0) {
             request_buffer = (uint8_t *) RMALLOC(client, packed_size);
         }
     }
-    if (request_buffer != 0 || packed_size == 0) {
-        if (packed_size > 0 && cmd->pack_fn != 0) {
+    if (request_buffer != NULL || packed_size == 0) {
+        if (packed_size > 0 && cmd->pack_fn != NULL) {
             // Pack if we have data
             cmd->pack_fn(req, request_buffer);
         }
@@ -257,7 +257,7 @@ int riack_perform_commmand(riack_client *client, const struct pb_command* cmd, c
             while (!done && riack_receive_message(client, &msg_resp) > 0) {
                 done = 1;
                 if (msg_resp->msg_code == cmd->resp_msg_code) {
-                    if (cmd->unpack_fn != 0 && cb != 0) {
+                    if (cmd->unpack_fn != NULL && cb != NULL) {
                         resp = cmd->unpack_fn(&pb_allocator, msg_resp->msg_len, msg_resp->msg);
                         if (resp) {
                             retval = RIACK_SUCCESS;

@@ -48,16 +48,24 @@ riack_cmd_cb_result riack_get_cb(riack_client *client, RpbGetResp* response, ria
 int riack_get(riack_client *client, riack_string *bucket, riack_string *key, riack_get_properties* props,
         riack_get_object** result_object)
 {
-	RpbGetReq get_req;
-	if (!RSTR_HAS_CONTENT_P(key) || !RSTR_HAS_CONTENT_P(bucket) || !client || !result_object) {
-		return RIACK_ERROR_INVALID_INPUT;
-	}
-	rpb_get_req__init(&get_req);
-	get_req.key.data = (uint8_t *) key->value;
-	get_req.key.len = key->len;
-	get_req.bucket.data = (uint8_t *) bucket->value;
-	get_req.bucket.len = bucket->len;
-	riack_set_get_properties(client, props, &get_req);
+    return riack_get_ext(client, bucket, key, props, 0, result_object, 0);
+}
+
+int riack_get_ext(riack_client *client, riack_string *bucket, riack_string *key,
+        riack_get_properties* props, riack_string *bucket_type, riack_get_object** result_object, uint32_t timeout)
+{
+    RpbGetReq get_req;
+    if (!RSTR_HAS_CONTENT_P(key) || !RSTR_HAS_CONTENT_P(bucket) || !client || !result_object) {
+        return RIACK_ERROR_INVALID_INPUT;
+    }
+    rpb_get_req__init(&get_req);
+    get_req.key.data = (uint8_t *) key->value;
+    get_req.key.len = key->len;
+    get_req.bucket.data = (uint8_t *) bucket->value;
+    get_req.bucket.len = bucket->len;
+    riack_set_get_properties(client, props, &get_req);
+    RIACK_SET_BUCKETTYPE_AND_TIMEOUT(get_req)
+
     return riack_perform_commmand(client, &cmd_get, (struct rpb_base_req const *) &get_req,
             (cmd_response_cb) riack_get_cb, (void **) result_object);
 }
@@ -82,7 +90,7 @@ int riack_put_simple(riack_client *client, char* bucket, char* key, uint8_t* dat
     object.content[0].content_type.len = strlen(content_type);
     object.content[0].data_len = datalen;
     object.content[0].data = data;
-    result = riack_put(client, &object, 0, (riack_put_properties*)0);
+    result = riack_put(client, &object, NULL, NULL);
     RFREE(client, object.content);
     return result;
 }
@@ -97,16 +105,23 @@ riack_cmd_cb_result riack_put_cb(riack_client *client, RpbPutResp* response, ria
 }
 
 int riack_put(riack_client *client, riack_object *object, riack_object**returned_object,
-        riack_put_properties* properties)
+        riack_put_properties* props)
 {
-	RpbPutReq put_req;
+    return riack_put_ext(client, object, NULL, returned_object, props, 0);
+}
+
+int riack_put_ext(riack_client *client, riack_object *object, riack_string *bucket_type,
+        riack_object** returned_object, riack_put_properties* props, uint32_t timeout)
+{
+    RpbPutReq put_req;
     int retval;
     if (!client || !object || !object->bucket.value) {
-		return RIACK_ERROR_INVALID_INPUT;
-	}
-	rpb_put_req__init(&put_req);
-	riack_copy_object_to_rpbputreq(client, object, &put_req);
-    riack_set_object_properties(properties, &put_req);
+        return RIACK_ERROR_INVALID_INPUT;
+    }
+    rpb_put_req__init(&put_req);
+    riack_copy_object_to_rpbputreq(client, object, &put_req);
+    riack_set_object_properties(props, &put_req);
+    RIACK_SET_BUCKETTYPE_AND_TIMEOUT(put_req)
     retval = riack_perform_commmand(client, &cmd_put, (struct rpb_base_req const *) &put_req,
             (cmd_response_cb) riack_put_cb, (void **) returned_object);
     riack_free_copied_rpb_put_req(client, &put_req);
@@ -119,19 +134,25 @@ int riack_put(riack_client *client, riack_object *object, riack_object**returned
 
 int riack_delete(riack_client *client, riack_string *bucket, riack_string *key, riack_del_properties *props)
 {
-	int result;
-	RpbDelReq del_req;
-	if (!client || !RSTR_HAS_CONTENT_P(bucket) || !RSTR_HAS_CONTENT_P(key)) {
-		return RIACK_ERROR_INVALID_INPUT;
-	}
-	rpb_del_req__init(&del_req);
+    return riack_delete_ext(client, bucket, NULL, key, props, 0);
+}
 
-	del_req.bucket.len = bucket->len;
-	del_req.bucket.data = (uint8_t *) bucket->value;
-	del_req.key.len = key->len;
-	del_req.key.data = (uint8_t *) key->value;
-	riack_set_del_properties(client, props, &del_req);
-    result = riack_perform_commmand(client, &cmd_delete, (struct rpb_base_req const *) &del_req, 0, 0);
+int riack_delete_ext(riack_client *client, riack_string *bucket, riack_string *bucket_type,
+        riack_string *key, riack_del_properties *props, uint32_t timeout)
+{
+    int result;
+    RpbDelReq del_req;
+    if (!client || !RSTR_HAS_CONTENT_P(bucket) || !RSTR_HAS_CONTENT_P(key)) {
+        return RIACK_ERROR_INVALID_INPUT;
+    }
+    rpb_del_req__init(&del_req);
+    del_req.bucket.len = bucket->len;
+    del_req.bucket.data = (uint8_t *) bucket->value;
+    del_req.key.len = key->len;
+    del_req.key.data = (uint8_t *) key->value;
+    riack_set_del_properties(client, props, &del_req);
+    RIACK_SET_BUCKETTYPE_AND_TIMEOUT(del_req)
+    result = riack_perform_commmand(client, &cmd_delete, (struct rpb_base_req const *) &del_req, NULL, NULL);
     // TODO No need to copy and free vclock
     RFREE(client, del_req.vclock.data);
     return result;
@@ -260,7 +281,7 @@ int riack_set_clientid(riack_client *client, riack_string *clientid)
 	rpb_set_client_id_req__init(&req);
 	req.client_id.len = clientid->len;
     req.client_id.data = (uint8_t*)clientid->value;
-    return riack_perform_commmand(client, &cmd_set_clientid, (struct rpb_base_req const *) &req, 0, 0);
+    return riack_perform_commmand(client, &cmd_set_clientid, (struct rpb_base_req const *) &req, NULL, NULL);
 }
 
 riack_cmd_cb_result riack_get_clientid_cb(riack_client *client, RpbGetClientIdResp* response, riack_string **clientid)
@@ -275,7 +296,7 @@ int riack_get_clientid(riack_client *client, riack_string **clientid)
     if (!client || !clientid) {
         return RIACK_ERROR_INVALID_INPUT;
     }
-	return riack_perform_commmand(client, &cmd_get_clientid, 0,
+	return riack_perform_commmand(client, &cmd_get_clientid, NULL,
             (cmd_response_cb) riack_get_clientid_cb, (void **) clientid);
 }
 

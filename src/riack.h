@@ -93,6 +93,7 @@ RIACK_EXPORT int riack_reset_bucket_props(riack_client *client, riack_string *bu
 
 RIACK_EXPORT int riack_set_bucket_type_props(riack_client *client, riack_string *bucket_type,
         riack_bucket_properties* properties);
+
 RIACK_EXPORT int riack_get_bucket_type_props(riack_client *client, riack_string* bucket_type,
         riack_bucket_properties** properties);
 
@@ -103,6 +104,9 @@ RIACK_EXPORT int riack_get_bucket_type_props(riack_client *client, riack_string*
 RIACK_EXPORT int riack_get(riack_client *client, riack_string *bucket, riack_string *key, riack_get_properties* props,
         riack_get_object** result_object);
 
+RIACK_EXPORT int riack_get_ext(riack_client *client, riack_string *bucket, riack_string *key,
+        riack_get_properties* props, riack_string *bucket_type, riack_get_object** result_object, uint32_t timeout);
+
 /*************************************************************************
 * Put
 *************************************************************************/
@@ -110,6 +114,9 @@ RIACK_EXPORT int riack_get(riack_client *client, riack_string *bucket, riack_str
 /// props are optional and can be NULL in which case defaults will be used.
 RIACK_EXPORT int riack_put(riack_client *client, riack_object *object, riack_object** returned_object,
         riack_put_properties* props);
+
+RIACK_EXPORT int riack_put_ext(riack_client *client, riack_object *object, riack_string *bucket_type,
+        riack_object** returned_object, riack_put_properties* props, uint32_t timeout);
 
 /// Do a put with simplified parameters
 ///  Note this function is relying on strlen which might be unsafe
@@ -125,6 +132,8 @@ RIACK_EXPORT int riack_put_simple(riack_client *client, char* bucket, char* key,
 RIACK_EXPORT int riack_delete(riack_client *client, riack_string *bucket, riack_string *key,
         riack_del_properties *props);
 
+RIACK_EXPORT int riack_delete_ext(riack_client *client, riack_string *bucket, riack_string *bucket_type,
+        riack_string *key, riack_del_properties *props, uint32_t timeout);
 
 /*************************************************************************
 * 2I
@@ -135,13 +144,19 @@ typedef void(*index_query_cb_fn)(riack_client*, void*, riack_string *key);
 RIACK_EXPORT int riack_2i_query_exact(riack_client *client, riack_string *bucket, riack_string *index,
         riack_string *search_key, riack_string_list **result_keys);
 
+RIACK_EXPORT int riack_2i_query_exact_ext(riack_client *client, riack_string *bucket, riack_string *bucket_type,
+        riack_string *index, riack_string *search_key, riack_string_list **result_keys);
+
 RIACK_EXPORT int riack_2i_query_range(riack_client *client, riack_string *bucket, riack_string *index,
         riack_string *search_key_min, riack_string *search_key_max, riack_string_list **result_keys);
 
-RIACK_EXPORT int riack_2i_query_ext(riack_client *client, riack_2i_query_req *req, riack_string_list **result_keys,
+RIACK_EXPORT int riack_2i_query_range_ext(riack_client *client, riack_string *bucket, riack_string *bucket_type,
+        riack_string *index, riack_string *search_key_min, riack_string *search_key_max, riack_string_list **result_keys);
+
+RIACK_EXPORT int riack_2i_query(riack_client *client, riack_2i_query_req *req, riack_string_list **result_keys,
         riack_string **continuation_token_out);
 
-RIACK_EXPORT int riack_2i_query_stream_ext(riack_client *client, riack_2i_query_req *req,
+RIACK_EXPORT int riack_2i_query_stream(riack_client *client, riack_2i_query_req *req,
         riack_string **continuation_token_out, index_query_cb_fn callback, void *callback_arg);
 
 /*************************************************************************

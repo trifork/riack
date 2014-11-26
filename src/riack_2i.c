@@ -20,8 +20,6 @@
 
 #include <string.h>
 #include "riack_internal.h"
-#include "riack.h"
-#include "protocol/riak_msg_codes.h"
 #include "protocol/riak_kv.pb-c.h"
 
 /******************************************************************************
@@ -74,23 +72,14 @@ riack_cmd_cb_result riack_2i_query_cb(riack_client *client, RpbIndexResp* respon
     return retval;
 }
 
-int riack_2i_query(riack_client *client, RpbIndexReq* request, riack_string_list** result_keys,
-        riack_string** continuation_token, index_query_cb_fn callback, void *callback_arg)
-{
-    struct riack_2i_cb_args cb_args_cmd;
-    if (result_keys) {
-        *result_keys = riack_string_list_alloc(client);
-    }
-    cb_args_cmd.result_keys = result_keys;
-    cb_args_cmd.user_cb = callback;
-    cb_args_cmd.user_cb_arg = callback_arg;
-    cb_args_cmd.continuation_token = continuation_token;
-    return riack_perform_commmand(client, &cmd_index_query, (struct rpb_base_req const *) request,
-            (cmd_response_cb) riack_2i_query_cb, (void **) &cb_args_cmd);
-
-}
 
 int riack_2i_query_exact(riack_client *client, riack_string *bucket, riack_string *index,
+        riack_string *search_key, riack_string_list** result_keys)
+{
+    return riack_2i_query_exact_ext(client, bucket, NULL, index, search_key, result_keys);
+}
+
+int riack_2i_query_exact_ext(riack_client *client, riack_string *bucket, riack_string *bucket_type, riack_string *index,
         riack_string *search_key, riack_string_list** result_keys)
 {
     int result;
@@ -107,12 +96,24 @@ int riack_2i_query_exact(riack_client *client, riack_string *bucket, riack_strin
     req.index.len = index->len;
     req.index.data = (uint8_t*)index->value;
     req.qtype = RPB_INDEX_REQ__INDEX_QUERY_TYPE__eq;
-    result = riack_2i_query(client, &req, result_keys, 0, 0, 0);
+    if (RSTR_HAS_CONTENT_P(bucket_type)) {
+        req.type.data = (uint8_t *) bucket_type->value;
+        req.type.len = bucket_type->len;
+    }
+    result = riack_perform_2i_query(client, &req, result_keys, 0, 0, 0);
     return result;
 }
 
+
 int riack_2i_query_range(riack_client *client, riack_string *bucket, riack_string *index, riack_string *search_key_min,
         riack_string *search_key_max, riack_string_list** result_keys)
+{
+    return riack_2i_query_range_ext(client, bucket, NULL, index, search_key_min, search_key_max, result_keys);
+}
+
+int riack_2i_query_range_ext(riack_client *client, riack_string *bucket, riack_string *bucket_type, riack_string *index,
+        riack_string *search_key_min, riack_string *search_key_max,
+        riack_string_list **result_keys)
 {
     int result;
     RpbIndexReq req;
@@ -132,7 +133,11 @@ int riack_2i_query_range(riack_client *client, riack_string *bucket, riack_strin
     req.index.len = index->len;
     req.index.data = (uint8_t*)index->value;
     req.qtype = RPB_INDEX_REQ__INDEX_QUERY_TYPE__range;
-    result = riack_2i_query(client, &req, result_keys, 0, 0, 0);
+    if (RSTR_HAS_CONTENT_P(bucket_type)) {
+        req.type.data = (uint8_t *) bucket_type->value;
+        req.type.len = bucket_type->len;
+    }
+    result = riack_perform_2i_query(client, &req, result_keys, 0, 0, 0);
     return result;
 }
 
@@ -167,9 +172,14 @@ void riack_set_index_req_from_riack_req(riack_2i_query_req *req, RpbIndexReq *pb
         pbreq->continuation.data = (uint8_t*)req->continuation_token.value;
         pbreq->continuation.len = req->continuation_token.len;
     }
+    if (RSTR_HAS_CONTENT(req->bucket_type)) {
+        pbreq->has_type = 1;
+        pbreq->type.data = (uint8_t *) req->bucket_type.value;
+        pbreq->type.len = req->bucket_type.len;
+    }
 }
 
-int riack_2i_query_ext(riack_client *client, riack_2i_query_req *req,
+int riack_2i_query(riack_client *client, riack_2i_query_req *req,
         riack_string_list **result_keys, riack_string **continuation_token_out)
 {
     int result;
@@ -179,11 +189,11 @@ int riack_2i_query_ext(riack_client *client, riack_2i_query_req *req,
     }
     rpb_index_req__init(&pbreq);
     riack_set_index_req_from_riack_req(req, &pbreq);
-    result = riack_2i_query(client, &pbreq, result_keys, continuation_token_out, 0, 0);
+    result = riack_perform_2i_query(client, &pbreq, result_keys, continuation_token_out, 0, 0);
     return result;
 }
 
-int riack_2i_query_stream_ext(riack_client *client, riack_2i_query_req *req, riack_string **continuation_token_out,
+int riack_2i_query_stream(riack_client *client, riack_2i_query_req *req, riack_string **continuation_token_out,
         void(*callback)(riack_client*, void*, riack_string *key), void *callback_arg)
 {
     int result;
@@ -194,6 +204,23 @@ int riack_2i_query_stream_ext(riack_client *client, riack_2i_query_req *req, ria
     rpb_index_req__init(&pbreq);
     riack_set_index_req_from_riack_req(req, &pbreq);
     pbreq.stream = pbreq.has_stream = 1;
-    result = riack_2i_query(client, &pbreq, 0, continuation_token_out, callback, callback_arg);
+    result = riack_perform_2i_query(client, &pbreq, 0, continuation_token_out, callback, callback_arg);
     return result;
+}
+
+
+int riack_perform_2i_query(riack_client *client, RpbIndexReq* request, riack_string_list** result_keys,
+        riack_string** continuation_token, index_query_cb_fn callback, void *callback_arg)
+{
+    struct riack_2i_cb_args cb_args_cmd;
+    if (result_keys) {
+        *result_keys = riack_string_list_alloc(client);
+    }
+    cb_args_cmd.result_keys = result_keys;
+    cb_args_cmd.user_cb = callback;
+    cb_args_cmd.user_cb_arg = callback_arg;
+    cb_args_cmd.continuation_token = continuation_token;
+    return riack_perform_commmand(client, &cmd_index_query, (struct rpb_base_req const *) request,
+            (cmd_response_cb) riack_2i_query_cb, (void **) &cb_args_cmd);
+
 }

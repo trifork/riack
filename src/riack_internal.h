@@ -3,6 +3,7 @@
 #define __RIACK_INTERNAL__H__
 
 #include "protobuf-c/protobuf-c.h"
+#include "protocol/riak_kv.pb-c.h"
 #include "protocol/riak.pb-c.h"
 #include "protocol/riak_search.pb-c.h"
 #include "riack_msg.h"
@@ -99,6 +100,12 @@ typedef struct {
     void* user_cb_arg;
 } riack_mapreduce_cb_params;
 
+
+/************************************
+* riack_2i.c
+************************************/
+int riack_perform_2i_query(riack_client *client, RpbIndexReq* request, riack_string_list** result_keys,
+        riack_string** continuation_token, index_query_cb_fn callback, void *callback_arg);
 
 /************************************
 * riack_mem.c

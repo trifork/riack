@@ -108,7 +108,7 @@ int test_2i_pagination_stream() {
     req.search_min.value = min_buff;
     req.search_max.len = strlen(max_buff);
     req.search_max.value = max_buff;
-    if (riack_2i_query_stream_ext(test_client, &req, &continuation, &test_2i_pagination_stream_cb, &cnt) == RIACK_SUCCESS) {
+    if (riack_2i_query_stream(test_client, &req, &continuation, &test_2i_pagination_stream_cb, &cnt) == RIACK_SUCCESS) {
         if (cnt == 25 && continuation) {
             riack_string *continuation_inner;
             result = 0;
@@ -116,7 +116,7 @@ int test_2i_pagination_stream() {
             req.continuation_token = *continuation;
             req.max_results = 100;
 
-            if (riack_2i_query_stream_ext(test_client, &req, &continuation_inner, &test_2i_pagination_stream_cb, &cnt) == RIACK_SUCCESS) {
+            if (riack_2i_query_stream(test_client, &req, &continuation_inner, &test_2i_pagination_stream_cb, &cnt) == RIACK_SUCCESS) {
                 // Expect 4 keys since we got 5 for and need 9 in total
                 if (cnt == 46 && continuation_inner == 0) {
                     result = 0;
@@ -150,7 +150,7 @@ int test_2i_pagination() {
     req.search_min.value = min_buff;
     req.search_max.len = strlen(max_buff);
     req.search_max.value = max_buff;
-    if (riack_2i_query_ext(test_client, &req, &keys, &continuation_out) == RIACK_SUCCESS) {
+    if (riack_2i_query(test_client, &req, &keys, &continuation_out) == RIACK_SUCCESS) {
         if (keys->string_count == 5 && continuation_out) {
             riack_string *continuation_out_inner;
             result = 0;
@@ -158,7 +158,7 @@ int test_2i_pagination() {
             // Copy continuation token from out to in.
             req.continuation_token = *continuation_out;
             riack_free_string_list_p(test_client, &keys);
-            if (riack_2i_query_ext(test_client, &req, &keys, &continuation_out_inner) == RIACK_SUCCESS) {
+            if (riack_2i_query(test_client, &req, &keys, &continuation_out_inner) == RIACK_SUCCESS) {
                 // Expect 4 keys since we got 5 for and need 9 in total
                 if (keys->string_count == 4 && continuation_out_inner == 0) {
                     result = 0;
