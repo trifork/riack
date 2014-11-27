@@ -241,7 +241,7 @@ int riack_get_bucket_type_props(riack_client *client, riack_string* bucket_type,
 riack_cmd_cb_result riack_server_info_cb(riack_client *client, RpbGetServerInfoResp* response,
         struct riack_server_info** server_info)
 {
-    *server_info = RMALLOC(client, sizeof(struct riack_server_info*));
+    *server_info = RMALLOC(client, sizeof(struct riack_server_info));
     if (response->has_node) {
         (*server_info)->node = riack_string_alloc(client);
         RMALLOCCOPY(client, (*server_info)->node->value, (*server_info)->node->len, response->node.data, response->node.len);
