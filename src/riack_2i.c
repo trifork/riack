@@ -97,6 +97,7 @@ int riack_2i_query_exact_ext(riack_client *client, riack_string *bucket, riack_s
     req.index.data = (uint8_t*)index->value;
     req.qtype = RPB_INDEX_REQ__INDEX_QUERY_TYPE__eq;
     if (RSTR_HAS_CONTENT_P(bucket_type)) {
+        req.has_type = 1;
         req.type.data = (uint8_t *) bucket_type->value;
         req.type.len = bucket_type->len;
     }
@@ -134,6 +135,7 @@ int riack_2i_query_range_ext(riack_client *client, riack_string *bucket, riack_s
     req.index.data = (uint8_t*)index->value;
     req.qtype = RPB_INDEX_REQ__INDEX_QUERY_TYPE__range;
     if (RSTR_HAS_CONTENT_P(bucket_type)) {
+        req.has_type = 1;
         req.type.data = (uint8_t *) bucket_type->value;
         req.type.len = bucket_type->len;
     }
