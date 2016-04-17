@@ -56,6 +56,8 @@ struct riack_server_info {
 /************************************
 * riack_cmd.c
 ************************************/
+extern const struct pb_command cmd_start_tls;
+extern const struct pb_command cmd_auth;
 extern const struct pb_command cmd_ping;
 extern const struct pb_command cmd_set_bucket_type;
 extern const struct pb_command cmd_set_bucket_properties;

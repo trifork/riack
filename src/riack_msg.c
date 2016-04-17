@@ -28,6 +28,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include <wolfssl/ssl.h>
 
 
 void dbg_print_message(riack_pb_msg * pmsg)
@@ -55,6 +56,22 @@ void riack_message_free(riack_client *client, riack_pb_msg ** ppMsg)
 	*ppMsg = 0;
 }
 
+int riack_receive(riack_client *client, uint8_t* buff, int len) {
+	if (client->ssl) {
+		return wolfSSL_read(client->ssl, buff, len);
+	} else {
+		return sock_recv(client->sockfd, buff, len);
+	}
+}
+
+int riack_send(riack_client *client, uint8_t* data, int len) {
+	if (client->ssl) {
+		return wolfSSL_write(client->ssl, data, len);
+	} else {
+		return sock_send(client->sockfd, data, len);
+	}
+}
+
 int riack_receive_message(riack_client *client, riack_pb_msg ** msg)
 {
 	riack_pb_msg * recvMsg;
@@ -66,14 +83,14 @@ int riack_receive_message(riack_client *client, riack_pb_msg ** msg)
 	recvMsg = (riack_pb_msg *)RMALLOC(client, sizeof(riack_pb_msg));
 	recvMsg->msg_len = 0;
 	recvMsg->msg = 0;
-	rcvBytes = sock_recv(client->sockfd, (uint8_t*)&msgLenN, 4);
+	rcvBytes = riack_receive(client, (uint8_t*)&msgLenN, 4);
     if (rcvBytes == 4) {
-		rcvBytes = sock_recv(client->sockfd, &recvMsg->msg_code, 1);
+		rcvBytes = riack_receive(client, &recvMsg->msg_code, 1);
         if (rcvBytes == 1) {
 			recvMsg->msg_len = ntohl(msgLenN)-1;
             if (recvMsg->msg_len > 0) {
 				recvMsg->msg = (uint8_t*)RMALLOC(client, recvMsg->msg_len);
-				rcvBytes = sock_recv(client->sockfd, recvMsg->msg, recvMsg->msg_len);
+				rcvBytes = riack_receive(client, recvMsg->msg, recvMsg->msg_len);
                 if (rcvBytes == recvMsg->msg_len) {
 					*msg = recvMsg;
 					return recvMsg->msg_len + 5;
@@ -102,8 +119,8 @@ int riack_send_message(riack_client *client, riack_pb_msg * msg)
 		memcpy(buf+5, msg->msg, (int)msg->msg_len);
 	}
 	// first send header
-    if (sock_send(client->sockfd, buf, sendlen) != sendlen) {
-        // printf("sock_send failed to send correct number of bytes\n");
+    if (riack_send(client, buf, sendlen) != sendlen) {
+        // printf("riack_send failed to send correct number of bytes\n");
 		// Error failed to send bytes most have lost connection
 		RFREE(client, buf);
 		return -1;

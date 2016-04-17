@@ -41,6 +41,10 @@
 #define mc_RpbCounterGetReq 52
 #define mc_RpbCounterGetResp 53
 
+#define mc_RpbAuthReq 253
+#define mc_RpbAuthResp 254
+#define mc_RpbStartTls 255
+
 int riak_get_msg_description(unsigned char msg_code, char* outbuff, int maxlen);
 
 #endif /* RIAK_MSG_CODES_H_ */

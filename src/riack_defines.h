@@ -32,6 +32,9 @@
  #define RIACK_EXPORT
 #endif
 
+/* SSL supported */
+#define RIACK_SSL_SUPPORT
+
 /* Success */
 #define RIACK_SUCCESS 1
 /* Communication failed, socket closed etc. */
@@ -75,7 +78,7 @@ typedef struct _riack_allocator
 typedef struct _riack_connection_options {
 	uint32_t recv_timeout_ms;
 	uint32_t send_timeout_ms;
-    uint8_t keep_alive_enabled;
+	uint8_t keep_alive_enabled;
 } riack_connection_options;
 
 /* Riack's base string type */
@@ -109,8 +112,10 @@ typedef struct _riack_client {
     /* Riak port number (protocol buffers port) */
 	int port;
     /* Connection options */
-    riack_connection_options options;
-
+	riack_connection_options options;
+    /* SSL */
+	void* ssl_context;
+	void* ssl;
     /* Allocator to use with this client */
 	riack_allocator allocator;
 } riack_client;

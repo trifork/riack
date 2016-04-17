@@ -46,6 +46,12 @@ RIACK_EXPORT int riack_reconnect(riack_client *client);
 /// Check if the Riak server is responding
 RIACK_EXPORT int riack_ping(riack_client *client);
 
+/// Start tls
+RIACK_EXPORT int riack_start_tls(riack_client *client, const char* ca_file);
+
+/// Authentication
+RIACK_EXPORT int riack_auth(riack_client *client, riack_string *user, riack_string *password);
+
 /*************************************************************************
 * List all buckets on the server (should not be used in production)
 *************************************************************************/

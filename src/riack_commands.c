@@ -27,6 +27,27 @@
 * Commands
 ******************************************************************************/
 
+
+/* Auth command */
+const struct pb_command cmd_auth = {
+        mc_RpbAuthReq,
+        mc_RpbAuthResp,
+        (rpb_packed_size_fn) rpb_auth_req__get_packed_size,
+        (rpb_pack_fn) rpb_auth_req__pack,
+        0,
+        0
+};
+
+/* Start tls command */
+const struct pb_command cmd_start_tls = {
+        mc_RpbStartTls,
+        mc_RpbStartTls,
+        0,
+        0,
+        0,
+        0
+};
+
 /* Ping command */
 const struct pb_command cmd_ping = {
         mc_RpbPingReq,

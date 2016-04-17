@@ -1,6 +1,8 @@
 cmake_minimum_required (VERSION 2.6)
 project (Riack)
 
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/../cmake)
+
 SET(Riack_VERSION_MAJOR 1)
 SET(Riack_VERSION_MINOR 1)
 
@@ -80,6 +82,10 @@ SET(TESTS_MAIN_SRC	testsrc/test.h
 
 add_library (riack ${LIB_TYPE} ${RIACK_SRC})
 target_link_libraries(riack ${LIBS})
+
+find_package(WOLFSSL REQUIRED)
+include_directories(${WOLFSSL_INCLUDE_DIR})
+target_link_libraries(riack ${WOLFSSL_LIBRARY})
 
 INSTALL(TARGETS riack
         DESTINATION lib
