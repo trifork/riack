@@ -10,12 +10,16 @@ Make sure you have installed cmake if not find it here http://www.cmake.org/ or
 if your fortunate enough to be an OS with a package manager just install it with that.
 
 ####wolfSSL
-Riack uses wolfSSL to support SSL connections and authentication. Find it here https://github.com/wolfSSL/wolfssl
+Riack uses wolfSSL to support TLS/SSL connections and authentication. Find it here https://github.com/wolfSSL/wolfssl
 
 ###Ready
 Get a prompt and move to Riack top folder and do
 ```
 cmake src/
+```
+Or to build shared libs with tls/ssl support do
+```
+cmake -DBUILD_SHARED_LIBS=1 -DWITH_WOLFSSL=1 src/
 ```
 This will generate make files, and you can run a make afterwards, unless your on windows
 in which case I recommend generating a visual studio project this is done like this:
@@ -28,8 +32,6 @@ You can do this by passing some options to cmake which is hard to remember ;) I 
 to just edit src\cmake\Modules\FindProtoBufC.cmake lines 19 & 20.
 
 ##Examples
-To se examples of this look in the examples directory.
-Before the examples can run you must place the compiled library files in the precompiled folder (see the precompiled/README.md file for details).
 
 Connect to Riak and ping it
 ```
@@ -53,10 +55,12 @@ Connect to Riak securely and ping it
 
 riack_init();
 riack_connection_options options;
+riack_security_options security;
+riack_init_security_options(&security);
 riack_client *client = riack_new_client(0);
 riack_connect(client, "127.0.0.1", 8087, &options);
 
-riack_start_tls(client, NULL);
+riack_start_tls(client, &security);
 riack_string user;
 riack_string pw;
 user.value = "riakuser";
@@ -72,6 +76,8 @@ if (riack_ping(client) == RIACK_SUCCESS)
 riack_free(client);
 riack_cleanup();
 ```
+To see more examples of this look in the examples directory.
+Before the examples can run you must place the compiled library files in the precompiled folder (see the precompiled/README.md file for details).
 
 ##Tests
 To make all tests succeed you need a running riak server with eleveldb backend and riak search enabled in app.config.

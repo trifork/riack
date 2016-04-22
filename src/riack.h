@@ -26,6 +26,8 @@ extern riack_allocator riack_default_allocator;
 RIACK_EXPORT void riack_init();
 /// Cleanup should be called once before shutdown
 RIACK_EXPORT void riack_cleanup();
+/// Init riack_security_options to default values
+RIACK_EXPORT void riack_init_security_options(riack_security_options* options);
 
 /// Create a new RIACK client
 RIACK_EXPORT riack_client* riack_new_client(riack_allocator *allocator);
@@ -46,10 +48,11 @@ RIACK_EXPORT int riack_reconnect(riack_client *client);
 /// Check if the Riak server is responding
 RIACK_EXPORT int riack_ping(riack_client *client);
 
-/// Start tls
-RIACK_EXPORT int riack_start_tls(riack_client *client, const char* ca_file);
+/// Start Secure connection
+RIACK_EXPORT int riack_start_tls(riack_client *client, riack_security_options *options);
 
-/// Authentication
+/// Perform authentication
+/// Authentication can only be done on a secure connection
 RIACK_EXPORT int riack_auth(riack_client *client, riack_string *user, riack_string *password);
 
 /*************************************************************************
