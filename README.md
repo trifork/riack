@@ -34,7 +34,7 @@ to just edit src\cmake\Modules\FindProtoBufC.cmake lines 19 & 20.
 ##Examples
 
 Connect to Riak and ping it
-```
+```c
 #include <riack.h>
 
 riack_init();
@@ -49,8 +49,8 @@ if (riack_ping(client) == RIACK_SUCCESS)
 riack_free(client);
 riack_cleanup();
 ```
-Connect to Riak securely and ping it
-```
+Connect to Riak securely using username/password and ping it
+```c
 #include <riack.h>
 
 riack_init();
@@ -68,6 +68,33 @@ user.len = strlen(user.value);
 pw.value = "pass";
 pw.len = strlen(pw.value);
 riack_auth(client, &user, &pw);
+
+if (riack_ping(client) == RIACK_SUCCESS)
+    printf("pong");
+}
+
+riack_free(client);
+riack_cleanup();
+```
+Connect to Riak securely using certificates and ping it
+```c
+#include <riack.h>
+
+riack_init();
+riack_connection_options options;
+riack_security_options security;
+riack_init_security_options(&security);
+riack_client *client = riack_new_client(0);
+riack_connect(client, "127.0.0.1", 8087, &options);
+
+security.ca_file = "/path/to/cacert.crt";
+security.cert_file = "/path/to/client.crt";
+security.key_file = "/path/to/client.key";
+riack_start_tls(client, &security);
+riack_string user;
+user.value = "riakuser";
+user.len = strlen(user.value);
+riack_auth(client, &user, NULL);
 
 if (riack_ping(client) == RIACK_SUCCESS)
     printf("pong");
