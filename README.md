@@ -9,8 +9,8 @@ Riack uses cmake build system which means it can be compiled on most systems.
 Make sure you have installed cmake if not find it here http://www.cmake.org/ or
 if your fortunate enough to be an OS with a package manager just install it with that.
 
-####wolfSSL
-Riack uses wolfSSL to support TLS/SSL connections and authentication. Find it here https://github.com/wolfSSL/wolfssl
+####wolfSSL (optional)
+Riack uses wolfSSL to support TLS/SSL connections and authentication. Tested with wolfSSL 3.9.0. Other versions will most likely work fine. Find it here https://github.com/wolfSSL/wolfssl
 
 ###Ready
 Get a prompt and move to Riack top folder and do
@@ -38,9 +38,8 @@ Connect to Riak and ping it
 #include <riack.h>
 
 riack_init();
-riack_connection_options options;
 riack_client *client = riack_new_client(0);
-riack_connect(client, "127.0.0.1", 8087, &options);
+riack_connect(client, "127.0.0.1", 8087, 0);
 
 if (riack_ping(client) == RIACK_SUCCESS)
     printf("pong");
@@ -54,11 +53,10 @@ Connect to Riak securely using username/password and ping it
 #include <riack.h>
 
 riack_init();
-riack_connection_options options;
 riack_security_options security;
 riack_init_security_options(&security);
 riack_client *client = riack_new_client(0);
-riack_connect(client, "127.0.0.1", 8087, &options);
+riack_connect(client, "127.0.0.1", 8087, 0);
 
 riack_start_tls(client, &security);
 riack_string user;
@@ -81,11 +79,10 @@ Connect to Riak securely using certificates and ping it
 #include <riack.h>
 
 riack_init();
-riack_connection_options options;
 riack_security_options security;
 riack_init_security_options(&security);
 riack_client *client = riack_new_client(0);
-riack_connect(client, "127.0.0.1", 8087, &options);
+riack_connect(client, "127.0.0.1", 8087, 0);
 
 security.ca_file = "/path/to/cacert.crt";
 security.cert_file = "/path/to/client.crt";
@@ -94,7 +91,7 @@ riack_start_tls(client, &security);
 riack_string user;
 user.value = "riakuser";
 user.len = strlen(user.value);
-riack_auth(client, &user, NULL);
+riack_auth(client, &user, 0);
 
 if (riack_ping(client) == RIACK_SUCCESS)
     printf("pong");
