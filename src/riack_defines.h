@@ -92,9 +92,9 @@ typedef struct _riack_security_options {
 	unsigned char* cert_buffer;
 	unsigned char* key_buffer;
     /* Size of memory buffers */
-	long ca_size;
-	long cert_size;
-	long key_size;
+	size_t ca_size;
+	size_t cert_size;
+	size_t key_size;
     /* SSL/TLS session timeout in seconds */
 	unsigned int session_timeout;
 } riack_security_options;
