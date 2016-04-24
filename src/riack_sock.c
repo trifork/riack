@@ -15,6 +15,7 @@
    limitations under the License.
 */
 #define _CRT_SECURE_NO_WARNINGS
+#include "riack-config.h"
 #include "riack_sock.h"
 #include <stdlib.h>
 #include <stdio.h>
@@ -33,6 +34,11 @@
 #include <unistd.h>
 #include <netdb.h>
 #include <netinet/tcp.h>
+#endif
+
+#ifdef RIACK_HAVE_SECURITY
+#include <wolfssl/options.h>
+#include <wolfssl/ssl.h>
 #endif
 
 int sock_init(void)
@@ -195,5 +201,45 @@ int sock_send(int sockfd, uint8_t* data, int len)
 		}
 		offset += sent;
 	}
+	return offset;
+}
+
+int ssl_sock_recv(void *ssl, uint8_t* buff, int len)
+{
+	int recieved;
+	int offset = 0;
+#ifdef RIACK_HAVE_SECURITY
+	while (offset < len) {
+		recieved = wolfSSL_read(ssl, (char*)buff + offset, len - offset);
+		if (recieved == 0) {
+			if (wolfSSL_get_error(ssl, recieved) == SSL_ERROR_WANT_READ) {
+				/* Try again */
+				continue;
+			}
+			return recieved;
+		}
+		offset += recieved;
+	}
+#endif
+	return offset;
+}
+
+int ssl_sock_send(void *ssl, uint8_t* data, int len)
+{
+	int sent;
+	int offset = 0;
+#ifdef RIACK_HAVE_SECURITY
+	while (offset < len) {
+		sent = wolfSSL_write(ssl, (char*)data + offset, len - offset);
+		if (sent == 0) {
+			if (wolfSSL_get_error(ssl, sent) == SSL_ERROR_WANT_WRITE) {
+			/* Try again */
+				continue;
+			}
+			return sent;
+		}
+		offset += sent;
+	}
+#endif
 	return offset;
 }

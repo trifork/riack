@@ -15,7 +15,6 @@
    limitations under the License.
 */
 
-#include "riack-config.h"
 #include "riack_msg.h"
 #include "riack_sock.h"
 #include "protocol/riak_msg_codes.h"
@@ -31,10 +30,6 @@
 #include <string.h>
 #include <stdio.h>
 
-#ifdef RIACK_HAVE_SECURITY
-#include <wolfssl/options.h>
-#include <wolfssl/ssl.h>
-#endif
 
 void dbg_print_message(riack_pb_msg * pmsg)
 {
@@ -62,23 +57,17 @@ void riack_message_free(riack_client *client, riack_pb_msg ** ppMsg)
 }
 
 int riack_receive(riack_client *client, uint8_t* buff, int len) {
-#ifdef RIACK_HAVE_SECURITY
 	if (client->ssl) {
-		return wolfSSL_read(client->ssl, buff, len);
-	} else 
-#endif
-	{
+		return ssl_sock_recv(client->ssl, buff, len);
+	} else {
 		return sock_recv(client->sockfd, buff, len);
 	}
 }
 
 int riack_send(riack_client *client, uint8_t* data, int len) {
-#ifdef RIACK_HAVE_SECURITY
 	if (client->ssl) {
-		return wolfSSL_write(client->ssl, data, len);
-	} else
-#endif
-	{
+		return ssl_sock_send(client->ssl, data, len);
+	} else {
 		return sock_send(client->sockfd, data, len);
 	}
 }
