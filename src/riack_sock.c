@@ -105,6 +105,10 @@ int sock_open(const char* host, int port)
         // This is a recommended socket option for Riak, but not necessary
         // so we ignore the return value in any case
         setsockopt(sockfd, IPPROTO_TCP, TCP_NODELAY, &one, sizeof(one));
+#ifdef SO_NOSIGPIPE
+	/* no sigpipe on socket write, (BSD, OSX) */
+	setsockopt(sockfd, SOL_SOCKET, SO_NOSIGPIPE, &one, sizeof(one));
+#endif
         // Attempt to connect
         if (connect(sockfd, p->ai_addr, p->ai_addrlen) == 0) {
             // We succeded no need to try any more interfaces
@@ -189,7 +193,12 @@ int sock_send(int sockfd, uint8_t* data, int len)
 	int sent;
 	int offset = 0;
 	while (offset < len) {
+#ifdef MSG_NOSIGNAL
+		/* no sigpipe on socket write (Linux) */
+		sent = send(sockfd, (char*)data + offset, len - offset, MSG_NOSIGNAL);
+#else
 		sent = send(sockfd, (char*)data + offset, len - offset, 0);
+#endif
 		if (sent < 0) {
 			if (errno == EINTR) {
 			/* Try again */
@@ -242,4 +251,16 @@ int ssl_sock_send(void *ssl, uint8_t* data, int len)
 	}
 #endif
 	return offset;
+}
+
+int ssl_sock_connect(void *ssl) {
+	int err = 0;
+#ifdef RIACK_HAVE_SECURITY
+#ifdef MSG_NOSIGNAL
+	/* no sigpipe on socket write (Linux) */
+	wolfSSL_SetIOWriteFlags(ssl, MSG_NOSIGNAL);
+#endif
+	err = wolfSSL_connect(ssl);
+#endif
+	return err;
 }

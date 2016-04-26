@@ -271,7 +271,7 @@ int riack_start_tls(riack_client *client, riack_security_options *security)
 			return RIACK_ERROR_COMMUNICATION;
 		}
 		/* connect and perform handshake */
-		if (wolfSSL_connect(client->ssl) != SSL_SUCCESS) {
+		if (ssl_sock_connect(client->ssl) != SSL_SUCCESS) {
 			return RIACK_ERROR_COMMUNICATION;
 		}
 	}
