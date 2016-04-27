@@ -109,6 +109,33 @@ void riack_cleanup()
 	sock_cleanup();
 }
 
+void riack_set_error(riack_client *client, char* error, uint32_t err) {
+    /* Set error on client and free any previous error */
+	if (client->last_error) {
+		RFREE(client, client->last_error);
+	}
+	client->last_error = 0;
+	client->last_error_code = err;
+	if (error && *error) {
+		client->last_error = RMALLOC(client, strlen(error) + 1);
+		strcpy(client->last_error, error);
+	}
+}
+
+#ifdef RIACK_HAVE_SECURITY
+void riack_set_tls_error(riack_client *client, int err) {
+    /* Resolve and set tls error on client */
+	/* error messages are max 80 characters in wolfssl */
+	char buffer[81];
+	/* set null terminator to be safe */
+	buffer[0] = '\0'; //empty string
+	buffer[80] = '\0'; //end of string
+	err = wolfSSL_get_error(client->ssl, err);
+	wolfSSL_ERR_error_string(err, buffer);
+	riack_set_error(client, buffer, 0);
+}
+#endif
+
 int riack_connect(riack_client *client, const char* host, int port, riack_connection_options* options)
 {
     /* Connect a client to a riak server. options are applied to socket connection */
@@ -127,24 +154,14 @@ int riack_connect(riack_client *client, const char* host, int port, riack_connec
 			if (!sock_set_timeouts(client->sockfd, options->recv_timeout_ms, options->send_timeout_ms)) {
 				sock_close(client->sockfd);
 				client->sockfd = -1;
-				client->last_error_code = 0;
-				if (client->last_error) {
-					RFREE(client, client->last_error);
-				}
-				client->last_error = RMALLOC(client, sizeof(FAILED_TO_SET_SOCKET_TIMEOUTS));
-				strcpy(client->last_error, FAILED_TO_SET_SOCKET_TIMEOUTS);
+				riack_set_error(client, FAILED_TO_SET_SOCKET_TIMEOUTS, 0);
 				return RIACK_ERROR_COMMUNICATION;
 			}
 			if (client->options.keep_alive_enabled == 1) {
 				if (!sock_set_keep_alive(client->sockfd)) {
 					sock_close(client->sockfd);
 					client->sockfd = -1;
-					client->last_error_code = 0;
-					if (client->last_error) {
-						RFREE(client, client->last_error);
-					}
-					client->last_error = RMALLOC(client, sizeof(FAILED_TO_SET_SOCKET_OPTION_KEEPALIVE));
-					strcpy(client->last_error, FAILED_TO_SET_SOCKET_OPTION_KEEPALIVE);
+					riack_set_error(client, FAILED_TO_SET_SOCKET_OPTION_KEEPALIVE, 0);
 					return RIACK_ERROR_COMMUNICATION;
 				}
 			}
@@ -187,6 +204,7 @@ int riack_start_tls(riack_client *client, riack_security_options *security)
 {
     /* Start a secure connection to server */
 #ifdef RIACK_HAVE_SECURITY
+	int err;
 	riack_security_options default_security;
 	WOLFSSL_CTX *ctx;
 	if (!client) {
@@ -212,12 +230,14 @@ int riack_start_tls(riack_client *client, riack_security_options *security)
 		if (security->ca_buffer && security->ca_size) {
 			if (wolfSSL_CTX_load_verify_buffer(ctx, security->ca_buffer, security->ca_size, SSL_FILETYPE_PEM) != SSL_SUCCESS) {
 				wolfSSL_CTX_free(ctx);
+				riack_set_error(client, "error loading cacert", 0);
 				return RIACK_ERROR_INVALID_INPUT;
 			}
 			wolfSSL_CTX_set_verify(ctx, SSL_VERIFY_PEER, 0);
 		} else if (security->ca_file) {
 			if (wolfSSL_CTX_load_verify_locations(ctx, security->ca_file, 0) != SSL_SUCCESS) {
 				wolfSSL_CTX_free(ctx);
+				riack_set_error(client, "error loading cacert", 0);
 				return RIACK_ERROR_INVALID_INPUT;
 			}
 			wolfSSL_CTX_set_verify(ctx, SSL_VERIFY_PEER, 0);
@@ -228,11 +248,13 @@ int riack_start_tls(riack_client *client, riack_security_options *security)
 		if (security->cert_buffer && security->cert_size) {
 			if (wolfSSL_CTX_use_certificate_buffer(ctx, security->cert_buffer, security->cert_size, SSL_FILETYPE_PEM) != SSL_SUCCESS) {
 				wolfSSL_CTX_free(ctx);
+				riack_set_error(client, "error loading cert", 0);
 				return RIACK_ERROR_INVALID_INPUT;
 			}
 		} else if (security && security->cert_file) {
 			if (wolfSSL_CTX_use_certificate_file(ctx, security->cert_file, SSL_FILETYPE_PEM) != SSL_SUCCESS) {
 				wolfSSL_CTX_free(ctx);
+				riack_set_error(client, "error loading cert", 0);
 				return RIACK_ERROR_INVALID_INPUT;
 			}
 		}
@@ -240,22 +262,26 @@ int riack_start_tls(riack_client *client, riack_security_options *security)
 		if (security->key_buffer && security->key_size) {
 			if (wolfSSL_CTX_use_PrivateKey_buffer(ctx, security->key_buffer, security->key_size, SSL_FILETYPE_PEM) != SSL_SUCCESS) {
 				wolfSSL_CTX_free(ctx);
+				riack_set_error(client, "error loading key", 0);
 				return RIACK_ERROR_INVALID_INPUT;
 			}
 		} else if (security->key_file) {
 			if (wolfSSL_CTX_use_PrivateKey_file(ctx, security->key_file, SSL_FILETYPE_PEM) != SSL_SUCCESS) {
 				wolfSSL_CTX_free(ctx);
+				riack_set_error(client, "error loading key", 0);
 				return RIACK_ERROR_INVALID_INPUT;
 			}
 		}
 		/* set ciphers */
 		if (security->ciphers && wolfSSL_CTX_set_cipher_list(ctx, security->ciphers) != SSL_SUCCESS) {
 			wolfSSL_CTX_free(ctx);
+			riack_set_error(client, "error setting ciphers", 0);
 			return RIACK_ERROR_INVALID_INPUT;
 		}
 		/* set session timeout */
 		if (security->session_timeout > 0 && wolfSSL_CTX_set_timeout(ctx, security->session_timeout) != SSL_SUCCESS) {
 			wolfSSL_CTX_free(ctx);
+			riack_set_error(client, "error setting session timeout", 0);
 			return RIACK_ERROR_INVALID_INPUT;
 		};
 		client->ssl_context = ctx;
@@ -267,11 +293,13 @@ int riack_start_tls(riack_client *client, riack_security_options *security)
 			return RIACK_ERROR_COMMUNICATION;
 		}
 		/* set socket */
-		if(wolfSSL_set_fd(client->ssl, client->sockfd) != SSL_SUCCESS) {
+		if((err = wolfSSL_set_fd(client->ssl, client->sockfd)) != SSL_SUCCESS) {
+			riack_set_tls_error(client, err);
 			return RIACK_ERROR_COMMUNICATION;
 		}
 		/* connect and perform handshake */
-		if (ssl_sock_connect(client->ssl) != SSL_SUCCESS) {
+		if ((err = ssl_sock_connect(client->ssl)) != SSL_SUCCESS) {
+			riack_set_tls_error(client, err);
 			return RIACK_ERROR_COMMUNICATION;
 		}
 	}
