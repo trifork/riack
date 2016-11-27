@@ -220,10 +220,13 @@ int ssl_sock_recv(void *ssl, uint8_t* buff, int len)
 #ifdef RIACK_HAVE_SECURITY
 	while (offset < len) {
 		recieved = wolfSSL_read(ssl, (char*)buff + offset, len - offset);
-		if (recieved == 0) {
+		if (recieved <= 0) {
 			if (wolfSSL_get_error(ssl, recieved) == SSL_ERROR_WANT_READ) {
 				/* Try again */
 				continue;
+			}
+			if (recieved == 0) {
+				break;
 			}
 			return recieved;
 		}
@@ -240,10 +243,13 @@ int ssl_sock_send(void *ssl, uint8_t* data, int len)
 #ifdef RIACK_HAVE_SECURITY
 	while (offset < len) {
 		sent = wolfSSL_write(ssl, (char*)data + offset, len - offset);
-		if (sent == 0) {
+		if (sent <= 0) {
 			if (wolfSSL_get_error(ssl, sent) == SSL_ERROR_WANT_WRITE) {
 			/* Try again */
 				continue;
+			}
+			if (sent == 0) {
+				break;
 			}
 			return sent;
 		}
