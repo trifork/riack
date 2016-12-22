@@ -1,9 +1,7 @@
 #ifndef __INTS__H___
 #define __INTS__H___
 
-#if !defined(HAVE_CONFIG)
 #include "riack-config.h"
-#endif
 
 #if defined(HAVE_STDINT_H) && !defined(_WIN32)
 #include <stdint.h>

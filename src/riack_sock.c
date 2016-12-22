@@ -15,6 +15,7 @@
    limitations under the License.
 */
 #define _CRT_SECURE_NO_WARNINGS
+#include "riack-config.h"
 #include "riack_sock.h"
 #include <stdlib.h>
 #include <stdio.h>
@@ -33,6 +34,11 @@
 #include <unistd.h>
 #include <netdb.h>
 #include <netinet/tcp.h>
+#endif
+
+#ifdef RIACK_HAVE_SECURITY
+#include <wolfssl/options.h>
+#include <wolfssl/ssl.h>
 #endif
 
 int sock_init(void)
@@ -99,6 +105,10 @@ int sock_open(const char* host, int port)
         // This is a recommended socket option for Riak, but not necessary
         // so we ignore the return value in any case
         setsockopt(sockfd, IPPROTO_TCP, TCP_NODELAY, &one, sizeof(one));
+#ifdef SO_NOSIGPIPE
+	/* no sigpipe on socket write, (BSD, OSX) */
+	setsockopt(sockfd, SOL_SOCKET, SO_NOSIGPIPE, &one, sizeof(one));
+#endif
         // Attempt to connect
         if (connect(sockfd, p->ai_addr, p->ai_addrlen) == 0) {
             // We succeded no need to try any more interfaces
@@ -183,7 +193,12 @@ int sock_send(int sockfd, uint8_t* data, int len)
 	int sent;
 	int offset = 0;
 	while (offset < len) {
+#ifdef MSG_NOSIGNAL
+		/* no sigpipe on socket write (Linux) */
+		sent = send(sockfd, (char*)data + offset, len - offset, MSG_NOSIGNAL);
+#else
 		sent = send(sockfd, (char*)data + offset, len - offset, 0);
+#endif
 		if (sent < 0) {
 			if (errno == EINTR) {
 			/* Try again */
@@ -196,4 +211,62 @@ int sock_send(int sockfd, uint8_t* data, int len)
 		offset += sent;
 	}
 	return offset;
+}
+
+int ssl_sock_recv(void *ssl, uint8_t* buff, int len)
+{
+	int recieved;
+	int offset = 0;
+#ifdef RIACK_HAVE_SECURITY
+	while (offset < len) {
+		recieved = wolfSSL_read(ssl, (char*)buff + offset, len - offset);
+		if (recieved <= 0) {
+			if (wolfSSL_get_error(ssl, recieved) == SSL_ERROR_WANT_READ) {
+				/* Try again */
+				continue;
+			}
+			if (recieved == 0) {
+				break;
+			}
+			return recieved;
+		}
+		offset += recieved;
+	}
+#endif
+	return offset;
+}
+
+int ssl_sock_send(void *ssl, uint8_t* data, int len)
+{
+	int sent;
+	int offset = 0;
+#ifdef RIACK_HAVE_SECURITY
+	while (offset < len) {
+		sent = wolfSSL_write(ssl, (char*)data + offset, len - offset);
+		if (sent <= 0) {
+			if (wolfSSL_get_error(ssl, sent) == SSL_ERROR_WANT_WRITE) {
+			/* Try again */
+				continue;
+			}
+			if (sent == 0) {
+				break;
+			}
+			return sent;
+		}
+		offset += sent;
+	}
+#endif
+	return offset;
+}
+
+int ssl_sock_connect(void *ssl) {
+	int err = 0;
+#ifdef RIACK_HAVE_SECURITY
+#ifdef MSG_NOSIGNAL
+	/* no sigpipe on socket write (Linux) */
+	wolfSSL_SetIOWriteFlags(ssl, MSG_NOSIGNAL);
+#endif
+	err = wolfSSL_connect(ssl);
+#endif
+	return err;
 }

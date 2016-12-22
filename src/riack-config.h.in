@@ -1,3 +1,5 @@
+#ifndef __RIACK__CONFIG__H__
+#define __RIACK__CONFIG__H__
 
 #define Riack_VERSION_MAJOR @Riack_VERSION_MAJOR@
 #define Riack_VERSION_MINOR @Riack_VERSION_MINOR@
@@ -5,3 +7,7 @@
 #cmakedefine HAVE_STDINT_H @HAVE_STDINT_H@
 
 #cmakedefine RIACK_SHARED
+
+#cmakedefine RIACK_HAVE_SECURITY
+
+#endif // __RIACK__CONFIG__H__

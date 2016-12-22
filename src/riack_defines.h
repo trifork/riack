@@ -17,6 +17,7 @@
 #ifndef __RIACK__DEFINES__H__
 #define __RIACK__DEFINES__H__
 
+#include "riack-config.h"
 #include "ints.h"
 // #include "riack_compat.h"
 #include <stdlib.h>
@@ -75,8 +76,28 @@ typedef struct _riack_allocator
 typedef struct _riack_connection_options {
 	uint32_t recv_timeout_ms;
 	uint32_t send_timeout_ms;
-    uint8_t keep_alive_enabled;
+	uint8_t keep_alive_enabled;
 } riack_connection_options;
+
+/* Riack security options */
+typedef struct _riack_security_options {
+    /* Limit available ciphers, colon delimited list */
+	char* ciphers;
+    /* Load from file, PEM format */
+	char* ca_file;
+	char* cert_file;
+	char* key_file;
+    /* Load from memory, PEM format */
+	unsigned char* ca_buffer;
+	unsigned char* cert_buffer;
+	unsigned char* key_buffer;
+    /* Size of memory buffers */
+	size_t ca_size;
+	size_t cert_size;
+	size_t key_size;
+    /* SSL/TLS session timeout in seconds */
+	unsigned int session_timeout;
+} riack_security_options;
 
 /* Riack's base string type */
 typedef struct _riack_string {
@@ -109,8 +130,10 @@ typedef struct _riack_client {
     /* Riak port number (protocol buffers port) */
 	int port;
     /* Connection options */
-    riack_connection_options options;
-
+	riack_connection_options options;
+    /* SSL */
+	void* ssl_context;
+	void* ssl;
     /* Allocator to use with this client */
 	riack_allocator allocator;
 } riack_client;

@@ -31,4 +31,9 @@ int sock_set_keep_alive(int sockfd);
 int sock_send(int sockfd, uint8_t* data, int len);
 int sock_recv(int sockfd, uint8_t* buff, int len);
 
+int ssl_sock_send(void *ssl, uint8_t* data, int len);
+int ssl_sock_recv(void *ssl, uint8_t* buff, int len);
+
+int ssl_sock_connect(void *ssl);
+
 #endif // __RIACK__SOCK__H__

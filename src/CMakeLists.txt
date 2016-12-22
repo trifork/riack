@@ -1,6 +1,8 @@
 cmake_minimum_required (VERSION 2.6)
 project (Riack)
 
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/../cmake)
+
 SET(Riack_VERSION_MAJOR 1)
 SET(Riack_VERSION_MINOR 1)
 
@@ -8,10 +10,18 @@ SET(RIAK_TEST_SERVER_IP 127.0.0.1)
 SET(RIAK_TEST_SERVER_PB_PORT 8087)
 
 OPTION (BUILD_SHARED_LIBS "Build Shared Libraries" OFF)
-SET(CMAKE_BUILD_TYPE DEBUG)
+OPTION (WITH_WOLFSSL "Build with security (tls/ssl) support" OFF)
+
+IF(NOT CMAKE_BUILD_TYPE)
+  SET(CMAKE_BUILD_TYPE DEBUG)
+ENDIF(NOT CMAKE_BUILD_TYPE)
 
 INCLUDE (CheckIncludeFiles)
 CHECK_INCLUDE_FILES ("stdint.h" HAVE_STDINT_H)
+
+IF (WITH_WOLFSSL)
+  SET (RIACK_HAVE_SECURITY 1)
+ENDIF (WITH_WOLFSSL)
 
 SET (LIB_TYPE STATIC)
 
@@ -81,11 +91,17 @@ SET(TESTS_MAIN_SRC	testsrc/test.h
 add_library (riack ${LIB_TYPE} ${RIACK_SRC})
 target_link_libraries(riack ${LIBS})
 
+IF (WITH_WOLFSSL)
+  find_package(WOLFSSL REQUIRED)
+  include_directories(${WOLFSSL_INCLUDE_DIR})
+  target_link_libraries(riack ${WOLFSSL_LIBRARY})
+ENDIF (WITH_WOLFSSL)
+
 INSTALL(TARGETS riack
         DESTINATION lib
         PERMISSIONS OWNER_READ GROUP_READ WORLD_READ)
         
-INSTALL(FILES riack.h riack_defines.h
+INSTALL(FILES riack.h riack_defines.h ints.h riack-config.h
         DESTINATION include
         PERMISSIONS OWNER_READ GROUP_READ WORLD_READ)
 

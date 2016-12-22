@@ -2,6 +2,9 @@
 #include "riak_msg_codes.h"
 #include <string.h>
 
+const char* riak_start_tls = "Start tls";
+const char* riak_req_auth = "Auth request";
+const char* riak_rsp_auth = "Auth response";
 const char* riak_rsp_err = "Error response";
 const char* riak_req_ping = "Ping request";
 const char* riak_rsp_ping = "Ping response";
@@ -42,11 +45,20 @@ int riak_get_msg_description(unsigned char msg_code, char* outbuff, int maxlen)
 	case mc_RpbErrorResp:
 		msgstr = riak_rsp_err;
 		break;
+	case mc_RpbStartTls:
+		msgstr = riak_start_tls;
+		break;
 	case mc_RpbPingReq:
 		msgstr = riak_req_ping;
 		break;
 	case mc_RpbPingResp:
 		msgstr = riak_rsp_ping;
+		break;
+	case mc_RpbAuthReq:
+		msgstr = riak_req_auth;
+		break;
+	case mc_RpbAuthResp:
+		msgstr = riak_rsp_auth;
 		break;
 	case mc_RpbGetClientIdReq:
 		msgstr = riak_req_get_client_id;
