@@ -12,6 +12,8 @@ if your fortunate enough to be an OS with a package manager just install it with
 ####wolfSSL (optional)
 Riack uses wolfSSL to support TLS/SSL connections and authentication. Tested with wolfSSL 3.9.0. Other versions will most likely work fine. Find it here https://github.com/wolfSSL/wolfssl
 
+ECC (Elliptic Curve Cryptography) is currently not supported.
+
 ###Ready
 Get a prompt and move to Riack top folder and do
 ```
